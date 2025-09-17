@@ -1,0 +1,116 @@
+.travel-mode-section {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.travel-mode-section h3 {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.train-segment-headers {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  align-items: center;
+}
+
+.train-segment-headers .required {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+.train-segment-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.header-placeholder {
+  grid-column: 5 / 6;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon input,
+.form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.input-with-icon input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.input-icon {
+  position: absolute;
+  right: 10px;
+  color: #777;
+  pointer-events: none;
+}
+
+.delete-row-btn {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #ff4d4f;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.delete-row-btn:hover {
+  background-color: #ff4d4f;
+  color: #fff;
+}
+
+.add-train-btn-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 20px;
+}
+
+.add-train-btn {
+  background-color: transparent;
+  border: none;
+  color: #007bff;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.add-train-btn:hover {
+  text-decoration: underline;
+}
