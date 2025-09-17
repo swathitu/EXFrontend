@@ -1,0 +1,198 @@
+/* Zoho Expense–like Sidebar — PRESENTATION ONLY
+
+   Placement/height are controlled by App.css grid. */
+ 
+/* Theme vars (optional overrides) */
+
+:root{
+
+  --side-w: 240px;
+
+  --border: #e5e7eb;
+
+  --panel: #ffffff;
+
+  --text: #1f2937;
+
+  --brand: #2563eb;
+
+}
+ 
+/* Root sidebar look (NO grid-row/column here, NO height:100vh) */
+
+.sidebar {
+
+  border-right: 1px solid var(--border);
+
+  background: var(--panel);
+
+  display: flex;
+
+  flex-direction: column;
+
+  width: var(--side-w);
+
+  min-width: var(--side-w);
+
+  max-width: var(--side-w);
+
+  padding: 6px 0 10px 0;
+
+  overflow-y: auto;
+
+  overflow-x: hidden;
+
+}
+ 
+/* “My View” */
+
+.view-wrapper {
+
+  background: #f5f7fa;
+
+  border: 1px solid var(--border);
+
+  border-radius: 4px;
+
+ margin: 8px 16px 12px 16px;
+  padding: 8px 16px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+}
+
+.view-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+
+.vh-text { font-size: 13px; color: #8a94a6; font-weight: 500; margin-bottom: 2px; }
+
+.vh-current { display: inline-flex; align-items: center; gap: 6px; border: none; background: transparent; color: #222e3a; font-weight: 600; font-size: 15px; cursor: pointer; padding: 0; }
+
+.vh-user, .vh-caret { width: 18px; height: 18px; display: inline-flex; color: #667085; }
+ 
+/* Menu */
+
+.side-list { padding: 6px 8px; }
+
+.side-row { margin: 0; }
+
+.side-link {
+
+  appearance: none; background: transparent; border: 0;
+
+  display: flex; align-items: center; justify-content: space-between; position: relative; width: 100%; gap: 8px;
+
+  padding: 8px 10px 8px 16px; margin-bottom: 8px; color: var(--text);
+
+  border-radius: 8px; cursor: pointer; text-align: left; font-size: 14px; line-height: 1.25;
+
+}
+
+.side-link:hover { background: #f3f6ff; }
+
+.side-link:focus { outline: 2px solid #b9d6ff; outline-offset: 2px; }
+
+.side-left { display: inline-flex; align-items: center; gap: 10px; }
+
+.side-right { display: inline-flex; align-items: center; gap: 6px; }
+
+.icon { width: 18px; height: 18px; display: inline-flex; color: #667085; }
+
+.label { white-space: nowrap; }
+
+.side-link.active { background: var(--brand); color: #fff; font-weight: 600; }
+
+.side-link.active .icon { color: #fff; }
+ 
+/* Plus button */
+
+.plus-btn {
+
+  display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+
+  border-radius: 50%; width: 32px; height: 32px; align-items: center; justify-content: center;
+
+  cursor: pointer; border: none; background: transparent; color: inherit;
+
+}
+
+.side-link:hover .plus-btn, .side-link.active .plus-btn {
+
+  display: flex; background: #2563eb !important; color: #fff !important;
+
+}
+
+.side-link:hover .plus-btn svg, .side-link.active .plus-btn svg { stroke: #fff !important; }
+
+.sidebar.collapsed .plus-btn { display: none !important; }
+ 
+/* Nested under Masters */
+
+.nested-list { margin-top: 6px; padding-left: 28px; }
+
+.nested-list .side-link { margin-bottom: 8px; }
+ 
+/* Collapse control */
+
+.collapse-toggle { display: flex; justify-content: center; padding: 16px 0 24px; margin-top: auto; border-top: 1px solid var(--border); }
+
+.collapse-btn {
+
+  background: #fff; border: 1px solid var(--border); border-radius: 50%;
+
+  box-shadow: 0 2px 8px rgba(16,24,40,0.08); color: var(--brand);
+
+  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+
+  cursor: pointer; transition: background 0.2s, box-shadow 0.2s, transform 0.3s; transform: rotate(180deg);
+
+}
+
+.sidebar.collapsed .collapse-btn { transform: rotate(0deg); }
+ 
+/* Collapsed appearance */
+
+.sidebar.collapsed {
+
+  --side-w: 60px;
+
+  width: var(--side-w); min-width: var(--side-w); max-width: var(--side-w);
+
+}
+
+.sidebar.collapsed .vh-name, .sidebar.collapsed .label, .sidebar.collapsed .plus-btn { display: none !important; }
+
+.sidebar.collapsed .side-list { display: flex; flex-direction: column; align-items: center; padding: 6px 0; width: 100%; }
+ 
+/* Dropdown */
+
+.vh-wrap { position: relative; }
+
+.vh-dropdown {
+
+  position: absolute; left: 16px; right: 16px; top: calc(100% + 6px); z-index: 1000;
+
+  background: #fff; border: 1px solid var(--border); border-radius: 10px;
+
+  box-shadow: 0 10px 20px rgba(16,24,40,0.08), 0 2px 6px rgba(16,24,40,0.06); padding: 6px;
+
+}
+
+.vh-item { padding: 8px 10px; border-radius: 8px; font-size: 14px; color: var(--text); cursor: pointer; }
+
+.vh-item:hover, .vh-item.focused { background: #f3f6ff; }
+
+.vh-item.selected { font-weight: 600; color: var(--brand); background: #eef3ff; }
+ 
+/* Small screens – presentation only; placement handled by App.css */
+
+@media (max-width: 700px) {
+
+  .vh-dropdown { left: 12px; right: 12px; }
+
+}
+
+ 

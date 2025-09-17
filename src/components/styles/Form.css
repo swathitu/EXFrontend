@@ -1,0 +1,95 @@
+/* ===== Shared Form Styles ===== */
+ 
+.form { display: block; }
+ 
+.form__section { margin-bottom: 18px; }
+ 
+.form__title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+
+ 
+.form__grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px; /* horizontal/vertical spacing */
+  margin-bottom: 12px;
+}
+ 
+/* Column spans */
+.form__col-12 { grid-column: span 12; }
+.form__col-6  { grid-column: span 6; }
+.form__col-4  { grid-column: span 4; }
+.form__col-3  { grid-column: span 3; }
+ 
+.form__label { display: block; margin-bottom: 6px; color: #475569; font-size: 13px; }
+.form__req { color: #ef4444; }
+ 
+.form__input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+  height: 40px;
+  line-height: 40px;
+}
+ 
+.form__input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+ 
+.form__input--err { border-color: #ef4444; }
+.form__err { color: #b91c1c; font-size: 12px; margin-top: 6px; }
+ 
+.form__actions { display: flex; gap: 8px; margin-top: 10px; }
+ 
+.btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+}
+ 
+.btn:hover { filter: brightness(0.98); }
+ 
+.btn--primary {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.page-title {
+  margin: 6px 0 10px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.page-rule {
+  border-top: 1px solid #e5e7eb;
+  margin: 8px 0 16px;
+}
+ 
+/* make first form section start with some top padding */
+.form__section--top { padding-top: 2px; }
+ 
+/* section headings tighter */
+.form__subtitle {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 8px 0 8px;
+}
+ 
+
+ 
+/* main content width & centering (like Zoho’s form width) */
+.content-card {
+  max-width: 920px;   /* ~Zoho width */
+  margin: 0 auto;
+}
+ 
+
+ 
+/* sidebar shouldn’t move: nothing here; fix was removing outer .sidebar wrapper */
