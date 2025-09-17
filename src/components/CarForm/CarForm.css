@@ -1,0 +1,223 @@
+/* General Form Styling */
+.travel-mode-section {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.travel-mode-section h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* Headers for Pick-up, Drop-off, Description */
+.car-segment-headers {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 2fr auto; /* Pick-up | Drop-off | Description | Delete button space */
+  gap: 15px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #555;
+  margin-top: 10px;
+}
+
+/* Main input row for Pick-up, Drop-off, Description */
+.car-segment-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 2fr auto; /* Match headers */
+  gap: 15px;
+  align-items: flex-start; /* Align contents to the top */
+  margin-bottom: 20px;
+}
+
+/* Groups for Pick-up and Drop-off content */
+.pickup-group,
+.dropoff-group {
+  display: flex;
+  flex-direction: column; /* Stack date/time row and city dropdown */
+  gap: 10px; /* Space between date/time and city */
+}
+
+/* Date and Time on the same line */
+.datetime-row {
+  display: flex;
+  gap: 5px; /* Space between date input and time input */
+  align-items: center;
+}
+
+/* Input with Icon Styling */
+.input-with-icon {
+  position: relative;
+  display: flex; /* Ensures icon is alongside input */
+  align-items: center;
+  flex-grow: 1;
+}
+
+.input-with-icon input {
+  padding-right: 30px; /* Space for the icon */
+  flex-grow: 1;
+}
+
+.input-icon {
+  position: absolute;
+  right: 10px;
+  pointer-events: none; /* Allows clicks to pass through to input */
+  font-size: 1rem;
+}
+
+/* Common Form Group Styling */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  color: #666;
+  display: none; /* Hide individual LabeledInput/Dropdown labels as headers are present */
+}
+
+/* Explicitly show label for Car Type */
+.car-type-dropdown label {
+  display: block;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+/* Specific Input/Group Styles */
+.date-input {
+  flex-grow: 1;
+}
+
+.time-input {
+  width: 80px; /* Adjust width for time input */
+  flex-shrink: 0;
+}
+
+.city-select select {
+  padding-right: 30px; /* Space for default dropdown arrow */
+}
+
+/* Required field indicator */
+.required {
+  color: #d9534f;
+  font-weight: bold;
+}
+
+/* Preferences Row (Car Type and Driver Needed) */
+.car-preferences-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 2fr auto; /* Align with main rows, using description column for driver needed */
+  gap: 15px;
+  align-items: center;
+  margin-top: 10px; /* Space from the row above */
+  padding-top: 15px;
+  border-top: 1px solid #eee; /* Separator line */
+}
+
+.car-preferences-row .form-group {
+    margin-bottom: 5px; /* Remove default form-group margin */
+}
+
+
+/* Car Type Dropdown */
+.car-type-dropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.car-type-dropdown select {
+  min-width: 150px; /* Ensure dropdown has enough width */
+}
+
+/* Driver Needed Radio Group */
+.driver-needed-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  grid-column: 2 / span 1; /* Position in the second column (Drop-off's space) */
+}
+
+.driver-needed-label {
+  font-weight: normal;
+  color: #666;
+}
+
+.radio-group-horizontal {
+  display: flex;
+  gap: 15px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+/* Hide the default form-group labels for datetime and city selects because we have headers */
+.datetime-row .form-group label,
+.city-select label {
+    display: none;
+}
+
+/* Placeholders for grid alignment */
+.preferences-placeholder, .delete-placeholder {
+    /* These fill up empty grid cells for alignment */
+    visibility: hidden; /* Hide them visually */
+}
+.header-placeholder {
+    visibility: hidden;
+}
+
+
+/* Buttons */
+.delete-row-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 1.2rem;
+  color: #d9534f;
+  transition: transform 0.2s ease-in-out;
+}
+
+.delete-row-btn:hover {
+  transform: scale(1.1);
+}
+
+.add-car-btn-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+
+.add-car-btn {
+  background-color: transparent;
+  border: none;
+  color: #007bff;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.add-car-btn:hover {
+  text-decoration: underline;
+}
