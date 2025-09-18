@@ -4,7 +4,7 @@ import "./styles/Sidebar.css";
 // ---------------- Menu definitions ----------------
 const MENU = [
   { key: "home", label: "Home", icon: "home" },
-  { key: "trips", label: "Trips", icon: "trips", hasPlus: true },
+  { key: "trip", label: "Trip", icon: "trip", hasPlus: true },
   { key: "masters", label: "Masters", icon: "settings", isExpandable: true },
 ];
 
@@ -46,7 +46,7 @@ const Icon = ({ name }) => {
       return (<svg {...common}><path d="M12 5v14M5 12h14"/></svg>);
     case "home":
       return (<svg {...common}><path d="M3 10.5l9-7 9 7"/><path d="M9 22V12h6v10"/></svg>);
-    case "trips":
+    case "trip":
       return (<svg {...common}><path d="M3 10h18l-1.5 9a2 2 0 0 1-2 1.7H6.5a2 2 0 0 1-2-1.7L3 10z"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/></svg>);
     case "settings":
       return (<svg {...common}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 12 8.6a1.65 1.65 0 0 0 1.65-1.35l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 15 12c0 .3.08.6.2.86z"/></svg>);
