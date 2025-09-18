@@ -87,7 +87,7 @@ function AppShell() {
     if (key === "home") navigate("/home");
     else if (key === "location") navigate("/masters/location");
     else if (key === "departments") navigate("/masters/department");
-    else if (key === "trips") navigate("/trips");
+    else if (key === "trip") navigate("/trip");
   };
 
   return (
