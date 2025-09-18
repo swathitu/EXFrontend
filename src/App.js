@@ -84,7 +84,7 @@ const handleSelectFromSidebar = (key) => {
 <Route path="/" element={<Navigate to="/dashboard" replace />} />
 <Route path="/dashboard" element={<h1>Welcome to Zoho Expense</h1>} />
 <Route path="/home" element={<Home />} />
-<Route path="/trip" element={<Trip />} />
+<Route path="/trips" element={<Trips />} />
 <Route path="/masters/location" element={<LocationList />} />
 <Route
   path="/masters/location/new"
