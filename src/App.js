@@ -10,7 +10,7 @@ import Sidebar from "./components/Sidebar";
 
 import Footer from "./components/Footer";
 import Home from "./components/Home"
-import Trip from "./components/Trip/Trip";
+import Trips from "./components/Trips";
 import LocationList from "./components/masters/LocationList";
 import LocationForm from "./components/masters/LocationForm";
  
@@ -58,7 +58,7 @@ const handleSelectFromSidebar = (key) => {
   if (key === "home") navigate("/home");
     else if (key === "location") navigate("/masters/location");
     else if (key === "departments") navigate("/masters/department");
-    else if (key === "trip") navigate("/trip");
+    else if (key === "trips") navigate("/trips");
 };
 
  
@@ -84,7 +84,7 @@ const handleSelectFromSidebar = (key) => {
 <Route path="/" element={<Navigate to="/dashboard" replace />} />
 <Route path="/dashboard" element={<h1>Welcome to Zoho Expense</h1>} />
 <Route path="/home" element={<Home />} />
-<Route path="/trip" element={<Trip />} />
+<Route path="/trips" element={<Trips />} />
 <Route path="/masters/location" element={<LocationList />} />
 <Route
   path="/masters/location/new"
