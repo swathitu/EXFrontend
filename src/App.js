@@ -10,7 +10,7 @@ import Sidebar from "./components/Sidebar";
 
 import Footer from "./components/Footer";
 import Home from "./components/Home"
-import Trip from "./components/Trip/Trip";
+import Trips from "./components/Trips";
 import LocationList from "./components/masters/LocationList";
 import LocationForm from "./components/masters/LocationForm";
  
@@ -55,13 +55,10 @@ function AppShell() {
   
 
 const handleSelectFromSidebar = (key) => {
-  if (key === "home") {
-    navigate("/home");
-  } else if (key === "location") {
-    navigate("/masters/location");
-  } else if (key === "trip") {
-    navigate("/trip");
-  }
+  if (key === "home") navigate("/home");
+    else if (key === "location") navigate("/masters/location");
+    else if (key === "departments") navigate("/masters/department");
+    else if (key === "trips") navigate("/trips");
 };
 
  
