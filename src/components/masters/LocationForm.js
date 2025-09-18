@@ -1,8 +1,8 @@
 // src/components/masters/LocationForm.js
 
 import React, { useState } from "react";
-
-import "../styles/Form.css"; // ✅ only this css import
+import { createLocation } from "../../api/locations";
+import "../styles/Form.css"; // keep single import
  
 const EMPTY = {
 
@@ -51,6 +51,7 @@ export default function LocationForm({
   const [form, setForm] = useState(EMPTY);
 
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
  
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
  
@@ -64,24 +65,95 @@ export default function LocationForm({
 
   };
  
-const submit = (e) => {
-  e.preventDefault();
-  console.log("Submit clicked");
+  // Submit handler that calls your REST API
 
-  const eobj = validate();
-  setErrors(eobj);
-  if (Object.keys(eobj).length) return;
+  const submit = async (e) => {
 
-  console.log("Calling onSave with:", form); // ✅ Add this
-  onSave?.(form);
-};
+    e.preventDefault();
+ 
+    const eobj = validate();
 
+    setErrors(eobj);
+
+    if (Object.keys(eobj).length) return;
+ 
+    // Map UI state -> API payload
+
+    const payload = {
+
+      name: form.name,
+
+      address: {
+
+        street1: form.street1 || "",
+
+        street2: form.street2 || "",
+
+        city: form.city || "",
+
+        state: form.state || "",
+
+        zip: form.zip || "",
+
+      },
+
+      phone: form.phone || "",
+
+      fax: form.fax || "",
+
+      website: form.website || "",
+
+      gstin: form.gstin || "",
+
+      primary_contact_id: form.primaryContact || null,
+
+    };
+ 
+    try {
+
+      setSaving(true);
+
+      const result = await createLocation(payload); // <-- API call
+
+      // If App.js passed a navigation handler, trigger it
+
+      onSave?.(result);
+
+    } catch (err) {
+
+      // Show a friendly error
+
+      alert(err?.message || "Failed to save location");
+
+      console.error("Save location failed:", err);
+
+    } finally {
+
+      setSaving(false);
+
+    }
+
+  };
+ 
  
   return (
 <form onSubmit={submit} className="form">
 
-      {/* New Location */}
-<div className="form__section">
+<div className="form__header">
+<h1 className="page-title">New Location</h1>
+<button
+      type="button"
+      className="form__close"
+      onClick={onCancel}
+      aria-label="Close"
+>
+      ×
+</button>
+</div>
+<div className="page-rule" />
+ 
+      {/* Location Name */}
+<div className="form__section form__section--top">
 <div className="form__grid">
 <label className="form__col-12">
 <span className="form__label">
@@ -106,66 +178,92 @@ const submit = (e) => {
 </div>
  
       {/* Company Address */}
-{/* Company Address */}
 <div className="form__section">
-  <div className="form__subtitle">Company Address</div>
-  <div className="form__grid">
-    <label className="form__col-12">
-      <span className="form__label">Street 1</span>
-      <input
-        className="form__input"
-        value={form.street1}
-        onChange={(e) => set("street1", e.target.value)}
-        placeholder="Street"
-      />
-    </label>
+<div className="form__subtitle">Company Address</div>
+<div className="form__grid">
+<label className="form__col-12">
+<span className="form__label">Street 1</span>
+<input
 
-    <label className="form__col-6">
-      <span className="form__label">Street 2</span>
-      <input
-        className="form__input"
-        value={form.street2}
-        onChange={(e) => set("street2", e.target.value)}
-        placeholder="Street"
-      />
-    </label>
+              className="form__input"
 
-    <label className="form__col-6">
-      <span className="form__label">City</span>
-      <input
-        className="form__input"
-        value={form.city}
-        onChange={(e) => set("city", e.target.value)}
-        placeholder="City"
-      />
-    </label>
+              value={form.street1}
 
-    <label className="form__col-6">
-      <span className="form__label">State</span>
-      <select
-        className="form__input"
-        value={form.state}
-        onChange={(e) => set("state", e.target.value)}
-      >
-        <option value="">Select</option>
-        {states.map((s) => (
-          <option key={s} value={s}>{s}</option>
-        ))}
-      </select>
-    </label>
+              onChange={(e) => set("street1", e.target.value)}
 
-    <label className="form__col-6">
-      <span className="form__label">Zip Code</span>
-      <input
-        className="form__input"
-        value={form.zip}
-        onChange={(e) => set("zip", e.target.value)}
-        placeholder="Zip Code"
-      />
-    </label>
-  </div>
+              placeholder="Street"
+
+            />
+</label>
+ 
+          <label className="form__col-6">
+<span className="form__label">Street 2</span>
+<input
+
+              className="form__input"
+
+              value={form.street2}
+
+              onChange={(e) => set("street2", e.target.value)}
+
+              placeholder="Street"
+
+            />
+</label>
+ 
+          <label className="form__col-6">
+<span className="form__label">City</span>
+<input
+
+              className="form__input"
+
+              value={form.city}
+
+              onChange={(e) => set("city", e.target.value)}
+
+              placeholder="City"
+
+            />
+</label>
+ 
+          <label className="form__col-6">
+<span className="form__label">State</span>
+<select
+
+              className="form__input"
+
+              value={form.state}
+
+              onChange={(e) => set("state", e.target.value)}
+>
+<option value="">Select</option>
+
+              {states.map((s) => (
+<option key={s} value={s}>
+
+                  {s}
+</option>
+
+              ))}
+</select>
+</label>
+ 
+          <label className="form__col-6">
+<span className="form__label">Zip Code</span>
+<input
+
+              className="form__input"
+
+              value={form.zip}
+
+              onChange={(e) => set("zip", e.target.value)}
+
+              placeholder="Zip Code"
+
+            />
+</label>
 </div>
-
+</div>
  
       {/* Other Details */}
 <div className="form__section">
@@ -185,7 +283,8 @@ const submit = (e) => {
 
             />
 </label>
-<label className="form__col-6">
+ 
+          <label className="form__col-6">
 <span className="form__label">Fax</span>
 <input
 
@@ -199,7 +298,8 @@ const submit = (e) => {
 
             />
 </label>
-<label className="form__col-12">
+ 
+          <label className="form__col-12">
 <span className="form__label">Website</span>
 <input
 
@@ -216,43 +316,58 @@ const submit = (e) => {
 </div>
 </div>
  
-    {/* GSTIN / Primary Contact */}
+      {/* GSTIN / Primary Contact */}
 <div className="form__section">
-  <div className="form__grid">
-    <label className="form__col-12">
-      <span className="form__label">GSTIN</span>
-      <input
-        className="form__input"
-        value={form.gstin}
-        onChange={(e) => set("gstin", e.target.value)}
-        placeholder="GSTIN"
-      />
-    </label>
+<div className="form__grid">
+<label className="form__col-12">
+<span className="form__label">GSTIN</span>
+<input
 
-    <label className="form__col-12">
-      <span className="form__label">Primary Contact</span>
-      <select
-        className="form__input"
-        value={form.primaryContact}
-        onChange={(e) => set("primaryContact", e.target.value)}
-      >
-        <option value="">Select</option>
-        {contacts.map((u) => (
-          <option key={u.id || u} value={u.id || u}>
-            {u.name || u}
-          </option>
-        ))}
-      </select>
-    </label>
-  </div>
+              className="form__input"
+
+              value={form.gstin}
+
+              onChange={(e) => set("gstin", e.target.value)}
+
+              placeholder="GSTIN"
+
+            />
+</label>
+ 
+          <label className="form__col-12">
+<span className="form__label">Primary Contact</span>
+<select
+
+              className="form__input"
+
+              value={form.primaryContact}
+
+              onChange={(e) => set("primaryContact", e.target.value)}
+>
+<option value="">Select</option>
+
+              {contacts.map((u) => (
+<option key={u.id || u} value={u.id || u}>
+
+                  {u.name || u}
+</option>
+
+              ))}
+</select>
+</label>
 </div>
-
-
+</div>
  
       {/* Actions */}
-<div className="form__actions">
-<button type="submit" className="btn btn--primary">Save</button>
-<button type="button" className="btn" onClick={onCancel}>Cancel</button>
+<div className="form__actions form__actions--end">
+<button type="submit" className="btn btn--primary">
+
+          Save
+</button>
+<button type="button" className="btn" onClick={onCancel}>
+
+          Cancel
+</button>
 </div>
 </form>
 
