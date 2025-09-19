@@ -1,17 +1,17 @@
+// src/api/departments.js
 
-const FN = "/server/ex_location_data_function/"; // Catalyst function
-
+const FN = "/server/ex_department_function"; // no trailing slash
+ 
 async function http(path, { method = "GET", body } = {}) {
-   console.log("request coming inside");
-  const res = await fetch(`${path}`, {
+
+  const res = await fetch(path, {
 
     method,
 
     headers: { "Content-Type": "application/json" },
 
     body: body ? JSON.stringify(body) : undefined,
- 
-    
+
   });
  
   const text = await res.text();
@@ -36,14 +36,20 @@ async function http(path, { method = "GET", body } = {}) {
 
 }
  
-// Create new Location
+// Heads for the Department Head dropdown
 
-export function createLocation(payload) {
+export function listDeptHeads() {
+
+  return http(`${FN}/Heads`, { method: "GET" });
+
+}
+ 
+// Create Department
+
+export function createDepartment(payload) {
 
   return http(`${FN}/Add`, { method: "POST", body: payload });
 
 }
- 
-// Add more later (update, delete, list…)
 
  

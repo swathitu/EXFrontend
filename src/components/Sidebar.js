@@ -5,6 +5,7 @@ import "./styles/Sidebar.css";
 const MENU = [
   { key: "home", label: "Home", icon: "home" },
   { key: "trip", label: "Trip", icon: "trip", hasPlus: true },
+  { key: "trip-data", label: "Trip Data View", icon: "trip" },
   { key: "masters", label: "Masters", icon: "settings", isExpandable: true },
 ];
 
@@ -12,6 +13,7 @@ const MASTER_MENU = [
   { key: "users", label: "User Master", icon: "user-master", hasPlus: true },
   { key: "departments", label: "Department", icon: "department-master", hasPlus: true },
   { key: "location", label: "Location", icon: "location-master", hasPlus: true },
+ 
 ];
 
 const VIEW_OPTIONS = [
