@@ -1,6 +1,6 @@
 
-const FN = "/server/ex_location_data_function/"; // Catalyst function
 
+const FN = "/server/ex_location_data_function/"; // Catalyst functio
 async function http(path, { method = "GET", body } = {}) {
    console.log("request coming inside");
   const res = await fetch(`${path}`, {
