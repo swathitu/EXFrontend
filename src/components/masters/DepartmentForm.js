@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 
 import "../styles/Form.css";
+import { createDepartment } from "../../api/departments";
  
 const EMPTY = {
 

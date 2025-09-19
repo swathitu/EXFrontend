@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 
 import "./App.css";
  
@@ -23,6 +23,35 @@ import DepartmentList from "./components/masters/DepartmentList";
 import DepartmentForm from "./components/masters/DepartmentForm";
 import UserList from "./components/masters/UserList";
 import UserForm from "./components/masters/UserForm";
+import TripDataView from "./components/Trip/TripDataView";
+
+import { listDeptHeads } from "./api/departments";
+
+//Loading department head from backend for the Head dropdown in DepartmentForm
+function DepartmentFormLoader({ onSave, onCancel }) {
+  const [heads, setHeads] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState("");
+ 
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const data = await listDeptHeads();       // calls /Heads
+        setHeads(Array.isArray(data?.data) ? data.data : []);
+      } catch (e) {
+        setError(e.message || "Failed to load department heads");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+ 
+  if (loading) return <div>Loading department heads…</div>;
+  if (error)   return <div style={{ color: "crimson" }}>Error: {error}</div>;
+ 
+  return <DepartmentForm users={heads} onSave={onSave} onCancel={onCancel} />;
+}
+
 const USERS  = [{ id: "u1", name: "Alice" }, { id: "u2", name: "Bob" }];
 const ROLES = [
   { id: "submitter", name: "Submitter" },
@@ -73,7 +102,7 @@ function AppShell() {
     if (key === "location") navigate("/masters/location/new");
     if (key === "departments") navigate("/masters/department/new");
     if (key === "users") navigate("/masters/users/new");
-    else if (key === "users") navigate("/masters/users"); 
+     
 
   };
  
@@ -83,6 +112,8 @@ function AppShell() {
     else if (key === "location") navigate("/masters/location");
     else if (key === "departments") navigate("/masters/department");
     else if (key === "trip") navigate("/trip");
+    else if (key === "users") navigate("/masters/users");
+    else if (key === "trip-data") navigate("/trip-data");
    
 
   };
@@ -108,6 +139,7 @@ function AppShell() {
 <Route path="/dashboard" element={<h1>Welcome to Zoho Expense</h1>} />
 <Route path="/home" element={<Home />} />
 <Route path="/trip" element={<Trip />} />
+<Route path="/trip-data" element={<TripDataView />} />
 <Route path="/masters/location" element={<LocationList />} />
 <Route
 
@@ -137,8 +169,7 @@ function AppShell() {
 <Route
   path="/masters/department/new"
   element={
-<DepartmentForm
-      users={USERS}                 // supply your user list for the Head dropdown
+<DepartmentFormLoader
       onSave={() => navigate("/masters/department")}
       onCancel={() => navigate("/masters/department")}
     />
