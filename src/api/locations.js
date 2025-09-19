@@ -1,10 +1,10 @@
-const BASE =
+// const BASE =
 
-  "https://expense-management-60046787871.development.catalystserverless.in";
+//   "https://expense-management-60046787871.development.catalystserverless.in";
 
 const FN = "/server/ex_location_data_function/"; // Catalyst function
 
-alert("API URL: " + BASE); 
+// alert("API URL: " + BASE); 
 async function http(path, { method = "GET", body } = {}) {
    console.log("request coming inside");
   const res = await fetch(`${path}`, {
