@@ -13,7 +13,7 @@ const LabeledInput = ({
   className = "",
   icon,
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <div className="input-with-icon">
       <input
@@ -38,7 +38,7 @@ const LabeledDropdown = ({
   options,
   className = "",
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <select name={name} value={value} onChange={onChange}>
       {options.map((option) => (
@@ -100,15 +100,9 @@ const BusForm = ({ onDataChange }) => {
       <h3>Bus Travel Details 🚌</h3>
       {busSegments.map((segment, index) => (
         <React.Fragment key={index}>
-          <div className="bus-segment-headers">
-            <span className="required">DEPART FROM *</span>
-            <span className="required">ARRIVE AT *</span>
-            <span className="required">DEPARTURE DATE *</span>
-            <span>DESCRIPTION</span>
-            {busSegments.length > 1 && <span className="header-placeholder"></span>}
-          </div>
           <div className="bus-segment-row">
             <LabeledDropdown
+              label="Depart From*" // Added this label}
               name="departFrom"
               value={segment.departFrom}
               onChange={(e) => handleSegmentChange(e, index)}
@@ -117,6 +111,7 @@ const BusForm = ({ onDataChange }) => {
               className="city-select-from"
             />
             <LabeledDropdown
+              label="Arrive At*" // Added this label
               name="arriveAt"
               value={segment.arriveAt}
               onChange={(e) => handleSegmentChange(e, index)}
@@ -125,6 +120,7 @@ const BusForm = ({ onDataChange }) => {
               className="city-select-to"
             />
             <LabeledInput
+              label="Departure Date*" // Added this label
               type="date"
               name="departureDate"
               value={segment.departureDate}
@@ -132,9 +128,9 @@ const BusForm = ({ onDataChange }) => {
               placeholder="eg: 31 Jan 2025"
               required={true}
               className="date-input"
-              icon="🗓️"
             />
             <LabeledInput
+              label="Description" // Added this label
               type="text"
               name="description"
               value={segment.description}

@@ -13,7 +13,7 @@ const LabeledInput = ({
   className = "",
   icon,
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <div className="input-with-icon">
       <input
@@ -38,7 +38,7 @@ const LabeledDropdown = ({
   options,
   className = "",
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <select name={name} value={value} onChange={onChange}>
       {options.map((option) => (
@@ -62,9 +62,13 @@ const CarForm = ({ onDataChange }) => {
 
   const carTypeOptions = [
     { value: "", label: "Select" },
-    { value: "sedan", label: "Sedan" },
+    { value: "small", label: "Small" },
+    { value: "medium", label: "Medium" },
+    { value: "large", label: "Large" },
+    { value: "estate", label: "Estate" },
+    { value: "premium", label: "Premium" },
+    { value: "people carrier", label: "People Carrier" },
     { value: "suv", label: "SUV" },
-    { value: "van", label: "Van" },
   ];
 
   const [carSegments, setCarSegments] = useState([
@@ -123,17 +127,11 @@ const CarForm = ({ onDataChange }) => {
       <h3>Car Rental Details 🚗</h3>
       {carSegments.map((segment, index) => (
         <React.Fragment key={index}>
-          <div className="car-segment-headers">
-            <span className="required">PICK-UP *</span>
-            <span className="required">DROP-OFF *</span>
-            <span>DESCRIPTION</span>
-            {carSegments.length > 1 && <span className="header-placeholder"></span>}
-          </div>
           <div className="car-segment-row">
             <div className="pickup-group">
               <div className="datetime-row">
                 <LabeledInput
-                  label="Pick-Up Date" // Added this label
+                  label="Pick-Up Date*" // Added this label
                   type="date"
                   name="pickUpDate"
                   value={segment.pickUpDate}
@@ -141,10 +139,9 @@ const CarForm = ({ onDataChange }) => {
                   placeholder="dd-mm-yyyy"
                   required={true}
                   className="date-input"
-                  icon="🗓️"
                 />
                 <LabeledInput
-                  label="Pick-Up Time" // Added this label
+                  label="Time*" // Added this label
                   type="time"
                   name="pickUpTime"
                   value={segment.pickUpTime}
@@ -154,7 +151,7 @@ const CarForm = ({ onDataChange }) => {
                 />
               </div>
               <LabeledDropdown
-                label="Pick-Up Location" // Added this label
+                label="Pick-Up Location*" // Added this label
                 name="pickUpLocation"
                 value={segment.pickUpLocation}
                 onChange={(e) => handleSegmentChange(e, index)}
@@ -166,7 +163,7 @@ const CarForm = ({ onDataChange }) => {
             <div className="dropoff-group">
               <div className="datetime-row">
                 <LabeledInput
-                  label="Drop-Off Date" // Added this label
+                  label="Drop-Off Date*" // Added this label
                   type="date"
                   name="dropOffDate"
                   value={segment.dropOffDate}
@@ -174,10 +171,9 @@ const CarForm = ({ onDataChange }) => {
                   placeholder="dd-mm-yyyy"
                   required={true}
                   className="date-input"
-                  icon="🗓️"
                 />
                 <LabeledInput
-                  label="Drop-Off Time" // Added this label
+                  label="Time*" // Added this label
                   type="time"
                   name="dropOffTime"
                   value={segment.dropOffTime}
@@ -187,7 +183,7 @@ const CarForm = ({ onDataChange }) => {
                 />
               </div>
               <LabeledDropdown
-                label="Drop-Off Location" // Added this label
+                label="Drop-Off Location*" // Added this label
                 name="dropOffLocation"
                 value={segment.dropOffLocation}
                 onChange={(e) => handleSegmentChange(e, index)}
@@ -197,7 +193,7 @@ const CarForm = ({ onDataChange }) => {
               />
             </div>
             <LabeledInput
-              label="Description" // Added this label
+              label="Description"
               type="text"
               name="description"
               value={segment.description}

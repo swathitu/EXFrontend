@@ -13,7 +13,7 @@ const LabeledInput = ({
   className = "",
   icon,
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <div className="input-with-icon">
       <input
@@ -38,7 +38,7 @@ const LabeledDropdown = ({
   options,
   className = "",
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <select name={name} value={value} onChange={onChange}>
       {options.map((option) => (
@@ -100,16 +100,9 @@ const TrainForm = ({ onDataChange }) => {
       <h3>Train Travel Details 🚆</h3>
       {trainSegments.map((segment, index) => (
         <React.Fragment key={index}>
-          <div className="train-segment-headers">
-            <span className="required">DEPART FROM *</span>
-            <span className="required">ARRIVE AT *</span>
-            <span className="required">DEPARTURE DATE *</span>
-            <span>DESCRIPTION</span>
-            {trainSegments.length > 1 && <span className="header-placeholder"></span>}
-          </div>
           <div className="train-segment-row">
             <LabeledDropdown
-              label="Depart From"
+              label="Depart From*"
               name="departFrom"
               value={segment.departFrom}
               onChange={(e) => handleSegmentChange(e, index)}
@@ -118,7 +111,7 @@ const TrainForm = ({ onDataChange }) => {
               className="city-select-from"
             />
             <LabeledDropdown
-              label="Arrive At"
+              label="Arrive At*"
               name="arriveAt"
               value={segment.arriveAt}
               onChange={(e) => handleSegmentChange(e, index)}
@@ -127,7 +120,7 @@ const TrainForm = ({ onDataChange }) => {
               className="city-select-to"
             />
             <LabeledInput
-              label="Departure Date"
+              label="Departure Date*"
               type="date"
               name="departureDate"
               value={segment.departureDate}
@@ -135,7 +128,6 @@ const TrainForm = ({ onDataChange }) => {
               placeholder="dd-mm-yyyy"
               required={true}
               className="date-input"
-              icon="🗓️"
             />
             <LabeledInput
               label="Description"

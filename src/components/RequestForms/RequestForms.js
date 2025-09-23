@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./RequestForms.css";
 import FlightForm from "../FlightForm/FlightForm";
 import HotelForm from "../HotelForm/HotelForm";
@@ -51,6 +51,26 @@ const LabeledDropdown = ({
   </div>
 );
 
+const LabeledDropdown1 = ({
+  label,
+  name,
+  value,
+  onChange,
+  options,
+  required = false,
+}) => (
+  <div className="form-group2">
+    {label && <label>{label}</label>}
+    <select name={name} value={value} onChange={onChange} required={required}>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
 // New reusable Radio Group Component
 const LabeledRadioGroup = ({ label, name, options, value, onChange }) => (
   <div className="form-group1">
@@ -76,14 +96,11 @@ const LabeledRadioGroup = ({ label, name, options, value, onChange }) => (
 const RequestForms = () => {
   const [tripName, setTripName] = useState("");
   const [travelType, setTravelType] = useState("domestic");
-  const [tripStartDate, setTripStartDate] = useState("");
-  const [tripEndDate, setTripEndDate] = useState("");
-  const [activity, setActivity] = useState("");
-  const [donor, setDonor] = useState("");
-  const [conditionArea, setConditionArea] = useState("");
-  const [location, setLocation] = useState("");
-  const [branch, setBranch] = useState("");
-  const [bookingType, setBookingType] = useState("");
+  const [activity, setActivity] = useState("select Activity");
+  const [donor, setDonor] = useState("select Donor");
+  const [conditionArea, setConditionArea] = useState("select Condition Area");
+  const [location, setLocation] = useState("select Location");
+  const [branch, setBranch] = useState("select Branch");
   const [destinationCountry, setDestinationCountry] = useState("");
   const [visaRequired, setVisaRequired] = useState("no");
   const [activeTravelModes, setActiveTravelModes] = useState([]);
@@ -92,6 +109,46 @@ const RequestForms = () => {
   const [carFormData, setCarFormData] = useState([]);
   const [busFormData, setBusFormData] = useState([]);
   const [trainFormData, setTrainFormData] = useState([]);
+  const [apiData, setApiData] = useState({
+    activities: [],
+    donors: [],
+    conditionAreas: [],
+    locations: [],
+    branches: [],
+  });
+
+
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      try {
+        const response = await fetch("/server/insertData/");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        
+        const customDataArray = result.data.map(item => item.customData);
+        
+        const uniqueActivities = [...new Set(customDataArray.map(item => item.Activity))];
+        const uniqueDonors = [...new Set(customDataArray.map(item => item.Donor))];
+        const uniqueConditionAreas = [...new Set(customDataArray.map(item => item.conditionArea))];
+        const uniqueLocations = [...new Set(customDataArray.map(item => item.Location))];
+        const uniqueBranches = [...new Set(customDataArray.map(item => item.Branch))];
+
+        setApiData({
+          activities: uniqueActivities.map(val => ({ value: val, label: val })),
+          donors: uniqueDonors.map(val => ({ value: val, label: val })),
+          conditionAreas: uniqueConditionAreas.map(val => ({ value: val, label: val })),
+          locations: uniqueLocations.map(val => ({ value: val, label: val })),
+          branches: uniqueBranches.map(val => ({ value: val, label: val })),
+        });
+      } catch (error) {
+        console.error("Error fetching dropdown data:", error);
+      }
+    };
+    
+    fetchDropdownData();
+  }, []); 
 
   const handleModeToggle = (mode) => {
     setActiveTravelModes((prevModes) =>
@@ -106,14 +163,10 @@ const RequestForms = () => {
     const payload = {
       tripName,
       travelType,
-      tripStartDate,
-      tripEndDate,
-      activity,
       donor,
       conditionArea,
       location,
       branch,
-      bookingType,
       status, // The new status field
       ...(travelType === "international" && {
         destinationCountry,
@@ -126,6 +179,8 @@ const RequestForms = () => {
       busData: activeTravelModes.includes("bus") ? busFormData : null,
       trainData: activeTravelModes.includes("train") ? trainFormData : null,
     };
+
+    console.log("Payload to be sent:", payload);
 
     try {
       const response = await fetch("/server/userForm/", {
@@ -157,259 +212,17 @@ const RequestForms = () => {
     handleSubmit("Submitted");
   };
 
+
   const travelTypeOptions = [
     { value: "domestic", label: "Domestic" },
     { value: "international", label: "International" },
   ];
 
-  const bookingTypeOptions = [
-    { value: "", label: "Select Booking Type" },
-    { value: "self booking", label: "Self Booking" },
-    { value: "vendor booking", label: "Vendor Booking" },
-  ];
+  
 
-  const activityOptions = [
-    { value: "", label: "Select Activity" },
-    {
-      value: "1-Framework designing and Content creation",
-      label: "1-Framework designing and Content creation",
-    },
-    {
-      value: "2. Tool Development",
-      label: "2. Tool Development",
-    },
-    {
-      value: "3-Needs finding",
-      label: "3-Needs finding",
-    },
-    {
-      value: "4. Remote Engagement Service",
-      label: "4. Remote Engagement Service",
-    },
-    {
-      value: "5-Monitoring",
-      label: "5-Monitoring",
-    },
-    {
-      value: "6-Research",
-      label: "6-Research",
-    },
-    {
-      value: "7.1-RMM-Advocacy",
-      label: "7.1-RMM-Advocacy",
-    },
-    {
-      value: "7.2-RMM-Collaboration",
-      label: "7.2-RMM-Collaboration",
-    },
-    {
-      value: "7.3-RMM-Administrative management",
-      label: "7.3-RMM-Administrative management",
-    },
-    {
-      value: "8.Platform Development & Managment",
-      label: "8.Platform Development & Managment",
-    },
-    {
-      value: "9.Training design and delivery",
-      label: "9.Training design and delivery",
-    },
-    {
-      value: "10.1-Bundled ToT- Master trainers",
-      label: "10.1-Bundled ToT- Master trainers",
-    },
-    {
-      value: "10.2-Non-bundled ToTs-Master Trainers",
-      label: "10.2-Non-bundled ToTs-Master Trainers",
-    },
-    {
-      value: "10.3-Booster/ Refresher Training",
-      label: "10.3-Booster/ Refresher Training",
-    },
-    {
-      value: "10.4-Medical Officer training",
-      label: "10.4-Medical Officer training",
-    },
-    {
-      value: "10.5-District level training",
-      label: "10.5-District level training",
-    },
-    {
-      value: "10.6-Facility Launch",
-      label: "10.6-Facility Launch",
-    },
-    {
-      value: "10.7-Supportive Supervision",
-      label: "10.7-Supportive Supervision",
-    },
-    {
-      value: "10.8-Partnership Visits",
-      label: "10.8-Partnership Visits",
-    },
-    {
-      value: "11.Country Support",
-      label: "11.Country Support",
-    },
-    {
-      value: "12.1-Strategic Global Development-Advocacy",
-      label: "12.1-Strategic Global Development-Advocacy",
-    },
-    {
-      value: "12.2-Strategic Global Development-Collaboration",
-      label: "12.2-Strategic Global Development-Collaboration",
-    },
-    {
-      value: "13.Design research on caregiving",
-      label: "13.Design research on caregiving",
-    },
-    {
-      value: "14.Evaluation",
-      label: "14.Evaluation",
-    },
-    {
-      value: "15.Fundraising & Development",
-      label: "15.Fundraising & Development",
-    },
-    {
-      value: "16.Communications & Brand",
-      label: "16.Communications & Brand",
-    },
-    {
-      value: "17.1-Strategic Global Develpment-Advocacy",
-      label: "17.1-Strategic Global Develpment-Advocacy",
-    },
-    {
-      value: "17.2-Strategic Global Develpment-Collaboration",
-      label: "17.2-Strategic Global Develpment-Collaboration",
-    },
-    {
-      value: "18.Global Support",
-      label: "18.Global Support",
-    },
-    {
-      value: "19.1-Coordination of on-ground trainings (TOTs)",
-      label: "19.1-Coordination of on-ground trainings (TOTs)",
-    },
-    {
-      value: "19.2-On-ground supervision and engagement",
-      label: "19.2-On-ground supervision and engagement",
-    },
-    {
-      value: "20.Knowledge sharing and dissemination",
-      label: "20.Knowledge sharing and dissemination",
-    },
-    {
-      value: "21-.Payroll & Benefits",
-      label: "21-.Payroll & Benefits",
-    },
-    {
-      value: "22.Program Immersion",
-      label: "22.Program Immersion",
-    },
-    {
-      value: "Testing and prototyping",
-      label: "Testing and prototyping",
-    },
-  ];
-
-  const donorOptions = [
-    { value: "", label: "Select Donor" },
-    { value: "NH-Agency Fund-2024", label: "NH-Agency Fund-2024" },
-    { value: "NH-Mcgovern Fund-2024", label: "NH-Mcgovern Fund-2024" },
-    { value: "NH-Noora Health-2023", label: "NH-Noora Health-2023" },
-  ];
-
-  const conditionAreaOptions = [
-    { value: "", label: "Select Condition Area" },
-    { value: "Maternal & Newborn Care", label: "Maternal & Newborn Care" },
-    { value: "Tuberculosis Care", label: "Tuberculosis Care" },
-    {
-      value: "General Medical & Surgical Care",
-      label: "General Medical & Surgical Care",
-    },
-    {
-      value: "Oncology Care",
-      label: "Oncology Care",
-    },
-    {
-      value: "Cardiac Care",
-      label: "Cardiac Care",
-    },
-    {
-      value: "Covid-19 Care",
-      label: "Covid-19 Care",
-    },
-    {
-      value: "Others",
-      label: "Others",
-    },
-  ];
-
-  const locationOptions = [
-    { value: "", label: "Select Location" },
-    { value: "India", label: "India" },
-    { value: "India KA", label: "India KA" },
-    { value: "India MH", label: "India MH" },
-    { value: "India OR", label: "India OR" },
-    { value: "India PB", label: "India PB" },
-    { value: "India HR", label: "India HR" },
-    { value: "India AP", label: "India AP" },
-    { value: "India MP", label: "India MP" },
-    { value: "India HP", label: "India HP" },
-    { value: "India TN", label: "India TN" },
-    { value: "Indonesia", label: "Indonesia" },
-    { value: "Bangladesh", label: "Bangladesh" },
-    { value: "Nepal", label: "Nepal" },
-    { value: "USA", label: "USA" },
-    { value: "Other Country", label: "Other Country" },
-  ];
-
-  const branchOptions = [
-    { value: "", label: "Select Branch" },
-    { value: "1.IN-PDD-HCOMM", label: "1.IN-PDD-HCOMM" },
-    { value: "1.IN-PDD-MED", label: "1.IN-PDD-MED" },
-    { value: "2.IN-PDD-CDES", label: "2.IN-PDD-CDES" },
-    { value: "2.IN-PDD-FILM", label: "2.IN-PDD-FILM" },
-    { value: "2.SP-PDD", label: "2.SP-PDD" },
-    { value: "2.SP-PDD-CONTENT", label: "2.SP-PDD-CONTENT" },
-    { value: "2.SP-PDD-DESIGN", label: "2.SP-PDD-DESIGN" },
-    { value: "2.SP-PDD-FILM", label: "2.SP-PDD-FILM" },
-    { value: "3.IN-PDD-SSDES", label: "3.IN-PDD-SSDES" },
-    { value: "4.IN-PDD-PRODMNGT", label: "4.IN-PDD-PRODMNGT" },
-    { value: "5.IN-M&E-MONITORING", label: "5.IN-M&E-MONITORING" },
-    { value: "6.IN-M&E-EVAL", label: "6.IN-M&E-EVAL" },
-    { value: "7.IN-RMM", label: "7.IN-RMM" },
-    { value: "7.SP-RMM", label: "7.SP-RMM" },
-    { value: "8.SP-PLATFORMS", label: "8.SP-PLATFORMS" },
-    {
-      value: "8.SP-PLATFORMS-ENG/SOFT DEV",
-      label: "8.SP-PLATFORMS-ENG/SOFT DEV",
-    },
-    { value: "8.SP-PLATFORMS-PRODMNGT", label: "8.SP-PLATFORMS-PRODMNGT" },
-    { value: "9.SP-TRNG", label: "9.SP-TRNG" },
-    { value: "11.IN-OPS-ADMIN", label: "11.IN-OPS-ADMIN" },
-    { value: "11.IN-OPS-FIN", label: "11.IN-OPS-FIN" },
-    { value: "11.IN-OPS-P&C", label: "11.IN-OPS-P&C" },
-    { value: "12.SP-HS & GHS", label: "12.SP-HS & GHS" },
-    { value: "13.ER-LAB", label: "13.ER-LAB" },
-    { value: "14.ER-EVAL", label: "14.ER-EVAL" },
-    { value: "15.ER-FMGT", label: "15.ER-FMGT" },
-    { value: "16.ER-COMM", label: "16.ER-COMM" },
-    { value: "17.SH-EXP", label: "17.SH-EXP" },
-    { value: "18.SH-ADMIN", label: "18.SH-ADMIN" },
-    { value: "18.SH-FIN", label: "18.SH-FIN" },
-    { value: "18.SH-P&C", label: "18.SH-P&C" },
-    { value: "19.SP-PDEL-IMP", label: "19.SP-PDEL-IMP" },
-    { value: "20.SP-D&R", label: "20.SP-D&R" },
-    { value: "20.SP-L&S", label: "20.SP-L&S" },
-    { value: "IN-M&E-FIELD OPS", label: "IN-M&E-FIELD OPS" },
-    { value: "IN-OPS-IT", label: "IN-OPS-IT" },
-    { value: "IN-PDD-TECH OPS", label: "IN-PDD-TECH OPS" },
-    { value: "IN-PDD-VD & ILLST", label: "IN-PDD-VD & ILLST" },
-    { value: "SP-PDD-SSDES", label: "SP-PDD-SSDES" },
-  ];
 
   const countriesOptions = [
+    {value: "", label: "Select Country" },
     { value: "AFG", label: "Afghanistan" },
     { value: "ALB", label: "Albania" },
     { value: "DZA", label: "Algeria" },
@@ -691,26 +504,7 @@ const RequestForms = () => {
             </React.Fragment>
           )}
 
-          <div className="form-row">
-            <LabeledInput
-              label="Trip Start Date *"
-              type="date"
-              name="tripStartDate"
-              value={tripStartDate}
-              onChange={(e) => setTripStartDate(e.target.value)}
-              placeholder="eg: 31 January 2025"
-              required
-            />
-            <LabeledInput
-              label="Trip End Date *"
-              type="date"
-              name="tripEndDate"
-              value={tripEndDate}
-              onChange={(e) => setTripEndDate(e.target.value)}
-              placeholder="eg: 31 January 2025"
-              required
-            />
-          </div>
+       
 
           <div className="form-row">
             <LabeledDropdown
@@ -718,7 +512,8 @@ const RequestForms = () => {
               name="activity"
               value={activity}
               onChange={(e) => setActivity(e.target.value)}
-              options={activityOptions}
+              options={apiData.activities}
+              placeholder="Select Activity"
               required
             />
             <LabeledDropdown
@@ -726,7 +521,7 @@ const RequestForms = () => {
               name="donor"
               value={donor}
               onChange={(e) => setDonor(e.target.value)}
-              options={donorOptions}
+              options={apiData.donors}
               required
             />
           </div>
@@ -737,7 +532,7 @@ const RequestForms = () => {
               name="conditionArea"
               value={conditionArea}
               onChange={(e) => setConditionArea(e.target.value)}
-              options={conditionAreaOptions}
+              options={apiData.conditionAreas}
               required
             />
             <LabeledDropdown
@@ -745,28 +540,22 @@ const RequestForms = () => {
               name="location"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              options={locationOptions}
+              options={apiData.locations}
               required
             />
           </div>
 
           <div className="form-row">
-            <LabeledDropdown
+            <LabeledDropdown1
               label="Branch"
               name="branch"
               value={branch}
               onChange={(e) => setBranch(e.target.value)}
-              options={branchOptions}
+              options={apiData.branches}
+              className="half-width"
               required
             />
-            <LabeledDropdown
-              label="Booking Type"
-              name="bookingType"
-              value={bookingType}
-              onChange={(e) => setBookingType(e.target.value)}
-              options={bookingTypeOptions}
-              required
-            />
+            
           </div>
         </section>
 
