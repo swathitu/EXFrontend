@@ -12,7 +12,7 @@ const LabeledInput = ({
   required = false,
   className = "",
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <input
       type={type}
@@ -34,7 +34,7 @@ const LabeledDropdown = ({
   options,
   className = "",
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <select name={name} value={value} onChange={onChange}>
       {options.map((option) => (
@@ -66,20 +66,21 @@ const FlightForm = ({ onDataChange }) => {
     { value: "", label: "Meal preference" },
     { value: "vegetarian", label: "Vegetarian" },
     { value: "nonVegetarian", label: "Non-Vegetarian" },
-    { value: "vegan", label: "Vegan" },
+    { value: "jain", label: "Jain" },
   ];
   const flightPreferenceOptions = [
     { value: "", label: "Select Class" },
     { value: "economy", label: "Economy" },
-    { value: "first", label: "First" },
-    { value: "premium", label: "Premium" },
+    { value: "premium economy", label: "Premium Economy" },
     { value: "business", label: "Business" },
+    { value: "first", label: "First" },
   ];
   const timePreferenceOptions = [
     { value: "", label: "Select" },
-    { value: "morning", label: "Morning" },
-    { value: "afternoon", label: "Afternoon" },
-    { value: "evening", label: "Evening" },
+    { value: "12am - 8am", label: "12AM - 8AM" },
+    { value: "8am - 12pm", label: "8AM - 12PM" },
+    { value: "12pm - 8pm", label: "12PM - 8PM" },
+    { value: "8pm - 12am", label: "8PM - 12AM" },
   ];
 
   const [flightSegments, setFlightSegments] = useState([
@@ -94,6 +95,10 @@ const FlightForm = ({ onDataChange }) => {
       description: "",
       timePreference: "",
       flightPreferences: "",
+      departureTimePreference: "",
+      arrivalTimePreference: "",
+      departureFlightPreferences: "",
+      arrivalFlightPreferences: "",
     },
   ]);
 
@@ -115,7 +120,9 @@ const FlightForm = ({ onDataChange }) => {
       setFlightSegments(newSegments);
       onDataChange(newSegments);
     } else if (value === "oneWay") {
-      const newSegments = [{ ...flightSegments[0], tripType: "oneWay", returnDate: "" }];
+      const newSegments = [
+        { ...flightSegments[0], tripType: "oneWay", returnDate: "" },
+      ];
       setFlightSegments(newSegments);
       onDataChange(newSegments);
     } else if (value === "roundTrip") {
@@ -138,8 +145,20 @@ const FlightForm = ({ onDataChange }) => {
         description: "",
         timePreference: "",
         flightPreferences: "",
+        departureTimePreference: "",
+        arrivalTimePreference: "",
+        departureFlightPreferences: "",
+        arrivalFlightPreferences: "",
       },
     ]);
+  };
+
+  const handleGlobalPreferenceChange = (e) => {
+    const { name, value } = e.target;
+    const newSegments = [...flightSegments];
+    newSegments[0][name] = value;
+    setFlightSegments(newSegments);
+    onDataChange(newSegments);
   };
 
   const handleRemoveSegment = (index) => {
@@ -149,6 +168,7 @@ const FlightForm = ({ onDataChange }) => {
   };
 
   const tripType = flightSegments[0]?.tripType || "oneWay";
+  const isRoundTrip = tripType === "roundTrip";
 
   return (
     <section className="travel-mode-section">
@@ -190,14 +210,14 @@ const FlightForm = ({ onDataChange }) => {
           <LabeledDropdown
             name="seatPreference"
             value={flightSegments[0]?.seatPreference}
-            onChange={(e) => handleSegmentChange(e, 0)}
+            onChange={handleGlobalPreferenceChange}
             options={seatPreferenceOptions}
             className="inline-dropdown"
           />
           <LabeledDropdown
             name="mealPreference"
             value={flightSegments[0]?.mealPreference}
-            onChange={(e) => handleSegmentChange(e, 0)}
+            onChange={handleGlobalPreferenceChange}
             options={mealPreferenceOptions}
             className="inline-dropdown"
           />
@@ -206,17 +226,9 @@ const FlightForm = ({ onDataChange }) => {
 
       {flightSegments.map((segment, index) => (
         <React.Fragment key={index}>
-          <div className="flight-segment-headers">
-            <span className="required">DEPART FROM *</span>
-            <span className="required">ARRIVE AT *</span>
-            <span className="required">DEPARTURE DATE *</span>
-            {tripType === "roundTrip" && (
-              <span className="required">RETURN DATE *</span>
-            )}
-            <span>DESCRIPTION</span>
-          </div>
           <div className="flight-segment-row">
             <LabeledDropdown
+              label="Depart From*"
               name="departFrom"
               value={segment.departFrom}
               onChange={(e) => handleSegmentChange(e, index)}
@@ -225,6 +237,7 @@ const FlightForm = ({ onDataChange }) => {
               className="city-select"
             />
             <LabeledDropdown
+              label="Arrive At*"
               name="arriveAt"
               value={segment.arriveAt}
               onChange={(e) => handleSegmentChange(e, index)}
@@ -233,6 +246,7 @@ const FlightForm = ({ onDataChange }) => {
               className="city-select"
             />
             <LabeledInput
+              label="Departure Date*"
               type="date"
               name="departureDate"
               value={segment.departureDate}
@@ -243,6 +257,7 @@ const FlightForm = ({ onDataChange }) => {
             />
             {tripType === "roundTrip" && (
               <LabeledInput
+                label="Return Date*"
                 type="date"
                 name="returnDate"
                 value={segment.returnDate}
@@ -253,6 +268,7 @@ const FlightForm = ({ onDataChange }) => {
               />
             )}
             <LabeledInput
+            label="Description"
               type="text"
               name="description"
               value={segment.description}
@@ -270,24 +286,6 @@ const FlightForm = ({ onDataChange }) => {
               </button>
             )}
           </div>
-          <div className="flight-bottom-preferences">
-            <span className="time-pref-label">Time Preference :</span>
-            <LabeledDropdown
-              name="timePreference"
-              value={flightSegments[0]?.timePreference}
-              onChange={(e) => handleSegmentChange(e, 0)}
-              options={timePreferenceOptions}
-              className="inline-dropdown"
-            />
-            <span className="time-pref-label">Flight Preference :</span>
-            <LabeledDropdown
-              name="flightPreferences"
-              value={flightSegments[0]?.flightPreferences}
-              onChange={(e) => handleSegmentChange(e, 0)}
-              options={flightPreferenceOptions}
-              className="inline-dropdown"
-            />
-          </div>
         </React.Fragment>
       ))}
 
@@ -302,6 +300,80 @@ const FlightForm = ({ onDataChange }) => {
           </button>
         </div>
       )}
+
+      <div className="flight-bottom-preferences">
+        {isRoundTrip ? (
+          <>
+            <div className="preference-group">
+              <span className="preference-heading">Time Preference</span>
+              <div className="pref-dropdowns-row">
+                <LabeledDropdown
+                  label="Departure"
+                  name="departureTimePreference"
+                  value={flightSegments[0]?.departureTimePreference}
+                  onChange={handleGlobalPreferenceChange}
+                  options={timePreferenceOptions}
+                  className="inline-dropdown-with-label"
+                />
+                <LabeledDropdown
+                  label="Return"
+                  name="arrivalTimePreference"
+                  value={flightSegments[0]?.arrivalTimePreference}
+                  onChange={handleGlobalPreferenceChange}
+                  options={timePreferenceOptions}
+                  className="inline-dropdown-with-label"
+                />
+              </div>
+            </div>
+            <div className="preference-group">
+              <span className="preference-heading">Flight Preference</span>
+              <div className="pref-dropdowns-row">
+                <LabeledDropdown
+                  label="Departure"
+                  name="departureFlightPreferences"
+                  value={flightSegments[0]?.departureFlightPreferences}
+                  onChange={handleGlobalPreferenceChange}
+                  options={flightPreferenceOptions}
+                  className="inline-dropdown-with-label"
+                />
+                <LabeledDropdown
+                  label="Return"
+                  name="arrivalFlightPreferences"
+                  value={flightSegments[0]?.arrivalFlightPreferences}
+                  onChange={handleGlobalPreferenceChange}
+                  options={flightPreferenceOptions}
+                  className="inline-dropdown-with-label"
+                />
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="preference-group">
+              <span className="preference-heading">Time Preference</span>
+              <LabeledDropdown
+                label="Departure Time"
+                name="timePreference"
+                value={flightSegments[0]?.timePreference}
+                onChange={handleGlobalPreferenceChange}
+                options={timePreferenceOptions}
+                className="inline-dropdown"
+              />
+            </div>
+            <div className="preference-group">
+              <span className="preference-heading">Flight Preference</span>
+              <LabeledDropdown
+                label="Departure Flight"
+                name="flightPreferences"
+                value={flightSegments[0]?.flightPreferences}
+                onChange={handleGlobalPreferenceChange}
+                options={flightPreferenceOptions}
+                className="inline-dropdown"
+              />
+            </div>
+          </>
+        )}
+      </div>
     </section>
   );
 };

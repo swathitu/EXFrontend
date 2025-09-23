@@ -15,11 +15,11 @@ const RequestForm = ({ onClose }) => (
       </button>
       <h2>New Trip Request</h2>
       <RequestForms />
+      <button className='cancel-btn' onClick={onClose}>Cancel</button>
     </div>
   </div>
 );
 
-// Define the TripView component directly in this file
 
 
 function Trip() {

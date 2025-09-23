@@ -12,7 +12,7 @@ const LabeledInput = ({
   required = false,
   className = "",
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <input
       type={type}
@@ -34,7 +34,7 @@ const LabeledDropdown = ({
   options,
   className = "",
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <select name={name} value={value} onChange={onChange}>
       {options.map((option) => (
@@ -100,15 +100,9 @@ const HotelForm = ({ onDataChange }) => {
       <h3>Hotel Details 🏨</h3>
       {hotelSegments.map((segment, index) => (
         <React.Fragment key={index}>
-          <div className="hotel-segment-headers">
-            <span className="required">LOCATION *</span>
-            <span className="required">CHECK-IN *</span>
-            <span className="required">CHECK-OUT *</span>
-            <span>DESCRIPTION</span>
-          </div>
           <div className="hotel-segment-row">
             <LabeledDropdown
-              label="Location"
+              label="Location*" 
               name="location"
               value={segment.location}
               onChange={(e) => handleSegmentChange(e, index)}
@@ -118,7 +112,7 @@ const HotelForm = ({ onDataChange }) => {
             />
             <div className="datetime-group">
               <LabeledInput
-                label="Check-in Date"
+               label="Check-In*"
                 type="date"
                 name="checkInDate"
                 value={segment.checkInDate}
@@ -128,7 +122,7 @@ const HotelForm = ({ onDataChange }) => {
                 className="date-input"
               />
               <LabeledInput
-                label="Check-in Time"
+                label="In-time*"
                 type="time"
                 name="checkInTime"
                 value={segment.checkInTime}
@@ -139,7 +133,7 @@ const HotelForm = ({ onDataChange }) => {
             </div>
             <div className="datetime-group">
               <LabeledInput
-                label="Check-out Date"
+              label="Check-Out*"
                 type="date"
                 name="checkOutDate"
                 value={segment.checkOutDate}
@@ -149,7 +143,7 @@ const HotelForm = ({ onDataChange }) => {
                 className="date-input"
               />
               <LabeledInput
-                label="Check-out Time"
+              label="Out-time*"
                 type="time"
                 name="checkOutTime"
                 value={segment.checkOutTime}

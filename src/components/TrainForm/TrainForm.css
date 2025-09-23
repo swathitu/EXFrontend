@@ -114,3 +114,13 @@
 .add-train-btn:hover {
   text-decoration: underline;
 }
+
+.form-group1 input,
+.form-group1 select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}

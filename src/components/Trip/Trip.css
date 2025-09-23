@@ -64,3 +64,16 @@
     cursor: pointer;
 }
 
+.cancel-btn{
+    top: 10px;
+    left: 10px;
+    background: none;
+    width: 100px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
+    background-color: #007bff;
+    padding: 5px;
+    border-radius: 4px;
+}

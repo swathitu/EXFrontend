@@ -41,6 +41,9 @@
   display: flex;
   flex-direction: column; /* Stack date/time row and city dropdown */
   gap: 10px; /* Space between date/time and city */
+  border:1px solid gainsboro;
+  border-radius: 8px;
+  padding: 5px;
 }
 
 /* Date and Time on the same line */
@@ -104,7 +107,7 @@
 }
 
 .time-input {
-  width: 80px; /* Adjust width for time input */
+  width: 100px; /* Adjust width for time input */
   flex-shrink: 0;
 }
 
@@ -172,7 +175,7 @@
 /* Hide the default form-group labels for datetime and city selects because we have headers */
 .datetime-row .form-group label,
 .city-select label {
-    display: none;
+    display: block;
 }
 
 /* Placeholders for grid alignment */
