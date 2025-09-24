@@ -197,4 +197,8 @@ sidebar {
 
 }
 
- 
+ .list-page.list-page--edge {
+  /* If a parent adds padding via .content-card, compensate here */
+  margin-left: -var(--content-padding, 0);
+  margin-right: -var(--content-padding, 0);
+}

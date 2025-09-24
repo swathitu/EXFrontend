@@ -43,7 +43,28 @@ export function createLocation(payload) {
   return http(`${FN}/Add`, { method: "POST", body: payload });
 
 }
+ //list all locations
+ export async function listLocations() {
+  const res = await fetch(`${FN}/List`); // <-- Add '/List' 
+  const data = await res.json();
+  if (res.ok && data.status === "success") {
+    return data.data;
+  }
+  throw new Error(data.message || "Failed to load locations");
+}
+
+export async function deleteLocation(rowid) {
+  
+  const res = await fetch(`${FN}/Delete?debug=1`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ROWID: rowid }),
+  });
  
-// Add more later (update, delete, list…)
+  const data = await res.json().catch(() => null);
+  if (res.ok && data?.status === "success") return data;
+  throw new Error(data?.message || "Failed to delete location");
+}
+// Add more later (update, delete)
 
  
