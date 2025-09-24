@@ -3,31 +3,15 @@
 import React, { useState, useMemo } from "react";
 
 import "../styles/Form.css";
-import { createDepartment } from "../../api/departments";
+import { createDepartment, updateDepartment } from "../../api/departments";
  
-const EMPTY = {
-
-  name: "",
-
-  code: "",
-
-  headId: "",
-
-  description: "",
-
-};
+const EMPTY = { rowid: "", name: "", code: "", headId: "", description: "" };
  
-export default function DepartmentForm({
-
-  onSave,
-
-  onCancel,
-
-  users = [], // [{id, name, email}]
-
-}) {
+export default function DepartmentForm({ mode = "create", initial, onSave, onCancel, users = [] }) {
 
   const [form, setForm] = useState(EMPTY);
+
+  
 
   const [errors, setErrors] = useState({});
 
@@ -56,11 +40,24 @@ export default function DepartmentForm({
     return e;
 
   };
+
+  React.useEffect(() => {
+    if (initial) {
+      setForm({
+        rowid:       initial.ROWID || "",
+        name:        initial.Department_Name || "",
+        code:        initial.Department_Code || "",
+        headId:      initial.Department_Head || "",
+        description: initial.Description || "",
+      });
+    }
+  }, [initial]);
  
   const submit = async (e) => {
 
     e.preventDefault();
-
+    console.log("[DepartmentForm] Save clicked. Current form =", form);
+    alert("Save clicked — check console for logs.");
     const eobj = validate();
 
     setErrors(eobj);
@@ -71,20 +68,23 @@ export default function DepartmentForm({
 
       setSaving(true);
 
+      const payload = {
+        ROWID: form.rowid || undefined,
+       department_name: form.name.trim(),
+      department_code: form.code.trim(),
+       department_head_id: form.headId || null,
+      description: form.description?.trim() || "",
+     };
+     console.log("[DepartmentForm] Submitting payload to API:", payload);
+        const res = form.rowid ? await updateDepartment(payload) : await createDepartment(payload)
       // if you wire an API, call it here and pass result to onSave
+      console.log("[DepartmentForm] API response:", res);
+      onSave?.(res);
 
-      onSave?.({
-
-        department_name: form.name.trim(),
-
-        department_code: form.code.trim(),
-
-        department_head_id: form.headId || null,
-
-        description: form.description?.trim() || "",
-
-      });
-
+    }
+    catch (err) {
+     console.error("[DepartmentForm] API error:", err);
+     alert(`Failed to save department: ${err?.message || "Unknown error"}`);
     } finally {
 
       setSaving(false);
@@ -98,7 +98,7 @@ export default function DepartmentForm({
 <div className="modal__backdrop" onClick={onCancel} />
 <div className="modal__card" role="dialog" aria-modal="true" aria-label="New Department">
 <div className="modal__header">
-<h2 className="modal__title">New Department</h2>
+<h2 className="modal__title">{form.rowid ? "Edit Department" : "New Department"}</h2>
 <button className="form__close" aria-label="Close" onClick={onCancel}>×</button>
 </div>
  

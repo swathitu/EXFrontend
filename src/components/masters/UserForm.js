@@ -1,8 +1,11 @@
 // src/components/masters/UserForm.js
-
+ 
 import React, { useState } from "react";
 
 import "../styles/Form.css";
+
+import { addUser } from "../../api/users";
+
  
 const EMPTY = {
 
@@ -75,7 +78,7 @@ export default function UserForm({
   const submit = async (e) => {
 
     e.preventDefault();
-
+ 
     const eobj = validate();
 
     setErrors(eobj);
@@ -107,8 +110,30 @@ export default function UserForm({
     try {
 
       setSaving(true);
+ 
+      // call backend
 
-      onSave?.(payload); // your route can navigate after save
+      const result = await addUser(payload);
+ 
+      // ✅ success alert (use server message if present)
+
+      const successMsg =
+
+        result?.message ||
+
+        (result?.status === "success" ? "User added successfully." : null) ||
+
+        "User added successfully.";
+
+      alert(successMsg);
+ 
+      // navigate/refresh via parent
+
+      onSave?.(result);
+ 
+    } catch (err) {
+
+      alert("Failed to save user: " + err.message);
 
     } finally {
 
@@ -237,7 +262,7 @@ export default function UserForm({
 </div>
 </div>
  
-      {/* Organization selections (only the fields you asked for) */}
+      {/* Organization selections */}
 <div className="form__section">
 <div className="form__grid">
 <label className="form__col-6">
