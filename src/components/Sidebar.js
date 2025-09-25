@@ -5,15 +5,15 @@ import "./styles/Sidebar.css";
 const MENU = [
   { key: "home", label: "Home", icon: "home" },
   { key: "trip", label: "Trip", icon: "trip", hasPlus: true },
-  { key: "trip-data", label: "Trip Data View", icon: "trip" },
   { key: "masters", label: "Masters", icon: "settings", isExpandable: true },
+  { key: "ticketDataView", label: "ZohoSync", icon: "ticketDataView" },
 ];
 
 const MASTER_MENU = [
   { key: "users", label: "User Master", icon: "user-master", hasPlus: true },
   { key: "departments", label: "Department", icon: "department-master", hasPlus: true },
   { key: "location", label: "Location", icon: "location-master", hasPlus: true },
- 
+  {key: "customdata", label: "Custom Data", icon: "customData-master", hasPlus: true},
 ];
 
 const VIEW_OPTIONS = [
@@ -62,6 +62,8 @@ const Icon = ({ name }) => {
       return (<svg {...common}><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/><path d="M2 7H22M12 12v5m0-5h8m-8 0h-8"/></svg>);
     case "location-master":
       return (<svg {...common}><path d="M20.5 10.5c0 5.25-8.5 11-8.5 11S3.5 15.75 3.5 10.5a8.5 8.5 0 1 1 17 0z"/><circle cx="12" cy="10.5" r="3"/></svg>);
+    case "customData-master":
+      return (<svg {...common}><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 20V9"/></svg>);
     default:
       return (<svg {...common}><circle cx="12" cy="12" r="8"/></svg>);
   }
