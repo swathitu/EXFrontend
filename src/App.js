@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 
 import {
-
   BrowserRouter,
 
   Routes,
@@ -21,7 +20,7 @@ import {
 } from "react-router-dom";
  
 import "./App.css";
- 
+
 import Header from "./components/Header";
 
 import Sidebar from "./components/Sidebar";
@@ -45,6 +44,77 @@ import DepartmentForm from "./components/masters/DepartmentForm";
 import UserList from "./components/masters/UserList";
 
 import UserForm from "./components/masters/UserForm";
+import CustomData from "./components/masters/CustomData/CustomData";
+import TicketDataView from "./components/TicketDataView/TicketDataView";
+
+
+const USERS = [
+  { id: "u1", name: "Alice" },
+  { id: "u2", name: "Bob" },
+];
+const ROLES = [
+  { id: "submitter", name: "Submitter" },
+  { id: "approver", name: "Approver" },
+  { id: "admin", name: "Admin" },
+];
+const MANAGERS = USERS; // reuse your user list for now
+const DEPARTMENTS = [
+  { id: "dep1", name: "Finance" },
+  { id: "dep2", name: "Operations" },
+  { id: "dep3", name: "HR" },
+];
+const LOCATIONS = [
+  { id: "loc1", name: "Bengaluru HQ" },
+  { id: "loc2", name: "Mumbai" },
+];
+
+const STATES = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry",
+];
+
+const GSTINS = ["29ABCDE1234F1Z5", "27ABCDE1234F1Z3"];
+
  
 
 import { listDeptHeads,getDepartment } from "./api/departments";
@@ -227,32 +297,45 @@ function DepartmentEditLoader({ onSave, onCancel }) {
 // ---------------- App Shell ----------------
 
 function AppShell() {
-
   const [collapsed, setCollapsed] = useState(false);
 
   const navigate = useNavigate();
+
+
 
   const location = useLocation();
 
   const isTripData = location.pathname.startsWith("/trip-data");
  
-  const handleAddFromSidebar = (key) => {
+  
 
+
+  const handleAddFromSidebar = (key) => {
     if (key === "location") navigate("/masters/location/new");
 
     if (key === "departments") navigate("/masters/department/new");
 
+    if(key==="customdata") navigate("/masters/customdata");
+    if (key === "users") navigate("/masters/users/new");
+    else if (key === "users") navigate("/masters/users");
+
+
     if (key === "users") navigate("/masters/users/new");
 
-  };
- 
-  const handleSelectFromSidebar = (key) => {
 
+  };
+
+  const handleSelectFromSidebar = (key) => {
     if (key === "home") navigate("/home");
 
     else if (key === "location") navigate("/masters/location");
 
     else if (key === "departments") navigate("/masters/department");
+
+    else if (key ==="customdata") navigate("/masters/customdata");
+    else if (key === "trip") navigate("/trip");
+    else if (key === "ticketDataView") navigate("/ticketDataView");
+
 
     else if (key === "trip") navigate("/trip");
 
@@ -260,22 +343,20 @@ function AppShell() {
 
     else if (key === "trip-data") navigate("/trip-data");
 
+
   };
- 
+
   return (
-<div className={`app-shell${collapsed ? " collapsed" : ""}`}>
-<Header />
-<Sidebar
-
+    <div className={`app-shell${collapsed ? " collapsed" : ""}`}>
+      <Header />
+      <Sidebar
         collapsed={collapsed}
-
         setCollapsed={setCollapsed}
-
         onAdd={handleAddFromSidebar}
-
         onSelect={handleSelectFromSidebar}
-
       />
+
+     
 <main className="main">
 <div className={`content-card ${isTripData ? "tdv-full-bleed" : ""}`}>
 <Routes>
@@ -283,34 +364,45 @@ function AppShell() {
 <Route path="/dashboard" element={<h1>Welcome to Zoho Expense</h1>} />
 <Route path="/home" element={<Home />} />
 <Route path="/trip" element={<Trip />} />
+<Route path="/ticketDataView" element={<TicketDataView />} />
 <Route path="/trip-data" element={<TripDataView />} />
  
             {/* Locations */}
 <Route path="/masters/location" element={<LocationList />} />
 <Route
 
+
               path="/masters/location/new"
-
               element={
-<LocationForm
-
+                <LocationForm
                   states={STATES}
-
                   gstins={GSTINS}
-
                   admins={USERS}
-
                   contacts={USERS}
-
                   onSave={() => navigate("/masters/location")}
 
+
+                  onSave={() => navigate("/masters/locatio
                   onCancel={() => navigate("/masters/location")}
-
                 />
-
               }
-
             />
+
+            <Route path="/masters/department" element={<DepartmentList />} />
+            <Route
+              path="/masters/department/new"
+              element={
+                <DepartmentForm
+                  users={USERS} // supply your user list for the Head dropdown
+                  onSave={() => navigate("/masters/department")}
+                  onCancel={() => navigate("/masters/department")}
+                />
+              }
+            />
+            <Route path="/masters/users" element={<UserList />} />
+            <Route path="/masters/customdata/" element={<CustomData />} />
+            <Route
+
  
             {/* Departments */}
 <Route path="/masters/department" element={<DepartmentList />} />
@@ -351,11 +443,11 @@ function AppShell() {
 <Route path="/masters/users" element={<UserList />} />
 <Route
 
+
               path="/masters/users/new"
 
               element={
-<UserForm
-
+                <UserForm
                   roles={ROLES}
 
                   managers={MANAGERS}
@@ -373,27 +465,21 @@ function AppShell() {
               }
 
             />
-</Routes>
-</div>
-</main>
-<Footer />
-</div>
-
+          </Routes>
+        </div>
+      </main>
+      <Footer />
+    </div>
   );
-
-}
  
 // ---------------- Root ----------------
 
+
+
 export default function App() {
-
   return (
-<BrowserRouter>
-<AppShell />
-</BrowserRouter>
-
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
   );
-
 }
-
- 
