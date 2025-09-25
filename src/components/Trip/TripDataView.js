@@ -1,8 +1,8 @@
-import React from "react";
-
+import React, { useState } from "react";
 import "./TripDataView.css";
- 
+import TripRejectModal from "./TripRejectModal";
 export default function TripDataView() {
+const [showReject, setShowReject] = useState(false);
 
   return (
 <div className="tdv-wrap">
@@ -25,7 +25,7 @@ export default function TripDataView() {
           <div className="tdv-actions">
 <button className="tdv-btn">Comments &amp; History</button>
 <button className="tdv-btn primary">Update</button>
-<button className="tdv-btn">Reject</button>
+<button className="tdv-btn" onClick={() => setShowReject(true)}>Reject</button> 
 <button className="tdv-btn">⋯</button>
 </div>
 </div>
@@ -100,6 +100,15 @@ export default function TripDataView() {
 </div>
 </div>
 </div>{/* /.tdv-card */}
+<TripRejectModal
+        open={showReject}
+        onClose={() => setShowReject(false)}
+        onSubmit={(reason) => {
+          // TODO: call your API with `reason` here
+          console.log("Reject reason:", reason);
+          setShowReject(false);
+        }}
+      />
 </div>
 
   );

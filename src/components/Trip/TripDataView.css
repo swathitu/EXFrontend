@@ -97,6 +97,24 @@
 @media (max-width: 1024px) {
   .tdv-wrap { margin: -12px -16px 0; }
 }
+
+/* Make ONLY Trip Data View page full-bleed by killing the parent padding */
+.content-card.tdv-full-bleed {
+  padding: 0 !important;
+  background: transparent; /* optional */
+}
+ 
+/* Ensure your page doesn’t add extra spacing back */
+
+ 
+/* Make the main card edge-to-edge */
+.tdv-card {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  width: 100%;
+  margin: 0;
+}
  
 
  

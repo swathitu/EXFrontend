@@ -1,0 +1,223 @@
+/* ===== Theme (tweak these to match your brand) ===== */
+
+:root {
+
+  --trm-primary: #2563eb;         /* blue-600 */
+
+  --trm-primary-press: #1d4ed8;   /* blue-700 */
+
+  --trm-bg-scrim: rgba(15, 23, 42, 0.55);
+
+  --trm-border: #e5e7eb;
+
+  --trm-text: #0f172a;
+
+  --trm-muted: #475569;
+
+  --trm-white: #ffffff;
+
+}
+ 
+/* ===== Overlay ===== */
+
+.trm-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: grid;
+
+  place-items: center;
+
+}
+
+.trm-backdrop {
+
+  position: absolute;
+
+  inset: 0;
+
+  background: var(--trm-bg-scrim);
+
+}
+ 
+/* ===== Modal ===== */
+
+.trm-modal {
+
+  position: relative;
+
+  width: min(560px, calc(100% - 32px));
+
+  background: var(--trm-white);
+
+  border-radius: 12px;
+
+  box-shadow: 0 24px 56px rgba(2, 6, 23, 0.24);
+
+  overflow: hidden;
+
+  border: 1px solid var(--trm-border);
+
+}
+ 
+/* Header */
+
+.trm-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 14px 16px;
+
+  border-bottom: 1px solid var(--trm-border);
+
+}
+
+.trm-header h3 {
+
+  margin: 0;
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  color: var(--trm-text);
+
+}
+
+.trm-x {
+
+  border: none;
+
+  background: transparent;
+
+  font-size: 22px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  color: var(--trm-muted);
+
+}
+
+.trm-x:hover { color: var(--trm-text); }
+ 
+/* Body */
+
+.trm-body {
+
+  padding: 16px;
+
+}
+
+.trm-desc {
+
+  margin: 0 0 10px 0;
+
+  font-size: 13px;
+
+  color: var(--trm-muted);
+
+}
+
+.trm-textarea {
+
+  width: 100%;
+
+  min-height: 132px;
+
+  resize: vertical;
+
+  border: 1px solid var(--trm-border);
+
+  border-radius: 8px;
+
+  padding: 10px 12px;
+
+  font: inherit;
+
+  color: var(--trm-text);
+
+  outline: none;
+
+}
+
+.trm-textarea:focus {
+
+  border-color: var(--trm-primary);
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+
+}
+
+.trm-hint {
+
+  margin-top: 8px;
+
+  font-size: 12px;
+
+  color: var(--trm-muted);
+
+}
+ 
+/* Footer */
+
+.trm-footer {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  padding: 12px 16px 16px;
+
+}
+
+.trm-btn {
+
+  padding: 8px 12px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  border: 1px solid transparent;
+
+  font: inherit;
+
+}
+
+.trm-btn.secondary {
+
+  background: var(--trm-white);
+
+  border-color: var(--trm-border);
+
+  color: var(--trm-text);
+
+}
+
+.trm-btn.primary {
+
+  background: var(--trm-primary);
+
+  border-color: var(--trm-primary);
+
+  color: var(--trm-white);
+
+}
+
+.trm-btn.primary:hover { background: var(--trm-primary-press); border-color: var(--trm-primary-press); }
+
+.trm-btn.primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+ 

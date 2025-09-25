@@ -44,41 +44,12 @@
 
 }
  
-/* “My View” */
-
-.view-wrapper {
-
-  background: #f5f7fa;
-
-  border: 1px solid var(--border);
-
-  border-radius: 4px;
-
- margin: 8px 16px 12px 16px;
-  padding: 8px 16px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: flex-start;
-
-}
-
-.view-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-
-.vh-text { font-size: 13px; color: #8a94a6; font-weight: 500; margin-bottom: 2px; }
-
-.vh-current { display: inline-flex; align-items: center; gap: 6px; border: none; background: transparent; color: #222e3a; font-weight: 600; font-size: 15px; cursor: pointer; padding: 0; }
-
-.vh-user, .vh-caret { width: 18px; height: 18px; display: inline-flex; color: #667085; }
- 
 /* Menu */
 
 .side-list { padding: 6px 8px; }
 
 .side-row { margin: 0; }
-
+ 
 .side-link {
 
   appearance: none; background: transparent; border: 0;
@@ -94,7 +65,7 @@
 .side-link:hover { background: #f3f6ff; }
 
 .side-link:focus { outline: 2px solid #b9d6ff; outline-offset: 2px; }
-
+ 
 .side-left { display: inline-flex; align-items: center; gap: 10px; }
 
 .side-right { display: inline-flex; align-items: center; gap: 6px; }
@@ -102,7 +73,7 @@
 .icon { width: 18px; height: 18px; display: inline-flex; color: #667085; }
 
 .label { white-space: nowrap; }
-
+ 
 .side-link.active { background: var(--brand); color: #fff; font-weight: 600; }
 
 .side-link.active .icon { color: #fff; }
@@ -163,36 +134,10 @@
 
 }
 
-.sidebar.collapsed .vh-name, .sidebar.collapsed .label, .sidebar.collapsed .plus-btn { display: none !important; }
+.sidebar.collapsed .label,
+
+.sidebar.collapsed .plus-btn { display: none !important; }
 
 .sidebar.collapsed .side-list { display: flex; flex-direction: column; align-items: center; padding: 6px 0; width: 100%; }
- 
-/* Dropdown */
-
-.vh-wrap { position: relative; }
-
-.vh-dropdown {
-
-  position: absolute; left: 16px; right: 16px; top: calc(100% + 6px); z-index: 1000;
-
-  background: #fff; border: 1px solid var(--border); border-radius: 10px;
-
-  box-shadow: 0 10px 20px rgba(16,24,40,0.08), 0 2px 6px rgba(16,24,40,0.06); padding: 6px;
-
-}
-
-.vh-item { padding: 8px 10px; border-radius: 8px; font-size: 14px; color: var(--text); cursor: pointer; }
-
-.vh-item:hover, .vh-item.focused { background: #f3f6ff; }
-
-.vh-item.selected { font-weight: 600; color: var(--brand); background: #eef3ff; }
- 
-/* Small screens – presentation only; placement handled by App.css */
-
-@media (max-width: 700px) {
-
-  .vh-dropdown { left: 12px; right: 12px; }
-
-}
 
  
