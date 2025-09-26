@@ -290,16 +290,6 @@ function AppShell() {
             />
             <Route path="/masters/users" element={<UserList />} />
             <Route path="/masters/customdata/" element={<CustomData />} />
-            <Route path="/masters/department" element={<DepartmentList />} />
-            <Route
-              path="/masters/department/new"
-              element={
-                <DepartmentFormLoader
-                  onSave={() => navigate("/masters/department")}
-                  onCancel={() => navigate("/masters/department")}
-                />
-              }
-            />
             <Route
               path="/masters/department/:id/edit"
               element={
