@@ -54,19 +54,24 @@ export async function listDepartments() {
   throw new Error((data && data.message) || "Failed to load departments");
 }
 
-// Get one department by ROWID
 export function getDepartment(rowid) {
-  alert("coming to api function");
-  return fetch(`${FN}/Get?ROWID=${encodeURIComponent(rowid)}&debug=1`)
+  console.log("[getDepartment] Fetching department with ROWID:", rowid);
+  return fetch(`${FN}/Edit?ROWID=${encodeURIComponent(rowid)}&debug=1`)
+
     .then((r) => r.json())
     .then((data) => {
+      console.log("[getDepartment] API response:", data);
       if (data?.status === "success") return data.data;
       throw new Error(data?.message || "Failed to load department");
     });
 }
 
+
 // Update department (requires ROWID)
 export function updateDepartment(payload) {
+  alert (
+    "sdjfjf"
+  );
   // payload: { ROWID, department_name, department_code, department_head_id, description }
   // The server-side function expects a POST to "/Edit", not "/Update"
   return http(`${FN}/Edit?debug=1`, { 

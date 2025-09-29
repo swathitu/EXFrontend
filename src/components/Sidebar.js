@@ -1,24 +1,34 @@
-// src/components/Sidebar.jsx  (was: Sidebar 3.js)
-
+// src/components/Sidebar.jsx
+ 
 import React, { useState } from "react";
 
 import "./styles/Sidebar.css";
  
-// ---------------- Menu definitions ----------------
+/** ──────────────────────────────────────────────────────────────────────────
 
-const MENU = [
+* Role-aware menu filtering
+
+*  - admin: sees everything (Home, Trip, Masters, ZohoSync)
+
+*  - approver/submitter: only Home and Trip
+
+* Pass `role` via props from App.
+
+* ────────────────────────────────────────────────────────────────────────── */
+ 
+const MENU_ALL = [
 
   { key: "home", label: "Home", icon: "home" },
 
   { key: "trip", label: "Trip", icon: "trip", hasPlus: true },
 
   { key: "masters", label: "Masters", icon: "settings", isExpandable: true },
-  { key: "ticketDataView", label: "ZohoSync", icon: "ticketDataView" },
-];
 
-  
+  { key: "ticketDataView", label: "ZohoSync", icon: "ticketDataView" },
+
+];
  
-const MASTER_MENU = [
+const MASTER_MENU_ALL = [
 
   { key: "users", label: "User Master", icon: "user-master", hasPlus: true },
 
@@ -26,63 +36,175 @@ const MASTER_MENU = [
 
   { key: "location", label: "Location", icon: "location-master", hasPlus: true },
 
-  {key: "customdata", label: "Custom Data", icon: "customData-master", hasPlus: true},
+  { key: "customdata", label: "Custom Data", icon: "customData-master", hasPlus: true },
+
 ];
-
-
-
  
-// ---------------- Icons ----------------
-
 const Icon = ({ name }) => {
 
   const common = {
 
-    width: 18, height: 18, viewBox: "0 0 24 24",
+    width: 18,
 
-    fill: "none", stroke: "currentColor", strokeWidth: 2,
+    height: 18,
 
-    strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true,
+    viewBox: "0 0 24 24",
+
+    fill: "none",
+
+    stroke: "currentColor",
+
+    strokeWidth: 2,
+
+    strokeLinecap: "round",
+
+    strokeLinejoin: "round",
+
+    "aria-hidden": true,
 
   };
 
   switch (name) {
+
     case "user":
-      return (<svg {...common}><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/></svg>);
+
+      return (
+<svg {...common}>
+<path d="M16 21v-2a4 4 0 0 0-8 0v2" />
+<circle cx="12" cy="7" r="4" />
+</svg>
+
+      );
+
     case "caret":
-      return (<svg {...common}><path d="M6 9l6 6 6-6"/></svg>);
+
+      return (
+<svg {...common}>
+<path d="M6 9l6 6 6-6" />
+</svg>
+
+      );
+
     case "caret-up":
-      return (<svg {...common}><path d="M18 15l-6-6-6 6"/></svg>);
+
+      return (
+<svg {...common}>
+<path d="M18 15l-6-6-6 6" />
+</svg>
+
+      );
+
     case "plus":
-      return (<svg {...common}><path d="M12 5v14M5 12h14"/></svg>);
+
+      return (
+<svg {...common}>
+<path d="M12 5v14M5 12h14" />
+</svg>
+
+      );
+
     case "home":
-      return (<svg {...common}><path d="M3 10.5l9-7 9 7"/><path d="M9 22V12h6v10"/></svg>);
+
+      return (
+<svg {...common}>
+<path d="M3 10.5l9-7 9 7" />
+<path d="M9 22V12h6v10" />
+</svg>
+
+      );
+
     case "trip":
-      return (<svg {...common}><path d="M3 10h18l-1.5 9a2 2 0 0 1-2 1.7H6.5a2 2 0 0 1-2-1.7L3 10z"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/></svg>);
+
+      return (
+<svg {...common}>
+<path d="M3 10h18l-1.5 9a2 2 0 0 1-2 1.7H6.5a2 2 0 0 1-2-1.7L3 10z" />
+<path d="M8 10V6a4 4 0 0 1 8 0v4" />
+</svg>
+
+      );
+
     case "settings":
-      return (<svg {...common}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 12 8.6a1.65 1.65 0 0 0 1.65-1.35l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 15 12c0 .3.08.6.2.86z"/></svg>);
+
+      return (
+<svg {...common}>
+<circle cx="12" cy="12" r="3" />
+<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 12 8.6a1.65 1.65 0 0 0 1.65-1.35l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 15 12c0 .3.08.6.2.86z" />
+</svg>
+
+      );
+
     case "arrow-left":
-      return (<svg {...common}><path d="M15 18l-6-6 6-6" /></svg>);
+
+      return (
+<svg {...common}>
+<path d="M15 18l-6-6 6-6" />
+</svg>
+
+      );
+
     case "arrow-right":
-      return (<svg {...common}><path d="M9 6l6 6-6 6" /></svg>);
+
+      return (
+<svg {...common}>
+<path d="M9 6l6 6-6 6" />
+</svg>
+
+      );
+
     case "user-master":
-      return (<svg {...common}><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M12 2v20M2 12h20"/></svg>);
+
+      return (
+<svg {...common}>
+<path d="M16 21v-2a4 4 0 0 0-8 0v2" />
+<circle cx="12" cy="7" r="4" />
+<path d="M12 2v20M2 12h20" />
+</svg>
+
+      );
+
     case "department-master":
-      return (<svg {...common}><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/><path d="M2 7H22M12 12v5m0-5h8m-8 0h-8"/></svg>);
+
+      return (
+<svg {...common}>
+<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" />
+<path d="M2 7H22M12 12v5m0-5h8m-8 0h-8" />
+</svg>
+
+      );
+
     case "location-master":
-      return (<svg {...common}><path d="M20.5 10.5c0 5.25-8.5 11-8.5 11S3.5 15.75 3.5 10.5a8.5 8.5 0 1 1 17 0z"/><circle cx="12" cy="10.5" r="3"/></svg>);
+
+      return (
+<svg {...common}>
+<path d="M20.5 10.5c0 5.25-8.5 11-8.5 11S3.5 15.75 3.5 10.5a8.5 8.5 0 1 1 17 0z" />
+<circle cx="12" cy="10.5" r="3" />
+</svg>
+
+      );
+
     case "customData-master":
-      return (<svg {...common}><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 20V9"/></svg>);
+
+      return (
+<svg {...common}>
+<path d="M4 4h16v16H4z" />
+<path d="M4 9h16M9 20V9" />
+</svg>
+
+      );
+
     default:
-      return (<svg {...common}><circle cx="12" cy="12" r="8"/></svg>);
+
+      return (
+<svg {...common}>
+<circle cx="12" cy="12" r="8" />
+</svg>
+
+      );
+
   }
+
 };
-
-
-  
  
-// ---------------- SideRow ----------------
-
 const SideRow = ({ item, active, onClick, children, collapsed, onAdd }) => {
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -102,7 +224,6 @@ const SideRow = ({ item, active, onClick, children, collapsed, onAdd }) => {
   return (
 <div className="side-row">
 <button
-
 
         type="button"
 
@@ -138,21 +259,31 @@ const SideRow = ({ item, active, onClick, children, collapsed, onAdd }) => {
 
               tabIndex={0}
 
-              onClick={(e) => { e.stopPropagation(); onAdd?.(item.key); }}
+              onClick={(e) => {
 
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") e.stopPropagation(); }}
+                e.stopPropagation();
+
+                onAdd?.(item.key);
+
+              }}
+
+              onKeyDown={(e) => {
+
+                if (e.key === "Enter" || e.key === " ") e.stopPropagation();
+
+              }}
 >
 <Icon name="plus" />
 </span>
 
           )}
 
-          {/* Show caret only when NOT collapsed */}
-{item.isExpandable && !showPlusButton && !collapsed && (
+          {item.isExpandable && !showPlusButton && !collapsed && (
 <span className="expand-caret">
 <Icon name={isExpanded ? "caret-up" : "caret"} />
 </span>
-)}
+
+          )}
 </span>
 </button>
  
@@ -163,9 +294,9 @@ const SideRow = ({ item, active, onClick, children, collapsed, onAdd }) => {
 
 };
  
-// ---------------- Sidebar ----------------
-
 export default function Sidebar({
+
+  role = "submitter", // receives from App; default for safety
 
   defaultActive = "home",
 
@@ -181,23 +312,25 @@ export default function Sidebar({
 
   const [activeKey, setActiveKey] = useState(defaultActive ?? "home");
  
-  const handleSelect = (key) => {
+  // Filter menus based on role
 
-    setActiveKey(key);
+  const isAdmin = role === "admin";
 
-    onSelect?.(key);
+  const roleMenu = isAdmin
 
-  };
+    ? MENU_ALL
+
+    : MENU_ALL.filter((m) => m.key === "home" || m.key === "trip");
  
   return (
 <aside className={`sidebar${collapsed ? " collapsed" : ""}`} aria-label="Sidebar">
-
-      {/* Removed "You are currently in / My View" block */}
 <nav className="side-list" role="menu">
 
-        {MENU.map((it) =>
+        {roleMenu.map((it) =>
 
           it.isExpandable ? (
+
+            // Masters section will never render for approver/submitter
 <SideRow
 
               key={it.key}
@@ -212,7 +345,7 @@ export default function Sidebar({
 >
 <div className="nested-list">
 
-                {MASTER_MENU.map((nestedItem) => (
+                {MASTER_MENU_ALL.map((nestedItem) => (
 <SideRow
 
                     key={nestedItem.key}
@@ -221,7 +354,13 @@ export default function Sidebar({
 
                     active={activeKey === nestedItem.key}
 
-                    onClick={() => handleSelect(nestedItem.key)}
+                    onClick={() => {
+
+                      setActiveKey(nestedItem.key);
+
+                      onSelect?.(nestedItem.key);
+
+                    }}
 
                     collapsed={collapsed}
 
@@ -242,7 +381,13 @@ export default function Sidebar({
 
               active={activeKey === it.key}
 
-              onClick={() => handleSelect(it.key)}
+              onClick={() => {
+
+                setActiveKey(it.key);
+
+                onSelect?.(it.key);
+
+              }}
 
               collapsed={collapsed}
 
