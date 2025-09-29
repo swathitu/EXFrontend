@@ -13,11 +13,39 @@ const CustomData = () => {
     Branch: "",
   });
   const [editingRowId, setEditingRowId] = useState(null);
+  const [editData, setEditData] = useState(null);
+  const [selectedEditField, setSelectedEditField] = useState(null);
   const [activeRowIdForActions, setActiveRowIdForActions] = useState(null);
+
+  // Using a timeout to prevent the dropdown from immediately closing on click.
+  // This is a common pattern to fix a race condition with click-outside handlers.
+  const toggleDropdown = (rowId) => {
+    setActiveRowIdForActions((prevId) => (prevId === rowId ? null : rowId));
+  };
+
+  const dropdownRef = useRef(null);
+
+  // This effect will only run after the component has rendered.
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setActiveRowIdForActions(null);
+      }
+    }
+    // We add a slight delay to the listener to prevent it from
+    // firing immediately after the button click.
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
 
   const API_ENDPOINT = "/server/insertData";
 
-  // Function to fetch all data from the backend
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -39,12 +67,10 @@ const CustomData = () => {
     }
   };
 
-  // Fetch data on initial component mount
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -53,7 +79,15 @@ const CustomData = () => {
     }));
   };
 
-  // Handle form submission for POST or PUT
+  const handleRadioChange = (e) => {
+    const fieldName = e.target.value;
+    setSelectedEditField(fieldName);
+    setFormData({
+      ...formData,
+      [fieldName]: editData[fieldName] || "",
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -63,13 +97,10 @@ const CustomData = () => {
       let method;
       let payload;
 
-      // Determine if we are updating an existing record or creating a new one
       if (editingRowId) {
-        // Prepare payload for PUT request (update)
         method = "PUT";
-        payload = { ...formData, ROWID: editingRowId };
+        payload = { ROWID: editingRowId, [selectedEditField]: formData[selectedEditField] };
       } else {
-        // Prepare payload for POST request (create)
         method = "POST";
         payload = { ...formData };
       }
@@ -85,9 +116,9 @@ const CustomData = () => {
       }
       const result = await response.json();
       if (result.status === "success") {
-        await fetchData(); // Refresh the data list
-        handleCancelEdit(); // Reset form after successful submission
-        setShowForm(false); // Hide the form after submission
+        await fetchData();
+        handleCancelEdit();
+        setShowForm(false);
       } else {
         setError(result.message);
       }
@@ -98,7 +129,6 @@ const CustomData = () => {
     }
   };
 
-  // Handle DELETE request
   const handleDelete = async (rowId) => {
     if (!rowId) {
       setError("Cannot delete record: ROWID is missing.");
@@ -130,25 +160,25 @@ const CustomData = () => {
     }
   };
 
-  // Set the form for editing a row and show the form
   const handleEdit = (row) => {
-    // Populate form data with the selected row's custom data
-    setFormData({
-      Activity: row.customData.Activity || "",
-      Donor: row.customData.Donor || "",
-      conditionArea: row.customData.conditionArea || "",
-      Location: row.customData.Location || "",
-      Branch: row.customData.Branch || "",
-    });
-    // Set the editing status by storing the ROWID
+    setEditData(row.customData);
     setEditingRowId(row.customData.ROWID);
-    setShowForm(true); // Show the form for editing
-    setActiveRowIdForActions(null); // Hide dropdown
+    setShowForm(true);
+    setSelectedEditField(null);
+    setFormData({
+      Activity: "",
+      Donor: "",
+      conditionArea: "",
+      Location: "",
+      Branch: "",
+    });
+    setActiveRowIdForActions(null);
   };
 
-  // Function to cancel edit mode and clear the form
   const handleCancelEdit = () => {
     setEditingRowId(null);
+    setEditData(null);
+    setSelectedEditField(null);
     setFormData({
       Activity: "",
       Donor: "",
@@ -158,95 +188,137 @@ const CustomData = () => {
     });
   };
 
-  // Check if at least one form field has a value
-  const isFormValid = Object.values(formData).some(value => value.trim() !== '');
+  const isFormValid = editingRowId
+    ? selectedEditField && formData[selectedEditField]
+    : Object.values(formData).some((value) => value.trim() !== "");
 
-  // Function to toggle dropdown menu for a specific row
-  const toggleDropdown = (rowId) => {
-    setActiveRowIdForActions(prevId => (prevId === rowId ? null : rowId));
-  };
-  
+  const fields = ["Activity", "Donor", "conditionArea", "Location", "Branch"];
+
   return (
-    <div>
+    <div className="container">
       <style>
         {`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
-        }
+          body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1f2937;
+          }
 
-        .container {
+          .container {
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 2rem;
             min-height: 100vh;
-        }
+          }
 
-        .card {
-            background: #fff;
+          .card {
+            background: #ffffff;
             padding: 2rem;
             border-radius: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             width: 100%;
             max-width: 900px;
             box-sizing: border-box;
             margin-top: 1.5rem;
-        }
+          }
 
-        .title {
+          .title {
             font-size: 1.75rem;
             font-weight: 700;
-            color: #1a202c;
+            color: #111827;
             text-align: center;
             margin-bottom: 2rem;
-        }
+          }
 
-        .form-grid {
+          .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
             margin-bottom: 1rem;
-        }
+          }
 
-        .form-group {
+          .form-group {
             display: flex;
             flex-direction: column;
-        }
+          }
+          
+          .form-group-radio {
+            margin-bottom: 1rem;
+          }
 
-        .form-label {
+          .form-label {
             font-weight: 600;
             margin-bottom: 0.5rem;
-            color: #4a5568;
-        }
+            color: #374151;
+          }
+          
+          .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+          }
 
-        .form-input {
+          .radio-label {
+            background-color: #e5e7eb;
+            color: #4b5563;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-size: 0.875rem;
+            font-weight: 500;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
+
+          .radio-label input[type="radio"] {
+            display: none;
+          }
+          
+          .radio-label input[type="radio"]:checked + .radio-span {
+            background-color: #4c51bf;
+            color: #fff;
+          }
+
+          .radio-label:hover {
+            background-color: #d1d5db;
+          }
+          
+          .radio-span {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            transition: background-color 0.2s ease-in-out;
+          }
+
+          .form-input {
             width: 100%;
             padding: 0.75rem 1rem;
             border-radius: 0.5rem;
-            border: 1px solid #e2e8f0;
-            background-color: #f7fafc;
+            border: 1px solid #d1d5db;
+            background-color: #f9fafb;
             transition: all 0.2s ease-in-out;
-        }
+          }
 
-        .form-input:focus {
+          .form-input:focus {
             outline: none;
             border-color: #4c51bf;
             box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.2);
-        }
-        
-        .add-button-container {
+          }
+          
+          .add-button-container {
             width: 100%;
             max-width: 900px;
             display: flex;
             justify-content: flex-end;
             margin-top: 1.5rem;
-        }
+          }
 
-        .add-button {
+          .add-button {
             background-color: #4c51bf;
             color: #fff;
             padding: 0.75rem 1.5rem;
@@ -256,20 +328,23 @@ const CustomData = () => {
             border: none;
             transition: background-color 0.2s ease-in-out;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
 
-        .add-button:hover {
+          .add-button:hover {
             background-color: #3d429a;
-        }
+          }
 
-        .button-container {
+          .button-container {
             display: flex;
             justify-content: center;
             gap: 1rem;
             margin-top: 1rem;
-        }
+          }
 
-        .submit-button {
+          .submit-button {
             background-color: #4c51bf;
             color: #fff;
             padding: 0.75rem 1.5rem;
@@ -279,93 +354,93 @@ const CustomData = () => {
             border: none;
             transition: background-color 0.2s ease-in-out;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
+          }
 
-        .submit-button:hover {
+          .submit-button:hover {
             background-color: #3d429a;
-        }
-        
-        .submit-button:disabled {
+          }
+          
+          .submit-button:disabled {
             background-color: #a0aec0;
             cursor: not-allowed;
-        }
+          }
 
-        .status-message {
+          .status-message {
             text-align: center;
             margin-top: 1rem;
             padding: 0.75rem;
             border-radius: 0.5rem;
             font-weight: 600;
-        }
+          }
 
-        .loading {
+          .loading {
             background-color: #e2e8f0;
             color: #4a5568;
-        }
+          }
 
-        .error {
-            background-color: #fed7d7;
-            color: #c53030;
-        }
+          .error {
+            background-color: #fee2e2;
+            color: #b91c1c;
+          }
 
-        .table-container {
+          .table-container {
             overflow-x: auto;
             margin-top: 2rem;
             width: 100%;
             max-width: 900px;
-        }
+          }
 
-        table {
+          table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0 0.75rem;
             table-layout: fixed;
-        }
+          }
 
-        thead tr {
+          thead tr {
             background-color: #4c51bf;
             color: white;
             border-radius: 0.5rem;
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+          }
 
-        thead th {
+          thead th {
             font-weight: 600;
             padding: 1rem;
             text-align: left;
-        }
+          }
 
-        tbody tr {
+          tbody tr {
             background-color: #fff;
             border-radius: 0.5rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s ease-in-out;
-        }
-        
-        tbody tr:hover {
+          }
+          
+          tbody tr:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+          }
 
-        tbody td {
+          tbody td {
             padding: 1rem;
             word-wrap: break-word;
-        }
+          }
 
-        .no-records {
+          .no-records {
             text-align: center;
             padding: 2rem;
             color: #718096;
             font-style: italic;
-        }
-        
-        .actions-cell {
-          text-align: center;
-          position: relative;
-        }
+          }
+          
+          .actions-cell {
+            text-align: center;
+            position: relative;
+          }
 
-        .actions-button {
+          .actions-button {
             background: none;
             border: none;
             cursor: pointer;
@@ -375,15 +450,15 @@ const CustomData = () => {
             padding: 0.25rem 0.5rem;
             border-radius: 0.5rem;
             transition: background-color 0.2s;
-        }
+          }
 
-        .actions-button:hover {
+          .actions-button:hover {
             background-color: #e2e8f0;
-        }
+          }
 
-        .dropdown-menu {
+          .dropdown-menu {
             position: absolute;
-            top: 30%;
+            top: 20%;
             right: 0;
             background-color: #fff;
             border-radius: 0.5rem;
@@ -393,9 +468,11 @@ const CustomData = () => {
             flex-direction: column;
             min-width: 120px;
             overflow: hidden;
-        }
+            transform: translateY(0.5rem);
+            pointer-events: auto;
+          }
 
-        .dropdown-item {
+          .dropdown-item {
             padding: 0.75rem 1rem;
             cursor: pointer;
             background: none;
@@ -405,193 +482,238 @@ const CustomData = () => {
             font-size: 1rem;
             color: #4a5568;
             transition: background-color 0.2s;
-        }
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
 
-        .dropdown-item:hover {
+          .dropdown-item:hover {
             background-color: #f7fafc;
-        }
+          }
         `}
       </style>
-      <div className="container">
-        {showForm ? (
-          <div className="card">
-            <h1 className="title">
-              {editingRowId ? "Edit Record" : "Add New Record"}
-            </h1>
-            <form onSubmit={handleSubmit}>
-              <div className="form-grid">
-                <div className="form-group">
-                  <label htmlFor="Activity" className="form-label">
-                    Activity
-                  </label>
-                  <input
-                    type="text"
-                    id="Activity"
-                    name="Activity"
-                    placeholder="Activity"
-                    value={formData.Activity}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="Donor" className="form-label">
-                    Donor
-                  </label>
-                  <input
-                    type="text"
-                    id="Donor"
-                    name="Donor"
-                    placeholder="Donor"
-                    value={formData.Donor}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="conditionArea" className="form-label">
-                    Condition Area
-                  </label>
-                  <input
-                    type="text"
-                    id="conditionArea"
-                    name="conditionArea"
-                    placeholder="Condition Area"
-                    value={formData.conditionArea}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="Location" className="form-label">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    id="Location"
-                    name="Location"
-                    placeholder="Location"
-                    value={formData.Location}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="Branch" className="form-label">
-                    Branch
-                  </label>
-                  <input
-                    type="text"
-                    id="Branch"
-                    name="Branch"
-                    placeholder="Branch"
-                    value={formData.Branch}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  />
-                </div>
-              </div>
-              <div className="button-container">
-                <button
-                  type="submit"
-                  className="submit-button"
-                  disabled={loading || !isFormValid}
-                >
-                  {editingRowId ? "Update Record" : "Add Record"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleCancelEdit();
-                    setShowForm(false);
-                  }}
-                  className="submit-button"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        ) : (
-          <>
-            <div className="add-button-container">
+      {showForm ? (
+        <div className="card">
+          <h1 className="title">
+            {editingRowId ? "Edit Record" : "Add New Record"}
+          </h1>
+          <form onSubmit={handleSubmit}>
+            <div className="form-grid">
+              {editingRowId ? (
+                <>
+                  <div className="form-group-radio">
+                    <label className="form-label">
+                      Select a field to edit:
+                    </label>
+                    <div className="radio-group">
+                      {fields.map((field) => (
+                        <label key={field} className="radio-label">
+                          <input
+                            type="radio"
+                            name="editField"
+                            value={field}
+                            checked={selectedEditField === field}
+                            onChange={handleRadioChange}
+                          />
+                          <span className="radio-span">{field}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  {selectedEditField && (
+                    <div className="form-group">
+                      <label
+                        htmlFor={selectedEditField}
+                        className="form-label"
+                      >
+                        {selectedEditField}
+                      </label>
+                      <input
+                        type="text"
+                        id={selectedEditField}
+                        name={selectedEditField}
+                        placeholder={`Enter new ${selectedEditField}`}
+                        value={formData[selectedEditField]}
+                        onChange={handleInputChange}
+                        className="form-input"
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="Activity" className="form-label">
+                      Activity
+                    </label>
+                    <input
+                      type="text"
+                      id="Activity"
+                      name="Activity"
+                      placeholder="Activity"
+                      value={formData.Activity}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="Donor" className="form-label">
+                      Donor
+                    </label>
+                    <input
+                      type="text"
+                      id="Donor"
+                      name="Donor"
+                      placeholder="Donor"
+                      value={formData.Donor}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="conditionArea" className="form-label">
+                      Condition Area
+                    </label>
+                    <input
+                      type="text"
+                      id="conditionArea"
+                      name="conditionArea"
+                      placeholder="Condition Area"
+                      value={formData.conditionArea}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="Location" className="form-label">
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      id="Location"
+                      name="Location"
+                      placeholder="Location"
+                      value={formData.Location}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="Branch" className="form-label">
+                      Branch
+                    </label>
+                    <input
+                      type="text"
+                      id="Branch"
+                      name="Branch"
+                      placeholder="Branch"
+                      value={formData.Branch}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="button-container">
               <button
-                onClick={() => {
-                  setShowForm(true);
-                  handleCancelEdit();
-                }}
-                className="add-button"
+                type="submit"
+                className="submit-button"
+                disabled={loading || !isFormValid}
               >
-                Add Record
+                {editingRowId ? "Update Record" : "Add Record"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleCancelEdit();
+                  setShowForm(false);
+                }}
+                className="submit-button"
+              >
+                Cancel
               </button>
             </div>
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Activity</th>
-                    <th>Donor</th>
-                    <th>Condition Area</th>
-                    <th>Location</th>
-                    <th>Branch</th>
-                    <th className="actions-cell">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.length > 0 ? (
-                    data.map((row) => (
-                      <tr key={row.customData.ROWID}>
-                        <td>{row.customData.Activity}</td>
-                        <td>{row.customData.Donor}</td>
-                        <td>{row.customData.conditionArea}</td>
-                        <td>{row.customData.Location}</td>
-                        <td>{row.customData.Branch}</td>
-                        <td
-                          className="actions-cell"
-                          onMouseLeave={() => setActiveRowIdForActions(null)}
+          </form>
+        </div>
+      ) : (
+        <>
+          <div className="add-button-container">
+            <button
+              onClick={() => {
+                setShowForm(true);
+                handleCancelEdit();
+              }}
+              className="add-button"
+            >
+              Add Record
+            </button>
+          </div>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Activity</th>
+                  <th>Donor</th>
+                  <th>Condition Area</th>
+                  <th>Location</th>
+                  <th>Branch</th>
+                  <th className="actions-cell">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.length > 0 ? (
+                  data.map((row) => (
+                    <tr key={row.customData.ROWID}>
+                      <td>{row.customData.Activity}</td>
+                      <td>{row.customData.Donor}</td>
+                      <td>{row.customData.conditionArea}</td>
+                      <td>{row.customData.Location}</td>
+                      <td>{row.customData.Branch}</td>
+                      <td className="actions-cell">
+                        <button
+                          className="actions-button"
+                          onClick={() => toggleDropdown(row.customData.ROWID)}
                         >
-                          <button
-                            className="actions-button"
-                            onClick={() => toggleDropdown(row.customData.ROWID)}
-                          >
-                            ...
-                          </button>
-                          {activeRowIdForActions === row.customData.ROWID && (
-                            <div className="dropdown-menu">
-                              <button
-                                className="dropdown-item"
-                                onClick={() => handleEdit(row)}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                className="dropdown-item"
-                                onClick={() => handleDelete(row.customData.ROWID)}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="6" className="no-records">
-                        {loading ? "Fetching data..." : "No records found."}
+                          ...
+                        </button>
+                        {activeRowIdForActions === row.customData.ROWID && (
+                          <div className="dropdown-menu" ref={dropdownRef}>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleEdit(row)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="dropdown-item"
+                              onClick={() =>
+                                handleDelete(row.customData.ROWID)
+                              }
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="no-records">
+                      {loading ? "Fetching data..." : "No records found."}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
 
-        {/* Status messages */}
-        {loading && <div className="status-message loading">Loading...</div>}
-        {error && <div className="status-message error">Error: {error}</div>}
-      </div>
+      {/* Status messages */}
+      {loading && <div className="status-message loading">Loading...</div>}
+      {error && <div className="status-message error">Error: {error}</div>}
     </div>
   );
 };

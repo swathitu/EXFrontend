@@ -1,0 +1,265 @@
+
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+ 
+  .app-container1 {
+    display: flex;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    max-width: 1200px;
+    width: 100%;
+  }
+  .main-content {
+    flex: 3;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .sidebar {
+    flex: 1;
+    background-color: #f7f9fa;
+    padding: 30px;
+    border-left: 1px solid #e0e0e0;
+  }
+  .header1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+  .trip-id {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: #4a5568;
+    font-weight: 500;
+  }
+  .status-badge {
+    background-color: #2f855a;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+.header1-actions{
+    gap:5px;
+    display: flex;
+}
+
+  .header1-actions button, .header1-actions .dropdown {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .header1-actions button {
+    background-color: #4c51bf;
+    color: white;
+    border: none;
+  }
+  .header1-actions button:hover {
+    background-color: #434190;
+  }
+  .header1-actions .dropdown {
+    background-color: #e2e8f0;
+    color: #4a5568;
+    border: 1px solid #cbd5e0;
+  }
+  .trip-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .trip-info h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    color: #2d3748;
+  }
+  .trip-info .details {
+    font-size: 14px;
+    color: #718096;
+    margin-top: 5px;
+  }
+  .booking-status {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .booking-status-icon {
+    width: 36px;
+    height: 36px;
+    background-color: #e2e8f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .booking-status-icon.plane {
+    background-color: #c3dafe;
+    color: #2b6cb0;
+  }
+  .booking-status-icon.hotel {
+    background-color: #a4c4f0;
+    color: #2d61a3;
+  }
+  .booking-status-icon.car {
+    background-color: #d1d8e1;
+    color: #4a5568;
+  }
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid #e2e8f0;
+    margin-top: 20px;
+  }
+  .tab-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #718096;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-item:hover {
+    color: #4a5568;
+  }
+  .tab-item.active {
+    color: #4c51bf;
+    border-bottom: 2px solid #4c51bf;
+  }
+  .content-section {
+    background-color: #f7f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .travel-info-card {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .travel-route {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .date-info {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 500;
+  }
+  .route-details {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .route-details .cities {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #2d3748;
+  }
+  .route-details .cities .code {
+    font-size: 20px;
+  }
+  .route-details .cities .name {
+    font-size: 14px;
+    color: #718096;
+  }
+  .arrow {
+    font-size: 18px;
+    color: #cbd5e0;
+  }
+  .more-options-btn {
+    background: none;
+    border: 1px solid #cbd5e0;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+  }
+  .sidebar-section {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+  }
+  .sidebar-section-title {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .sidebar-section-value {
+    font-size: 16px;
+    color: #2d3748;
+    font-weight: 600;
+  }
+  .approver-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .approver-avatar {
+    background-color: #4c51bf;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  .approver-details {
+    display: flex;
+    flex-direction: column;
+  }
+  .approver-details .name {
+    font-weight: 600;
+    color: #2d3748;
+  }
+  .approver-details .view-flow {
+    font-size: 12px;
+    color: #4c51bf;
+    cursor: pointer;
+  }
+  .status-message-card {
+    background-color: #fffbeb;
+    color: #9b7200;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ffe8b1;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .info-note {
+    font-size: 14px;
+    color: #718096;
+    font-style: italic;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+  }
+
