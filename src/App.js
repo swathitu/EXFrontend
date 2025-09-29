@@ -283,7 +283,7 @@ function AppShell() {
 
               }
 
-            />
+           
  
             <Route
 
@@ -297,18 +297,7 @@ function AppShell() {
               }
 
             />
-<Route
 
-              path="/masters/customdata/"
-
-              element={
-<RequireRole allow={[]}>
-<CustomData />
-</RequireRole>
-
-              }
-
-            />
 <Route
 
               path="/masters/department"
@@ -334,6 +323,11 @@ function AppShell() {
 
             />
 <Route
+
+
+           
+            <Route path="/masters/customdata/" element={<CustomData />} />
+            <Route
 
               path="/masters/department/:id/edit"
 
