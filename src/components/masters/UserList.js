@@ -85,7 +85,7 @@ export default function UserList() {
       try {
 
         const res = await listUsers();
-
+      
         const data = Array.isArray(res) ? res : (res?.data || []);
 
         setRows(data);

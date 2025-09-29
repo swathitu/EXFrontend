@@ -67,4 +67,23 @@ export async function deleteLocation(rowid) {
 }
 // Add more later (update, delete)
 
- 
+ export async function getLocation(rowid) {
+  const res = await fetch(`${FN}/Edit?ROWID=${encodeURIComponent(rowid)}&debug=1`);
+  const data = await res.json();
+  if (res.ok && data.status === "success") {
+    return data.data;
+  }
+  throw new Error(data.message || "Failed to load location");
+}
+
+export function updateLocation(payload) {
+  return http(`${FN}/Update`, { method: "POST", body: payload });
+}
+
+//Load primary contact person
+export async function getprimarycontact() {
+  return http(`${FN}/primaryContact?debug=1`, { method: "GET" });
+}
+
+
+
