@@ -228,7 +228,9 @@ function AppShell() {
                   <LocationForm />
                 </RequireRole>
               }
-            />
+
+/>
+
 
             <Route
               path="/masters/users"
@@ -302,3 +304,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
