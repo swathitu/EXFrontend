@@ -189,7 +189,7 @@ sidebar {
 
   }
 
-  .sidebar { grid-row: 2 / 3; grid-column: 1 / -1; border-right: none; border-bottom: 1px solid var(--border); }
+  .sidebar { grid-row: 2 / 3; grid-column: 1 / 2; border-right: none; border-bottom: 1px solid var(--border); }
 
   .main    { grid-row: 3 / 4; grid-column: 1 / -1; }
 
@@ -202,3 +202,88 @@ sidebar {
   margin-left: -var(--content-padding, 0);
   margin-right: -var(--content-padding, 0);
 }
+
+/* === FORCE HEADER & SIDEBAR TO ALIGN (final overrides) === */
+ 
+/* Page grid */
+
+.app-shell {
+
+  display: grid;
+
+  grid-template-rows: var(--header-h) 1fr var(--footer-h);
+
+  grid-template-columns: var(--side-w) 1fr;
+
+}
+ 
+/* Header spans both columns */
+
+.app-shell > .header,
+
+.app-shell > header {
+
+  grid-row: 1 / 2;
+
+  grid-column: 1 / -1;
+
+  margin: 0;                 /* kill any margin that could create a gap */
+
+}
+ 
+/* Sidebar sits directly under header, first column */
+
+.app-shell > .sidebar,
+
+.app-shell > aside,
+
+.app-shell > :nth-child(2) {
+
+  grid-row: 2 / 3;
+
+  grid-column: 1 / 2;
+
+  align-self: stretch;
+
+  /* remove the visible “gap” */
+
+  padding-top: 0 !important;
+
+  margin-top: 0 !important;
+
+  border-right: 1px solid var(--border);
+
+  background: var(--panel);
+
+}
+ 
+/* Main content in the second column, same row */
+
+.app-shell > .main {
+
+  grid-row: 2 / 3;
+
+  grid-column: 2 / -1;
+
+}
+ 
+/* If the first child inside the sidebar had spacing, neutralize it */
+
+.app-shell .sidebar > *:first-child {
+
+  margin-top: 0 !important;
+
+}
+
+/* 1. Turn the sidebar into a vertical flex container */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+}
+ 
+
+main.main--no-scroll {
+  overflow-y: hidden;
+  padding: 0; /* Remove padding to allow the component to control it */
+}
+ 
