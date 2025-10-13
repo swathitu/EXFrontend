@@ -1,30 +1,33 @@
-// src/components/Sidebar.jsx
- 
 import React, { useState } from "react";
 
 import "./styles/Sidebar.css";
  
-/** ──────────────────────────────────────────────────────────────────────────
+/**
 
-* Role-aware menu filtering
+* Role-aware menu filtering (UPDATED)
 
-*  - admin: sees everything (Home, Trip, Masters, ZohoSync)
+* - admin: Home, Trip, Masters, ZohoSync
 
-*  - approver/submitter: only Home and Trip
+* - submitter: Home, Trip
 
-* Pass `role` via props from App.
+* - approver: Home, My approvals
 
-* ────────────────────────────────────────────────────────────────────────── */
+* Pass `role` from App.
+
+*/
  
 const MENU_ALL = [
 
   { key: "home", label: "Home", icon: "home" },
 
-  { key: "trip", label: "Trip", icon: "trip", hasPlus: true },
+  { key: "trip", label: "Trip", icon: "trip", hasPlus: true },              // admin + submitter
+
+  { key: "my-approvals", label: "My approvals", icon: "approvals" },        // approver only
 
   { key: "masters", label: "Masters", icon: "settings", isExpandable: true },
 
-  { key: "ticketDataView", label: "ZohoSync", icon: "ticketDataView" },
+  
+  { key: "expenseDataView", label: "Expense Data", icon: "expenseDataView" },
 
 ];
  
@@ -63,7 +66,7 @@ const Icon = ({ name }) => {
     "aria-hidden": true,
 
   };
-
+ 
   switch (name) {
 
     case "user":
@@ -119,6 +122,16 @@ const Icon = ({ name }) => {
 <svg {...common}>
 <path d="M3 10h18l-1.5 9a2 2 0 0 1-2 1.7H6.5a2 2 0 0 1-2-1.7L3 10z" />
 <path d="M8 10V6a4 4 0 0 1 8 0v4" />
+</svg>
+
+      );
+
+    case "approvals": // check-circle icon
+
+      return (
+<svg {...common}>
+<path d="M22 11.1V12a10 10 0 1 1-5.93-9.14" />
+<path d="M22 4 12 14.01l-3-3" />
 </svg>
 
       );
@@ -296,7 +309,7 @@ const SideRow = ({ item, active, onClick, children, collapsed, onAdd }) => {
  
 export default function Sidebar({
 
-  role = "submitter", // receives from App; default for safety
+  role = "submitter",
 
   defaultActive = "home",
 
@@ -312,15 +325,29 @@ export default function Sidebar({
 
   const [activeKey, setActiveKey] = useState(defaultActive ?? "home");
  
-  // Filter menus based on role
+  // Build menu by role
 
-  const isAdmin = role === "admin";
+  let roleMenu = [];
 
-  const roleMenu = isAdmin
+  if (role === "admin") {
 
-    ? MENU_ALL
+    roleMenu = MENU_ALL.filter((m) =>
 
-    : MENU_ALL.filter((m) => m.key === "home" || m.key === "trip");
+      ["home", "trip", "masters","expenseDataView"].includes(m.key)
+
+    );
+
+  } else if (role === "approver") {
+
+    roleMenu = MENU_ALL.filter((m) => ["home", "my-approvals"].includes(m.key));
+
+  } else {
+
+    // submitter
+
+    roleMenu = MENU_ALL.filter((m) => ["home", "trip"].includes(m.key));
+
+  }
  
   return (
 <aside className={`sidebar${collapsed ? " collapsed" : ""}`} aria-label="Sidebar">
@@ -329,8 +356,6 @@ export default function Sidebar({
         {roleMenu.map((it) =>
 
           it.isExpandable ? (
-
-            // Masters section will never render for approver/submitter
 <SideRow
 
               key={it.key}

@@ -1,0 +1,174 @@
+/* Styles for the Update Trip Form Popup */
+ 
+.form-overlay {
+
+  position: fixed;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100vw;
+
+  height: 100vh;
+
+  background-color: rgba(0, 0, 0, 0.6);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  z-index: 1000;
+
+}
+ 
+.form-container1 {
+
+  background-color: #fff;
+
+  border-radius: 8px;
+
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+  width: 100%;
+
+  max-width: 500px;
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+ 
+.form-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 1rem 1.5rem;
+
+  border-bottom: 1px solid #e5e7eb;
+
+}
+ 
+.form-header h2 {
+
+  margin: 0;
+
+  font-size: 1.25rem;
+
+  font-weight: 600;
+
+}
+ 
+.close-btn {
+
+  color: #6c757d;
+
+  background: none;
+
+  border: none;
+
+  cursor: pointer;
+
+}
+ 
+.trip-update-form {
+
+  padding: 1.5rem;
+
+  display: grid;
+
+  gap: 1rem;
+
+}
+ 
+.form-group {
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+ 
+.form-group label {
+
+  /* MODIFICATION: Ensured the label is a block element and clearly visible */
+
+  display: block;
+
+  margin-bottom: 0.5rem;
+
+  font-size: 0.875rem;
+
+  font-weight: 500;
+
+  color: #374151;
+
+}
+ 
+.form-group input,
+
+.form-group select {
+
+  padding: 0.6rem 0.75rem;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 6px;
+
+  font-size: 1rem;
+
+}
+ 
+.form-group input:focus,
+
+.form-group select:focus {
+
+  outline: 2px solid transparent;
+
+  outline-offset: 2px;
+
+  border-color: #3b82f6;
+
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+
+}
+ 
+.form-footer {
+
+  display: flex;
+
+  /* MODIFICATION: Changed alignment from flex-end to center */
+
+  justify-content: center;
+
+  gap: 0.75rem;
+
+  padding: 1rem 1.5rem;
+
+  background-color: #f9fafb;
+
+  border-top: 1px solid #e5e7eb;
+
+  border-bottom-left-radius: 8px;
+
+  border-bottom-right-radius: 8px;
+
+}
+ 
+.btn.btn-primary {
+
+  background-color: #2563eb;
+
+  color: #fff;
+
+  border-color: #2563eb;
+
+}
+ 
