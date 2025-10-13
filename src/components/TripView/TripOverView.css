@@ -1,265 +1,417 @@
 
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
- 
-  .app-container1 {
-    display: flex;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    max-width: 1200px;
-    width: 100%;
-  }
-  .main-content {
-    flex: 3;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .sidebar {
-    flex: 1;
-    background-color: #f7f9fa;
-    padding: 30px;
-    border-left: 1px solid #e0e0e0;
-  }
-  .header1 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-  }
-  .trip-id {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 16px;
-    color: #4a5568;
-    font-weight: 500;
-  }
-  .status-badge {
-    background-color: #2f855a;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 9999px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-.header1-actions{
-    gap:5px;
-    display: flex;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+    
+    .trip-overview-container {
+        display: flex;
+        min-height: 100vh;
+        background-color: #f9fafb; /* bg-gray-50 */
+        color: #1f2937; /* text-gray-900 */
+        font-family: 'Inter', sans-serif;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border-radius: 0.75rem; /* rounded-xl */
+        max-width: 1280px; /* max-w-7xl */
+        margin: 1.5rem auto; /* mx-auto my-6 */
+        overflow: hidden;
+    }
+    .main-content {
+        flex-grow: 1;
+        padding: 2rem;
+        width: 75%; /* Equivalent to max-w-75% when in flex */
+        background-color: white;
+    }
+    .sidebar1 {
+        width: 25%;
+        background-color: white;
+        border-left: 1px solid #e5e7eb; /* border-gray-200 */
+        padding: 2rem;
+        box-shadow: -2px 0 5px -2px rgba(0, 0, 0, 0.05);
+    }
+    .header1 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .trip-id {
+        font-size: 1.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        color: #4338ca; /* indigo-700 */
+    }
+    .status-badge {
+        margin-left: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .status-badge.Draft { background-color: #fef3c7; color: #b45309; } /* amber */
+    .status-badge.Approved { background-color: #d1fae5; color: #065f46; } /* green */
+    .status-badge.Error { background-color: #fee2e2; color: #991b1b; } /* red */
+
+    .header1-actions button {
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-left: 0.5rem;
+    }
+    .header1-actions button:hover {
+        background-color: #f9fafb;
+    }
+    .header1-actions .dropdown {
+        color: #4b5563; /* gray-700 */
+        font-size: 1.25rem;
+        padding: 0.35rem 0.75rem;
+    }
+    .header1-actions .close-btn {
+        background-color: #fff;
+        color: #dc2626; /* red-600 */
+        border-color: #fecaca; /* red-200 */
+        margin-left: 0.5rem;
+        font-size: 1.125rem;
+        padding: 0.5rem 0.75rem;
+    }
+    .header1-actions .close-btn:hover {
+        background-color: #fef2f2; /* red-50 */
+    }
+    .trip-info h1 {
+        font-size: 1.875rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    .trip-info .details {
+        color: #6b7280;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+    }
+    .trip-info .details i {
+        margin-right: 0.5rem;
+    }
+    .modes-of-travel {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+    .modes-of-travel .title {
+        color: #6b7280;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    .modes-of-travel .icons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+    }
+    .tabs {
+        display: flex;
+        border-bottom: 2px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+    }
+    .tab-item {
+        padding: 0.75rem 1.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        color: #6b7280; /* text-gray-500 */
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+    }
+    .tab-item i { margin-right: 0.5rem; }
+    .tab-item:hover {
+        color: #4f46e5;
+    }
+    .tab-item.active {
+        color: #4f46e5; /* indigo-600 */
+        border-bottom-color: #4f46e5;
+    }
+
+    .content-section {
+        background-color: #f9fafb; /* gray-50 */
+        padding: 1rem;
+        border-radius: 0.5rem;
+        flex-grow: 1;
+    }
+    .status-message-box {
+        background-color: #eff6ff; /* blue-50 */
+        color: #1e40af; /* blue-800 */
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid #bfdbfe; /* blue-200 */
+        margin-bottom: 1rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+    .status-message-box .agent-info {
+        font-size: 0.75rem;
+        color: #2563eb; /* blue-600 */
+        margin-top: 0.25rem;
+    }
+    .empty-segment-box {
+        background-color: #fef2f2; /* red-50 */
+        color: #991b1b; /* red-800 */
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #fecaca; /* red-200 */
+    }
+
+    .travel-info-card {
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+    .date-info {
+        display: flex;
+        align-items: center;
+        color: #4f46e5; /* indigo-600 */
+    }
+    .date-info span {
+        margin-left: 0.25rem;
+        font-weight: 700;
+    }
+    .route-details {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+    .cities {
+        text-align: center;
+    }
+    .cities .code {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    .cities .name {
+        font-size: 0.75rem;
+        color: #6b7280; /* gray-500 */
+    }
+    .arrow {
+        font-size: 1.5rem;
+        color: #d1d5db; /* gray-300 */
+    }
+    .more-options-btn {
+        margin-left: auto;
+        color: #9ca3af; /* gray-400 */
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+    .more-options-btn:hover {
+        color: #4b5563; /* gray-600 */
+    }
+    .notes-section {
+        font-size: 0.75rem;
+        color: #9ca3af; /* gray-400 */
+        margin-top: 0.75rem;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 0.5rem;
+    }
+
+    .booking-status-icon {
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: white;
+        font-size: 0.8rem;
+    }
+    .booking-status-icon.flight { background-color: #3b82f6; } /* blue */
+    .booking-status-icon.hotel { background-color: #10b981; } /* emerald */
+    .booking-status-icon.car { background-color: #f59e0b; } /* amber */
+    .booking-status-icon.bus { background-color: #6366f1; } /* indigo */
+    .booking-status-icon.train { background-color: #ef4444; } /* red */
+
+    /* Sidebar styles */
+    .sidebar-section {
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+    .sidebar-section-title {
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+    .sidebar-section-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+    .approver-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .approver-avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background-color: #4f46e5;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.875rem;
+    }
+    .approver-details .name {
+        font-weight: 600;
+    }
+    .approver-details .view-flow {
+        font-size: 0.75rem;
+        color: #6b7280;
+        cursor: pointer;
+        transition: color 0.15s;
+    }
+    .approver-details .view-flow:hover {
+        color: #3730a3;
+    }
+
+    /* Loading/Error View Fix */
+    .loader-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 2rem;
+        background-color: #f9fafb;
+    }
+    .loader-box {
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-align: center;
+        padding: 2rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        background-color: white;
+        width: 24rem;
+    }
+    .loader-box .loading-text {
+        color: #4f46e5; /* indigo-600 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .loader-box .error-text {
+        color: #b91c1c; /* red-700 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .loader-box .back-button {
+        margin-top: 1rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+        cursor: pointer;
+        background: none;
+        border: none;
+        text-decoration: none;
+    }
+    .loader-box .back-button:hover {
+        color: #4f46e5;
+        text-decoration: underline;
+    }
+
+
+    @media (max-width: 1024px) {
+        .trip-overview-container { flex-direction: column; }
+        .main-content, .sidebar1 { width: 100%; border-left: none; border-bottom: 1px solid #e5e7eb; max-width: none; }
+        .route-details { flex-wrap: wrap; }
+        .header1-actions .hidden { display: none; }
+    }
+
+    /* --- Dropdown Styles for More Options Button --- */
+
+/* 1. Container for Positioning */
+.dropdown-container {
+    /* Required for absolute positioning of the menu relative to this container */
+    position: relative; 
+    display: inline-block;
+    /* Move it to the end of the route-details flex container */
+    margin-left: auto; 
 }
 
-  .header1-actions button, .header1-actions .dropdown {
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  .header1-actions button {
-    background-color: #4c51bf;
-    color: white;
-    border: none;
-  }
-  .header1-actions button:hover {
-    background-color: #434190;
-  }
-  .header1-actions .dropdown {
-    background-color: #e2e8f0;
-    color: #4a5568;
-    border: 1px solid #cbd5e0;
-  }
-  .trip-summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  .trip-info h1 {
-    font-size: 28px;
-    font-weight: 700;
-    margin: 0;
-    color: #2d3748;
-  }
-  .trip-info .details {
-    font-size: 14px;
-    color: #718096;
-    margin-top: 5px;
-  }
-  .booking-status {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .booking-status-icon {
-    width: 36px;
-    height: 36px;
-    background-color: #e2e8f0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .booking-status-icon.plane {
-    background-color: #c3dafe;
-    color: #2b6cb0;
-  }
-  .booking-status-icon.hotel {
-    background-color: #a4c4f0;
-    color: #2d61a3;
-  }
-  .booking-status-icon.car {
-    background-color: #d1d8e1;
-    color: #4a5568;
-  }
-  .tabs {
-    display: flex;
-    border-bottom: 2px solid #e2e8f0;
-    margin-top: 20px;
-  }
-  .tab-item {
-    padding: 12px 20px;
-    cursor: pointer;
-    font-weight: 500;
-    color: #718096;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-  }
-  .tab-item:hover {
-    color: #4a5568;
-  }
-  .tab-item.active {
-    color: #4c51bf;
-    border-bottom: 2px solid #4c51bf;
-  }
-  .content-section {
-    background-color: #f7f9fa;
-    border-radius: 8px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  .travel-info-card {
-    background-color: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  .travel-route {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  .date-info {
-    font-size: 14px;
-    color: #718096;
-    font-weight: 500;
-  }
-  .route-details {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .route-details .cities {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 600;
-    color: #2d3748;
-  }
-  .route-details .cities .code {
-    font-size: 20px;
-  }
-  .route-details .cities .name {
-    font-size: 14px;
-    color: #718096;
-  }
-  .arrow {
-    font-size: 18px;
-    color: #cbd5e0;
-  }
-  .more-options-btn {
+/* 2. The Trigger Button */
+.more-options-btn {
     background: none;
-    border: 1px solid #cbd5e0;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+    height: 40px; 
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    font-size: 20px;
-  }
-  .sidebar-section {
-    padding-bottom: 20px;
-    border-bottom: 1px solid #e0e0e0;
-    margin-bottom: 20px;
-  }
-  .sidebar-section-title {
-    font-size: 14px;
-    color: #718096;
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-  .sidebar-section-value {
-    font-size: 16px;
-    color: #2d3748;
-    font-weight: 600;
-  }
-  .approver-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .approver-avatar {
-    background-color: #4c51bf;
-    color: white;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-  }
-  .approver-details {
-    display: flex;
-    flex-direction: column;
-  }
-  .approver-details .name {
-    font-weight: 600;
-    color: #2d3748;
-  }
-  .approver-details .view-flow {
-    font-size: 12px;
-    color: #4c51bf;
-    cursor: pointer;
-  }
-  .status-message-card {
-    background-color: #fffbeb;
-    color: #9b7200;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #ffe8b1;
-    font-size: 14px;
-    font-weight: 500;
-  }
-  .info-note {
-    font-size: 14px;
-    color: #718096;
-    font-style: italic;
-    padding-top: 10px;
-    border-top: 1px solid #e0e0e0;
-  }
+    transition: background-color 0.1s;
+}
 
+.more-options-btn:hover {
+    background-color: #f0f0f0;
+    border-color: #aaa;
+    color: #333;
+}
+
+/* 3. The Dropdown Menu Container */
+.dropdown-menu {
+    /* Critical positioning */
+    position: absolute;
+    top: 100%; /* Place below the button */
+    right: 0;  /* Align to the right edge */
+    
+    /* Appearance */
+    min-width: 180px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    z-index: 1000; /* Ensure it is above all other content */
+    padding: 5px 0;
+}
+
+/* 4. Individual Dropdown Items (The Reschedule/Cancel button) */
+.dropdown-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap; /* Prevents text wrap */
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+    color: #007bff;
+}
+
+/* Adjust route-details to ensure items align nicely */
+.route-details {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Adds space between city blocks and the button */
+}
