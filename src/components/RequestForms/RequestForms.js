@@ -114,6 +114,7 @@ const ManagerPopup = ({ manager, onClose, onConfirm }) => (
 // --- Main Form Component (RequestForm) ---
 const RequestForms = ({ onFormClose }) => {
   const [tripName, setTripName] = useState("");
+  const [businessPurpose, setBusinessPurpose] = useState("");
   const [travelType, setTravelType] = useState("domestic");
   const [activity, setActivity] = useState("");
   const [donor, setDonor] = useState("");
@@ -133,7 +134,7 @@ const RequestForms = ({ onFormClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   // New state for the popup
-  const [showPopup, setShowPopup] = useState(false); 
+  const [showPopup, setShowPopup] = useState(false);
   const [apiData, setApiData] = useState({
     activities: [],
     donors: [],
@@ -143,37 +144,37 @@ const RequestForms = ({ onFormClose }) => {
   });
 
   useEffect(() => {
-    const fetchDropdownData = async () => {
-      try {
-        const response = await fetch("/server/insertData/");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
-        
-        const customDataArray = result.data.map(item => item.customData);
-        
+    const fetchDropdownData = async () => {
+      try {
+        const response = await fetch("/server/insertData/");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+
+        const customDataArray = result.data.map(item => item.customData);
+
         // Helper to format data and prepend a default placeholder
         const formatAndPrepend = (dataArray, label) => {
-            const uniqueValues = [...new Set(dataArray)].filter(val => val); // Filter out potential null/empty strings
-            const options = uniqueValues.map(val => ({ value: val, label: val }));
-            // Prepend the placeholder option
-            return [{ value: "", label: `Select ${label}` }, ...options];
+          const uniqueValues = [...new Set(dataArray)].filter(val => val); // Filter out potential null/empty strings
+          const options = uniqueValues.map(val => ({ value: val, label: val }));
+          // Prepend the placeholder option
+          return [{ value: "", label: `Select ${label}` }, ...options];
         };
-        
-        const activitiesArray = customDataArray.map(item => item.Activity);
-        const donorsArray = customDataArray.map(item => item.Donor);
-        const conditionAreasArray = customDataArray.map(item => item.conditionArea);
-        const locationsArray = customDataArray.map(item => item.Location);
-        const branchesArray = customDataArray.map(item => item.Branch); // Keep track of this one
 
-        setApiData({
-          activities: formatAndPrepend(activitiesArray, "Activity"),
-          donors: formatAndPrepend(donorsArray, "Donor"),
-          conditionAreas: formatAndPrepend(conditionAreasArray, "Condition Area"),
-          locations: formatAndPrepend(locationsArray, "Location"),
-          branches: formatAndPrepend(branchesArray, "Branch"),
-        });
+        const activitiesArray = customDataArray.map(item => item.Activity);
+        const donorsArray = customDataArray.map(item => item.Donor);
+        const conditionAreasArray = customDataArray.map(item => item.conditionArea);
+        const locationsArray = customDataArray.map(item => item.Location);
+        const branchesArray = customDataArray.map(item => item.Branch); // Keep track of this one
+
+        setApiData({
+          activities: formatAndPrepend(activitiesArray, "Activity"),
+          donors: formatAndPrepend(donorsArray, "Donor"),
+          conditionAreas: formatAndPrepend(conditionAreasArray, "Condition Area"),
+          locations: formatAndPrepend(locationsArray, "Location"),
+          branches: formatAndPrepend(branchesArray, "Branch"),
+        });
 
         // FIX: Also, ensure the initial state is set to an empty string for all
         // to match the default placeholder's value: ""
@@ -182,14 +183,14 @@ const RequestForms = ({ onFormClose }) => {
         setConditionArea("");
         setLocation("");
         setBranch(""); // Set all to "" to be consistent
-        
-      } catch (error) {
-        console.error("Error fetching dropdown data:", error);
-      }
-    };
-    
-    fetchDropdownData();
-  }, []);
+
+      } catch (error) {
+        console.error("Error fetching dropdown data:", error);
+      }
+    };
+
+    fetchDropdownData();
+  }, []);
 
   const handleModeToggle = (mode) => {
     setActiveTravelModes((prevModes) =>
@@ -199,11 +200,21 @@ const RequestForms = ({ onFormClose }) => {
     );
   };
 
-    const handleSubmit = async (status, approverName = null, approverEmail = null) => {
-    console.log("Form Submitted!");
+  const handleSubmit = async (
+    status,
+    ApproverId = null,
+    ApproverName = null,
+    ApproverEmail = null,
+    SubmitterId = null,
+    SubmitterName = null,
+    SubmitterEmail = null
+  ) => {
+    console.log(`Form Submitted with status: ${status}`);
     const payload = {
       tripName,
+      businessPurpose,
       travelType,
+      activity,
       donor,
       conditionArea,
       location,
@@ -213,17 +224,23 @@ const RequestForms = ({ onFormClose }) => {
         destinationCountry,
         visaRequired,
       }),
-      
+
       activeTravelModes,
       flightData: activeTravelModes.includes("flight") ? flightFormData : null,
       hotelData: activeTravelModes.includes("hotel") ? hotelFormData : null,
       carData: activeTravelModes.includes("car") ? carFormData : null,
       busData: activeTravelModes.includes("bus") ? busFormData : null,
       trainData: activeTravelModes.includes("train") ? trainFormData : null,
-       ...(approverName && approverEmail && {
-      approverName,
-      approverEmail,
-    }),
+
+      // Conditional inclusion of Approver details
+      ...(ApproverId && { ApproverId }),
+      ...(ApproverName && { ApproverName }),
+      ...(ApproverEmail && { ApproverEmail }),
+
+      // Conditional inclusion of Submitter details
+      ...(SubmitterId && { SubmitterId }),
+      ...(SubmitterName && { SubmitterName }),
+      ...(SubmitterEmail && { SubmitterEmail }),
     };
 
     console.log("Payload to be sent:", payload);
@@ -243,13 +260,16 @@ const RequestForms = ({ onFormClose }) => {
 
       const result = await response.json();
       console.log("Success:", result);
+      setStatusMessage("Data submitted successfully! Please close the form. ✅");
 
       if (onFormClose) {
-          onFormClose();
+        onFormClose();
       }
     } catch (error) {
       console.error("Error:", error);
+
     }
+    setIsLoading(false);
   };
 
   const handleDraftSubmit = (e) => {
@@ -257,7 +277,7 @@ const RequestForms = ({ onFormClose }) => {
     handleSubmit("Draft");
   };
 
-  const userEmail = "srikanth@gmail.com"
+  const userEmail = "srikanth.thanniru@gurujana.com"
 
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
@@ -265,7 +285,7 @@ const RequestForms = ({ onFormClose }) => {
     setStatusMessage("");
     setUserData(null);
     setManagerData(null);
-    
+
     // Check if any travel mode is selected
     if (activeTravelModes.length === 0) {
       setStatusMessage("Please select at least one travel mode.");
@@ -291,11 +311,14 @@ const RequestForms = ({ onFormClose }) => {
         return;
       }
 
-      setUserData(checkAccessResult.data);
-      const { role, reporting_manager_id } = checkAccessResult.data;
+      // Store the entire data object (submitter details)
+      const submitterData = checkAccessResult.data;
+      setUserData(submitterData);
 
-      // Step 2: If the user is a 'User' and has a reporting_manager_id, get manager details and show popup
-      if (role === 'user' && reporting_manager_id) {
+      const { role, reporting_manager_id } = submitterData;
+
+      // Step 2: If the user is a 'user' and has a reporting_manager_id, get manager details and show popup
+      if (role === 'submitter' && reporting_manager_id) {
         const getManagerResponse = await fetch("/server/find_userDetails/", {
           method: "POST",
           headers: {
@@ -305,10 +328,10 @@ const RequestForms = ({ onFormClose }) => {
         });
 
         const getManagerResult = await getManagerResponse.json();
-        console.log(getManagerResult)
+        console.log("Manager Result:", getManagerResult)
 
         if (getManagerResponse.ok && getManagerResult.status === 'success') {
-          // CORRECTED LINE: Set the full API response object to state
+          // Store the full manager result object
           setManagerData(getManagerResult);
           // Show the popup with manager details
           setShowPopup(true);
@@ -320,8 +343,10 @@ const RequestForms = ({ onFormClose }) => {
       } else {
         setStatusMessage('User details retrieved successfully. Submitting form...');
         // Proceed with main form submission if no manager is needed
-        handleSubmit("Submitted");
-        setIsLoading(false);
+        const sId = submitterData.row_id;
+        const sName = submitterData.first_name;
+        const sEmail = submitterData.email;
+        handleSubmit("Submitted", null, null, null, sId, sName, sEmail); // Pass null for approver details
       }
     } catch (error) {
       console.error("API call failed:", error);
@@ -329,18 +354,73 @@ const RequestForms = ({ onFormClose }) => {
       setIsLoading(false);
     }
   };
-  
   // New handler for confirming submission from the popup
-  
+
+  const triggerMail = async (submitterEmail, approverEmail) => {
+    console.log(`Attempting to send mail: From ${submitterEmail} to ${approverEmail}`);
+    try {
+      const mailPayload = {
+        // RENAMED KEYS to match server expectation (submitterEmail/approverEmail)
+        submitterEmail: submitterEmail,
+        approverEmail: approverEmail,
+        // Include other fields the server might need
+        subject: "New Travel Request for Approval",
+      };
+
+      const response = await fetch("/server/mail_trigger/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(mailPayload),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Mail Trigger Success:", result);
+      } else {
+        console.error(`Mail Trigger Failed: HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error triggering mail API:", error);
+    }
+  };
 
   const handlePopupConfirm = async () => {
-  setShowPopup(false);
-  if (managerData && managerData.data) {
-    await handleSubmit("Submitted", managerData.data.first_name, managerData.data.email);
-  } else {
-    setStatusMessage("Manager data is not available. Submission cancelled.");
-  }
-};
+    setShowPopup(false);
+    setIsLoading(true);
+
+    if (managerData && managerData.data && userData) {
+      // Approver Details
+      // Assuming manager's ID is the row_id from their details object
+      const approverId = userData.reporting_manager_id;
+      console.log(approverId);
+      const approverName = managerData.data.first_name;
+      const approverEmail = managerData.data.email;
+
+      // Submitter Details (from the first API call)
+      const submitterId = userData.row_id;
+      const submitterName = userData.first_name;
+      const submitterEmail = userData.email;
+
+      // Call handleSubmit with all required details
+      await handleSubmit(
+        "Submitted",
+        approverId,
+        approverName,
+        approverEmail,
+        submitterId,
+        submitterName,
+        submitterEmail
+      );
+
+      triggerMail(submitterEmail, approverEmail);
+
+    } else {
+      setStatusMessage("Manager or Submitter data is incomplete. Submission cancelled.");
+      setIsLoading(false);
+    }
+  };
 
   const travelTypeOptions = [
     { value: "domestic", label: "Domestic" },
@@ -366,6 +446,16 @@ const RequestForms = ({ onFormClose }) => {
             placeholder="e.g., Business Trip to London"
             required
           />
+          <LabeledInput
+            label="Business Purpose*"
+            type="text"
+            name="businessPurpose"
+            value={businessPurpose}
+            onChange={(e) => setBusinessPurpose(e.target.value)}
+            placeholder="Business Purpose"
+            required
+          />
+
           <LabeledRadioGroup
             label="Travel Type"
             name="travelType"
@@ -501,7 +591,7 @@ const RequestForms = ({ onFormClose }) => {
           </button>
         </div>
       </form>
-      
+
       {showPopup && managerData && (
         <ManagerPopup
           manager={managerData.data}
