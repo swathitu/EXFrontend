@@ -21,7 +21,7 @@ const BusIcon  = () => (<svg viewBox="0 0 640 512" className="icon"><path d="M80
 const TrainIcon = () => (<svg viewBox="0 0 448 512" className="icon"><path d="M96 0C60.7 0 32 28.7 32 64V288c0 35.3 28.7 64 64 64l-32 32v32H160l32-32h64l32 32H384V384l-32-32c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H96zM96 64H352V208H96zM128 416l-32 32 32 32h32l32-32-32-32H128zM320 416H288l-32 32 32 32h32l32-32-32-32z"/></svg>);
 const ArrowIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm"><path d="M415.2 230.1l-85.3-51-74.3-44.4c-23.2-13.9-54.4 1-54.4 25.9V221h-84.9c-19.3 0-35 15.7-35 35s15.7 35 35 35h84.9v60.3c0 25 31.2 39.8 54.4 25.9l74.3-44.4 85.3-51c20.6-12.2 20.6-39.4 0-51.7z"/></svg>);
 const EditIcon  = () => (<svg viewBox="0 0 24 24" className="icon-sm"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>);
-
+const LocationIcon = () => (<svg viewBox="0 0 384 512" className="icon"><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>);
 /* ---------------- Tabs ---------------- */
 const ALL_TABS = [
   { key: "flight", label: "Flight", icon: <FlightIcon /> },
@@ -30,7 +30,22 @@ const ALL_TABS = [
   { key: "bus",    label: "Bus",    icon: <BusIcon /> },
   { key: "train",  label: "Train",  icon: <TrainIcon /> },
 ];
-
+/* ---------------- Helpers: Duration Calculation ---------------- */
+const calculateDuration = (depDateStr, depTimeStr, arrDateStr, arrTimeStr) => {
+  if (!depDateStr || !depTimeStr || !arrDateStr || !arrTimeStr) return "";
+  try {
+    const dep = new Date(`${depDateStr}T${depTimeStr}`);
+    const arr = new Date(`${arrDateStr}T${arrTimeStr}`);
+    const diffMs = arr.getTime() - dep.getTime();
+    if (isNaN(diffMs) || diffMs < 0) return "";
+    const totalMinutes = Math.floor(diffMs / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours}h ${minutes > 0 ? `${minutes}m` : ""}`.trim();
+  } catch (e) {
+    return ""; // Return empty string on parsing errors
+  }
+};
 /* ---------------- Helpers ---------------- */
 const toDisplayDate = (isoOrYmd) => {
   if (!isoOrYmd) return "";
@@ -58,6 +73,9 @@ const mapFlights = (arr = []) =>
        const arrCity = f.flight_arrv_city || f.arrv_city || "";
        const depCode = (depCity || "").slice(0, 3).toUpperCase();
        const arrCode = (arrCity || "").slice(0, 3).toUpperCase();
+       
+       const duration = calculateDuration(f.flight_dep_date, f.flight_dep_time, f.flight_arrv_date, f.flight_arrv_time);
+
        return {
          subRowId: f.ROWID || f.rowid || f.RowId || "",
          status: f.status, // used for allowEdit
@@ -75,6 +93,11 @@ const mapFlights = (arr = []) =>
            code: arrCode,
            airport: f.flight_arrv_airport || f.arr_airport || "",
          },
+         duration: duration,
+         amount: f.amount || f.flight_amount || 0,
+         meal: f.meal || "",
+         seat: f.seat || "",
+         flightClass: f.flight_class || f.flightClass || "",
          nonStop: !!(f.non_stop || f.nonStop || f.direct_flight),
        };
      });
@@ -97,7 +120,6 @@ const mapCars = (arr = []) =>
        subRowId: c.ROWID || c.rowid || c.RowId || "",
        status: c.status,
        carType: c.car_type || "",
-       driver:  c.driver || "No",
        pickUp:  { date: toDisplayDate(c.car_dep_date), location: c.car_dep_city || "" },
        dropOff: { date: toDisplayDate(c.car_arrv_date), location: c.car_arrv_city || "" },
      }));
@@ -105,23 +127,42 @@ const mapCars = (arr = []) =>
 const mapBuses = (arr = []) =>
   arr.map((w) => unwrap(w, "busDataZoho"))
      .filter((b) => b && typeof b === "object")
-     .map((b) => ({
-       subRowId: b.ROWID || b.rowid || b.RowId || "",
-       status: b.status,
-       from: { city: b.bus_dep_city || b.dep_city || "",  date: toDisplayDate(b.bus_dep_date || b.dep_date),  time: b.bus_dep_time || b.dep_time || "" },
-       to:   { city: b.bus_arrv_city || b.arrv_city || "", date: toDisplayDate(b.bus_arrv_date || b.arrv_date), time: b.bus_arrv_time || b.arrv_time || "" },
-     }));
+     .map((b) => {
+       const depDate = b.bus_dep_date || b.dep_date;
+       const arrDate = b.bus_arrv_date || b.arrv_date;
+       const depTime = b.bus_dep_time || b.dep_time || "";
+       const arrTime = b.bus_arrv_time || b.arrv_time || "";
+
+       const duration = calculateDuration(depDate, depTime, arrDate, arrTime);
+
+       return {
+         subRowId: b.ROWID || b.rowid || b.RowId || "",
+         status: b.status,
+         from: { city: b.bus_dep_city || b.dep_city || "", date: toDisplayDate(depDate), time: depTime },
+         to: { city: b.bus_arrv_city || b.arrv_city || "", date: toDisplayDate(arrDate), time: arrTime },
+         duration: duration, // Add duration here
+       };
+     });
 
 const mapTrains = (arr = []) =>
   arr.map((w) => unwrap(w, "trainDataZoho"))
      .filter((t) => t && typeof t === "object")
-     .map((t) => ({
-       subRowId: t.ROWID || t.rowid || t.RowId || "",
-       status: t.status,
-       from: { city: t.train_dep_city || t.dep_city || "",  date: toDisplayDate(t.train_dep_date || t.dep_date),  time: t.train_dep_time || t.dep_time || "" },
-       to:   { city: t.train_arrv_city || t.arrv_city || "", date: toDisplayDate(t.train_arrv_date || t.arrv_date), time: t.train_arrv_time || t.arrv_time || "" },
-     }));
+     .map((t) => {
+       const depDate = t.train_dep_date || t.dep_date;
+       const arrDate = t.train_arrv_date || t.arrv_date;
+       const depTime = t.train_dep_time || t.dep_time || "";
+       const arrTime = t.train_arrv_time || t.arrv_time || "";
 
+       const duration = calculateDuration(depDate, depTime, arrDate, arrTime);
+
+       return {
+         subRowId: t.ROWID || t.rowid || t.RowId || "",
+         status: t.status,
+         from: { city: t.train_dep_city || t.dep_city || "", date: toDisplayDate(depDate), time: depTime },
+         to: { city: t.train_arrv_city || t.arrv_city || "", date: toDisplayDate(arrDate), time: arrTime },
+         duration: duration, // Add duration here
+       };
+     });
 /* Trip duration from all modes (supports both shapes) */
 const deriveDuration = (a = {}) => {
   const dates = [];
@@ -164,31 +205,55 @@ async function fetchDetailByRowId(rowid) {
 const FlightDetails = ({ bookings, onEdit, mainStatusLower }) =>
   bookings.map((item, i) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
+    const hasExtraDetails = item.meal || item.seat || item.flightClass;
+    
+    // Conditionally add a class if extra details exist for this specific item
+    const itemClassName = `itinerary-item flight-item ${hasExtraDetails ? 'has-extra-details' : ''}`;
+
     return (
-      <div className="itinerary-item flight-item" key={`flt-${i}`}>
-        <div className="itinerary-leg">
-          <div className="date-block">
-            <div className="font-xs text-muted">Departure</div>
-            <div>{item.dep.date}{item.dep.time ? `, ${item.dep.time}` : ""}</div>
-            <div>{item.dep.city}{item.dep.code ? ` - ${item.dep.code}` : ""}</div>
-            {item.dep.airport ? <div className="font-xs text-muted">{item.dep.airport}</div> : null}
-          </div>
-          <div className="arrow"><ArrowIcon /></div>
-          <div className="date-block">
-            <div className="font-xs text-muted">Arrival</div>
-            <div>{item.arr.date}{item.arr.time ? `, ${item.arr.time}` : ""}</div>
-            <div>{item.arr.city}{item.arr.code ? ` - ${item.arr.code}` : ""}</div>
-            {item.arr.airport ? <div className="font-xs text-muted">{item.arr.airport}</div> : null}
-          </div>
-        </div>
-        {item.nonStop ? <div className="font-xs text-muted">non-stop</div> : null}
-        {allowEdit && (
-          <div className="item-actions">
-            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "flight")} title="Edit flight">
-              <EditIcon />
-            </button>
+      <div className="flight-item-wrapper" key={`flt-${i}`}>
+        {/* This logic correctly checks EACH item in the loop */}
+        {hasExtraDetails && (
+          <div className="flight-extra-details">
+            {item.meal && <span>Meal: {item.meal}</span>}
+            {item.seat && <span>Seat: {item.seat}</span>}
+            {item.flightClass && <span>Flight Class: {item.flightClass}</span>}
           </div>
         )}
+        
+        {/* The new className is used here */}
+        <div className={itemClassName}>
+          {/* Departure Column */}
+          <div className="itinerary-col">
+            <div>{item.dep.date}, {item.dep.time}</div>
+            <div className="font-large">{item.dep.city} - {item.dep.code}</div>
+          </div>
+          
+          {/* Middle Column */}
+          <div className="itinerary-col text-center">
+            <ArrowIcon />
+            <div className="font-xs text-muted">{item.duration}</div>
+            <div className="font-xs text-muted">{item.nonStop ? "non-stop" : ""}</div>
+          </div>
+
+          {/* Arrival Column */}
+          <div className="itinerary-col">
+            <div>{item.arr.date}, {item.arr.time}</div>
+            <div className="font-large">{item.arr.city} - {item.arr.code}</div>
+          </div>
+
+          {/* Amount & Actions Column */}
+          <div className="itinerary-col amount-actions-col">
+            <div className="font-large amount">
+              {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
+            </div>
+            {allowEdit && (
+              <button className="btn-icon edit-action" onClick={() => onEdit(item.subRowId, "flight")} title="Edit flight">
+                <EditIcon />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     );
   });
@@ -198,20 +263,26 @@ const HotelDetails = ({ bookings, onEdit, mainStatusLower }) =>
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
     return (
       <div className="itinerary-item hotel-item" key={`hot-${i}`}>
-        <div className="itinerary-date"><HotelIcon /> {item.location}</div>
-        <div className="itinerary-leg">
-          <div className="date-block">
-            <div className="font-xs text-muted">Check-in</div>
-            <div>{item.checkIn.date}</div>
-            <div>{item.checkIn.time}</div>
-          </div>
-          <div className="arrow">-</div>
-          <div className="date-block">
-            <div className="font-xs text-muted">Check-out</div>
-            <div>{item.checkOut.date}</div>
-            <div>{item.checkOut.time}</div>
-          </div>
+        <div className="hotel-info-col hotel-location">
+          <LocationIcon />
+          <span>{item.location}</span>
         </div>
+
+        <div className="hotel-info-col hotel-checkin">
+          <div className="font-xs text-muted">Check-in</div>
+          <div>{item.checkIn.date}</div>
+          {item.checkIn.time && <div className="font-xs">{item.checkIn.time}</div>}
+        </div>
+
+        {/* New separator element */}
+        <div className="hotel-date-separator">-</div>
+
+        <div className="hotel-info-col hotel-checkout">
+          <div className="font-xs text-muted">Check-out</div>
+          <div>{item.checkOut.date}</div>
+          {item.checkOut.time && <div className="font-xs">{item.checkOut.time}</div>}
+        </div>
+
         {allowEdit && (
           <div className="item-actions">
             <button className="btn-icon" onClick={() => onEdit(item.subRowId, "hotel")} title="Edit hotel">
@@ -228,23 +299,30 @@ const CarDetails = ({ bookings, onEdit, mainStatusLower }) =>
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
     return (
       <div className="itinerary-item car-item" key={`car-${i}`}>
-        <div className="itinerary-date">
-          <div className="font-xs text-muted">Car Type : {item.carType}</div>
-          <div className="font-xs text-muted">Driver : {item.driver}</div>
-        </div>
-        <div className="itinerary-leg">
-          <div className="date-block">
-            <div className="font-xs text-muted">Pick-Up</div>
-            <div>{item.pickUp.date}</div>
-            <div>{item.pickUp.location}</div>
-          </div>
-          <div className="arrow"><ArrowIcon /></div>
-          <div className="date-block">
-            <div className="font-xs text-muted">Drop-Off</div>
-            <div>{item.dropOff.date}</div>
-            <div>{item.dropOff.location}</div>
+        <div className="car-info-col car-type">
+          <CarIcon />
+          <div>
+            <div className="font-xs text-muted">Car Type</div>
+            <div>{item.carType}</div>
           </div>
         </div>
+
+        <div className="car-info-col car-pickup">
+          <div className="font-xs text-muted">Pick-Up</div>
+          <div>{item.pickUp.date}</div>
+          <div className="font-xs">{item.pickUp.location}</div>
+        </div>
+        
+        <div className="car-separator">
+          <ArrowIcon />
+        </div>
+
+        <div className="car-info-col car-dropoff">
+          <div className="font-xs text-muted">Drop-Off</div>
+          <div>{item.dropOff.date}</div>
+          <div className="font-xs">{item.dropOff.location}</div>
+        </div>
+
         {allowEdit && (
           <div className="item-actions">
             <button className="btn-icon" onClick={() => onEdit(item.subRowId, "car")} title="Edit car">
@@ -261,22 +339,28 @@ const BusDetails = ({ bookings, onEdit, mainStatusLower }) =>
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
     return (
       <div className="itinerary-item bus-item" key={`bus-${i}`}>
-        <div className="itinerary-date"><BusIcon /> Bus</div>
-        <div className="itinerary-leg">
-          <div className="date-block">
-            <div className="font-xs text-muted">Departure</div>
-            <div>{item.from.date}</div>
-            <div>{item.from.time}</div>
-            <div className="font-xs text-muted">{item.from.city}</div>
-          </div>
-          <div className="arrow"><ArrowIcon /></div>
-          <div className="date-block">
-            <div className="font-xs text-muted">Arrival</div>
-            <div>{item.to.date}</div>
-            <div>{item.to.time}</div>
-            <div className="font-xs text-muted">{item.to.city}</div>
-          </div>
+        <div className="bus-info-col bus-label">
+          <BusIcon />
+          <span>Bus</span>
         </div>
+
+        <div className="bus-info-col bus-departure">
+          <div className="font-xs text-muted">Departure</div>
+          <div>{item.from.date}{item.from.time ? `, ${item.from.time}` : ""}</div>
+          <div className="font-xs">{item.from.city}</div>
+        </div>
+        
+        <div className="bus-separator">
+          <ArrowIcon />
+          <div className="font-xs text-muted">{item.duration}</div>
+        </div>
+
+        <div className="bus-info-col bus-arrival">
+          <div className="font-xs text-muted">Arrival</div>
+          <div>{item.to.date}{item.to.time ? `, ${item.to.time}` : ""}</div>
+          <div className="font-xs">{item.to.city}</div>
+        </div>
+
         {allowEdit && (
           <div className="item-actions">
             <button className="btn-icon" onClick={() => onEdit(item.subRowId, "bus")} title="Edit bus">
@@ -293,22 +377,28 @@ const TrainDetails = ({ bookings, onEdit, mainStatusLower }) =>
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
     return (
       <div className="itinerary-item train-item" key={`train-${i}`}>
-        <div className="itinerary-date"><TrainIcon /> Train</div>
-        <div className="itinerary-leg">
-          <div className="date-block">
-            <div className="font-xs text-muted">Departure</div>
-            <div>{item.from.date}</div>
-            <div>{item.from.time}</div>
-            <div className="font-xs text-muted">{item.from.city}</div>
-          </div>
-          <div className="arrow"><ArrowIcon /></div>
-          <div className="date-block">
-            <div className="font-xs text-muted">Arrival</div>
-            <div>{item.to.date}</div>
-            <div>{item.to.time}</div>
-            <div className="font-xs text-muted">{item.to.city}</div>
-          </div>
+        <div className="train-info-col train-label">
+          <TrainIcon />
+          <span>Train</span>
         </div>
+
+        <div className="train-info-col train-departure">
+          <div className="font-xs text-muted">Departure</div>
+          <div>{item.from.date}{item.from.time ? `, ${item.from.time}` : ""}</div>
+          <div className="font-xs">{item.from.city}</div>
+        </div>
+        
+        <div className="train-separator">
+          <ArrowIcon />
+          <div className="font-xs text-muted">{item.duration}</div>
+        </div>
+
+        <div className="train-info-col train-arrival">
+          <div className="font-xs text-muted">Arrival</div>
+          <div>{item.to.date}{item.to.time ? `, ${item.to.time}` : ""}</div>
+          <div className="font-xs">{item.to.city}</div>
+        </div>
+
         {allowEdit && (
           <div className="item-actions">
             <button className="btn-icon" onClick={() => onEdit(item.subRowId, "train")} title="Edit train">
@@ -401,10 +491,10 @@ export default function TripDetailView() {
   if (loading) {
     return (
       <div className="ze-detail-view">
-        <header className="ze-detail-header">
-          <div className="ze-header-left"><div className="trip-id">{rowid || "—"}</div></div>
-        </header>
-        <div className="ze-detail-content">Loading…</div>
+        <div className="ze-loading-container">
+          <div className="ze-loader"></div>
+          <span>Loading Trip Details...</span>
+        </div>
       </div>
     );
   }

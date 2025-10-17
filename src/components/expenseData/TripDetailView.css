@@ -100,4 +100,265 @@
 
 .badge-completed { background-color: #dcfce7; color: #166534; } /* green */
 
- 
+/* ---------- Loading State ---------- */
+.ze-loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh; /* Ensures vertical centering */
+  gap: 1rem;
+  color: #6c757d; /* text-muted */
+}
+
+.ze-loader {
+  border: 5px solid #e5e8f1; /* Light border */
+  border-top: 5px solid #0d6efd; /* Active blue */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: ze-spin 1s linear infinite;
+}
+
+@keyframes ze-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* === NEW STYLES FOR FLIGHT VIEW === */
+
+/* Wrapper to position extra details relative to the whole item */
+.flight-item-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+/* Conditionally shown details (Meal, Seat, etc.) */
+.flight-extra-details {
+  position: absolute;
+  top: 10px;
+  right: 50px; /* Space for edit icon */
+  font-size: 11px;
+  color: #6c757d;
+  display: flex;
+  gap: 12px;
+  z-index: 1; /* Ensure it's above the item box */
+}
+
+/* Adjust flight item for the new layout */
+.flight-item {
+  align-items: flex-start; /* Align columns to the top */
+}
+
+/* General column styling for flight details */
+.itinerary-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.flight-item.has-extra-details {
+  padding-top: 32px;
+}
+.itinerary-col.text-center {
+  align-items: center;
+  margin: 0 24px;
+  flex-shrink: 0;
+}
+
+.itinerary-col .font-large {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Column for Amount and Edit Icon */
+.amount-actions-col {
+  margin-left: auto; /* Push to the far right */
+  text-align: right;
+  align-items: flex-end; /* Align content to the bottom right */
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+.amount-actions-col .amount {
+  white-space: nowrap; /* Prevent amount from wrapping */
+}
+
+/* Remove default margin that pushes edit icon away */
+.item-actions,
+.flight-item .item-actions {
+  margin-left: 0;
+}
+
+.edit-action {
+  align-self: center; /* Center icon vertically in its container */
+}
+
+/* === FINAL STYLES FOR HOTEL VIEW === */
+
+.hotel-item {
+  display: flex;
+  align-items: center;
+  /* We remove the overall 'gap' to control spacing individually */
+}
+
+/* Style for the location column */
+.hotel-info-col.hotel-location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  min-width: 150px;
+}
+
+/* Common styles for Check-in and Check-out columns */
+.hotel-info-col.hotel-checkin,
+.hotel-info-col.hotel-checkout {
+  flex-shrink: 0;
+}
+
+/* This adds space between the location and the check-in date */
+.hotel-info-col.hotel-checkin {
+  margin-left: 48px;
+}
+
+/* NEW: Styles for the hyphen separator */
+.hotel-date-separator {
+  align-self: center; /* Vertically centers the hyphen */
+  color: #6c757d;
+  padding: 0 24px; /* Controls space around the hyphen */
+}
+
+/* This pushes ONLY the edit icon to the far right */
+.hotel-item .item-actions {
+  margin-left: auto;
+  padding-left: 16px;
+}
+
+/* Fallback to hide the old layout structure */
+.hotel-item .itinerary-leg,
+.hotel-item .itinerary-date {
+  display: none;
+}
+
+/* === NEW STYLES FOR CAR RENTAL VIEW === */
+
+.car-item {
+  display: flex;
+  align-items: center;
+}
+
+/* Style for the first column (Icon + Car Type) */
+.car-info-col.car-type {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  min-width: 150px;
+}
+
+/* Adds the significant space seen in the Zoho Expense example */
+.car-info-col.car-pickup {
+  margin-left: 48px;
+}
+
+/* Styles for the arrow separator */
+.car-separator {
+  color: #6c757d;
+  padding: 0 24px;
+}
+
+/* Pushes the edit icon to the far right */
+.car-item .item-actions {
+  margin-left: auto;
+  padding-left: 16px;
+}
+
+/* Fallback to hide old layout structures */
+.car-item .itinerary-leg,
+.car-item .itinerary-date {
+  display: none;
+}
+
+/* === NEW STYLES FOR BUS VIEW === */
+
+.bus-item {
+  display: flex;
+  align-items: center;
+}
+
+/* Style for the first column (Icon + "Bus" label) */
+.bus-info-col.bus-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 150px;
+  font-weight: 500;
+}
+
+/* Adds space before the departure details */
+.bus-info-col.bus-departure {
+  margin-left: 48px;
+}
+
+/* Styles for the arrow separator and duration */
+.bus-separator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #6c757d;
+  padding: 0 24px;
+}
+
+/* Pushes the edit icon to the far right */
+.bus-item .item-actions {
+  margin-left: auto;
+  padding-left: 16px;
+}
+
+/* Fallback to hide old layout structures */
+.bus-item .itinerary-leg,
+.bus-item .itinerary-date {
+  display: none;
+}
+
+/* === NEW STYLES FOR TRAIN VIEW === */
+
+.train-item {
+  display: flex;
+  align-items: center;
+}
+
+/* Style for the first column (Icon + "Train" label) */
+.train-info-col.train-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 150px;
+  font-weight: 500;
+}
+
+/* Adds space before the departure details */
+.train-info-col.train-departure {
+  margin-left: 48px;
+}
+
+/* Styles for the arrow separator and duration */
+.train-separator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #6c757d;
+  padding: 0 24px;
+}
+
+/* Pushes the edit icon to the far right */
+.train-item .item-actions {
+  margin-left: auto;
+  padding-left: 16px;
+}
+
+/* Fallback to hide old layout structures */
+.train-item .itinerary-leg,
+.train-item .itinerary-date {
+  display: none;
+}
