@@ -18,23 +18,22 @@ const BusIcon = () => (
 const TrainIcon = () => (
   <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2c-4.42 0-8 .5-8 4v10c0 2.21 1.79 4 4 4h1a1 1 0 001-1v-3h4v3a1 1 0 001 1h1c2.21 0 4-1.79 4-4V6c0-3.5-3.58-4-8-4zm4 14H8v-5h8v5zm-1.5-8c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm-5 0c-.83 0-1.5-.67-1.5-1.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8z"></path></svg>
 );
+const ArrowLeftIcon = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></svg>
+);
+const ArrowRightIcon = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg>
+);
 
 /* ---------- Helpers ---------- */
-
-// Unwrap either { flightDataZoho: {...} } or direct {...}
 const unwrap = (elem, innerKey) => {
   if (elem && typeof elem === "object" && innerKey in elem) return elem[innerKey];
   return elem;
 };
-
-// Get array from either new lowercase key or old PascalCase key
 const getArr = (obj, lcKey, pcKey) => obj?.[lcKey] || obj?.[pcKey] || [];
-
-// Gather all date strings across every subform item
 const collectDates = (a = {}) => {
   const out = [];
   const push = (v) => v && out.push(v);
-
   getArr(a, "flightDataZoho", "FlightDataZoho").forEach((w) => {
     const f = unwrap(w, "flightDataZoho") || {};
     push(f.flight_dep_date); push(f.flight_arrv_date);
@@ -55,10 +54,8 @@ const collectDates = (a = {}) => {
     const b = unwrap(w, "busDataZoho") || {};
     push(b.bus_dep_date); push(b.bus_arrv_date);
   });
-
   return out.filter(Boolean);
 };
-
 const toDisplayDate = (isoOrYmd) => {
   if (!isoOrYmd) return "";
   const d = new Date(isoOrYmd);
@@ -66,16 +63,13 @@ const toDisplayDate = (isoOrYmd) => {
   const fmt = d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
   return fmt.replace(",", "");
 };
-
-// Destination = first non-empty arrival city by priority
 const deriveDestination = (a = {}) => {
-  // Priority: Flight → Car → Hotel → Train → Bus
   for (const [lc, pc, inner, field] of [
     ["flightDataZoho", "FlightDataZoho", "flightDataZoho", "flight_arrv_city"],
-    ["carDataZoho",    "CarDataZoho",    "carDataZoho",    "car_arrv_city"],
-    ["hotelDataZoho",  "HotelDataZoho",  "hotelDataZoho",  "hotel_arrv_city"],
-    ["trainDataZoho",  "TrainDataZoho",  "trainDataZoho",  "train_arrv_city"],
-    ["busDataZoho",    "BusDataZoho",    "busDataZoho",    "bus_arrv_city"],
+    ["carDataZoho", "CarDataZoho", "carDataZoho", "car_arrv_city"],
+    ["hotelDataZoho", "HotelDataZoho", "hotelDataZoho", "hotel_arrv_city"],
+    ["trainDataZoho", "TrainDataZoho", "trainDataZoho", "train_arrv_city"],
+    ["busDataZoho", "BusDataZoho", "busDataZoho", "bus_arrv_city"],
   ]) {
     const arr = getArr(a, lc, pc);
     for (const w of arr) {
@@ -85,28 +79,74 @@ const deriveDestination = (a = {}) => {
   }
   return "";
 };
-
 const deriveBookingList = (a = {}) => {
   const list = [];
   if (getArr(a, "flightDataZoho", "FlightDataZoho").length) list.push("flight");
-  if (getArr(a, "hotelDataZoho", "HotelDataZoho").length)   list.push("hotel");
-  if (getArr(a, "carDataZoho", "CarDataZoho").length)       list.push("car");
-  if (getArr(a, "trainDataZoho", "TrainDataZoho").length)   list.push("train");
-  if (getArr(a, "busDataZoho", "BusDataZoho").length)       list.push("bus");
+  if (getArr(a, "hotelDataZoho", "HotelDataZoho").length) list.push("hotel");
+  if (getArr(a, "carDataZoho", "CarDataZoho").length) list.push("car");
+  if (getArr(a, "trainDataZoho", "TrainDataZoho").length) list.push("train");
+  if (getArr(a, "busDataZoho", "BusDataZoho").length) list.push("bus");
   return list;
 };
-
 const BookingIcon = ({ type }) => {
   const map = { flight: <FlightIcon />, hotel: <HotelIcon />, car: <CarIcon />, train: <TrainIcon />, bus: <BusIcon /> };
   return <span className="booking-icon-circle" title={type}>{map[type] || "•"}</span>;
 };
-
 const ApproverPill = ({ user }) => (
   <div className={`approver-pill approver-pill--${user?.colorScheme || "gray"}`}>
     <span className="initial-circle">{user?.initial || "U"}</span>
     <span className="approver-name">{user?.name || "User"}</span>
   </div>
 );
+
+/* ---------- Pagination Component ---------- */
+const TablePagination = ({
+  totalCount,
+  rowsPerPage,
+  setRowsPerPage,
+  currentPage,
+  setCurrentPage,
+}) => {
+  const [showCount, setShowCount] = React.useState(false);
+  const totalPages = Math.ceil(totalCount / rowsPerPage);
+  const startItem = (currentPage - 1) * rowsPerPage + 1;
+  const endItem = Math.min(currentPage * rowsPerPage, totalCount);
+
+  const handleRowsPerPageChange = (e) => {
+    setRowsPerPage(Number(e.target.value));
+    setCurrentPage(1); // Reset to first page
+  };
+  
+  if (totalCount === 0) return null;
+
+  return (
+    <footer className="table-pagination">
+      <div className="pagination-left">
+        <button className="total-count-btn" onClick={() => setShowCount(!showCount)}>
+          Total Count {showCount && `: ${totalCount}`}
+        </button>
+      </div>
+      <div className="pagination-right">
+        <select className="rows-per-page-select" value={rowsPerPage} onChange={handleRowsPerPageChange}>
+          <option value={10}>10 per page</option>
+          <option value={25}>25 per page</option>
+          <option value={50}>50 per page</option>
+          <option value={100}>100 per page</option>
+          <option value={200}>200 per page</option>
+        </select>
+        <span className="page-info">{startItem} - {endItem}</span>
+        <div className="nav-arrows">
+          <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+            <ArrowLeftIcon />
+          </button>
+          <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages || totalPages === 0}>
+            <ArrowRightIcon />
+          </button>
+        </div>
+      </div>
+    </footer>
+  );
+};
 
 /* ---------- Main Component ---------- */
 export default function ExpenseDataList() {
@@ -115,6 +155,9 @@ export default function ExpenseDataList() {
   const [rows, setRows] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
+
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -127,46 +170,46 @@ export default function ExpenseDataList() {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-
-        const normalized = (json?.data || []).map((rec, idx) => {
-          const a = rec.associatedData || rec.AsspciatedData || {};
-          const dates = collectDates(a);
-          const sorted = dates.slice().sort();
-          const startISO = sorted[0] || null;
-          const endISO   = sorted[sorted.length - 1] || null;
-
-          const bookingList = deriveBookingList(a);
-          const destination = deriveDestination(a);
-
-          const statusType  = String(rec.status || "").toLowerCase() === "completed" ? "completed" : "pending";
-          const statusLabel = statusType === "completed" ? "Completed" : "Pending";
-
-          return {
-            rowid: rec.ROWID || rec.rowid || idx + 1,
-            id: rec.tripNumber || rec.TripId || rec.id,
-            title: rec.Activity || rec.title || "Trip",
-            startDate: startISO ? toDisplayDate(startISO) : "",
-            endDate:   endISO   ? toDisplayDate(endISO)   : "",
-            destination,
-            status: { label: statusLabel, type: statusType },
-            approver: {
-              name: rec.RequestedBy || rec.UserName || "User",
-              initial: (rec.UserName || rec.RequestedBy || "U")[0]?.toUpperCase() || "U",
-              colorScheme: "gray",
-            },
-            booking: bookingList,
-
-            _raw: rec,
-            _subforms: {
-              flight: getArr(a, "flightDataZoho", "FlightDataZoho").map((x) => unwrap(x, "flightDataZoho")).filter(Boolean),
-              hotel:  getArr(a, "hotelDataZoho",  "HotelDataZoho").map((x) => unwrap(x, "hotelDataZoho")).filter(Boolean),
-              car:    getArr(a, "carDataZoho",    "CarDataZoho").map((x) => unwrap(x, "carDataZoho")).filter(Boolean),
-              train:  getArr(a, "trainDataZoho",  "TrainDataZoho").map((x) => unwrap(x, "trainDataZoho")).filter(Boolean),
-              bus:    getArr(a, "busDataZoho",    "BusDataZoho").map((x) => unwrap(x, "busDataZoho")).filter(Boolean),
-            },
-          };
-        });
-
+        const normalized = (json?.data || [])
+          .map((rec, idx) => {
+            const a = rec.associatedData || rec.AsspciatedData || {};
+            const dates = collectDates(a);
+            const sorted = dates.slice().sort();
+            const startISO = sorted[0] || null;
+            const endISO = sorted[sorted.length - 1] || null;
+            const bookingList = deriveBookingList(a);
+            const destination = deriveDestination(a);
+            const statusType = String(rec.status || "").toLowerCase() === "completed" ? "completed" : "pending";
+            const statusLabel = statusType === "completed" ? "Completed" : "Pending";
+            return {
+              rowid: rec.ROWID || rec.rowid || idx + 1,
+              id: rec.tripNumber || rec.TripId || rec.id,
+              title: rec.Activity || rec.title || "Trip",
+              startDate: startISO ? toDisplayDate(startISO) : "",
+              endDate: endISO ? toDisplayDate(endISO) : "",
+              destination,
+              status: { label: statusLabel, type: statusType },
+              approver: {
+                name: rec.RequestedBy || rec.UserName || "User",
+                initial: (rec.UserName || rec.RequestedBy || "U")[0]?.toUpperCase() || "U",
+                colorScheme: "gray",
+              },
+              booking: bookingList,
+              _raw: rec,
+              _subforms: {
+                flight: getArr(a, "flightDataZoho", "FlightDataZoho").map((x) => unwrap(x, "flightDataZoho")).filter(Boolean),
+                hotel: getArr(a, "hotelDataZoho", "HotelDataZoho").map((x) => unwrap(x, "hotelDataZoho")).filter(Boolean),
+                car: getArr(a, "carDataZoho", "CarDataZoho").map((x) => unwrap(x, "carDataZoho")).filter(Boolean),
+                train: getArr(a, "trainDataZoho", "TrainDataZoho").map((x) => unwrap(x, "trainDataZoho")).filter(Boolean),
+                bus: getArr(a, "busDataZoho", "BusDataZoho").map((x) => unwrap(x, "busDataZoho")).filter(Boolean),
+              },
+            };
+          })
+          .sort((a, b) => {
+            const numA = parseInt((a.id || "0").split('-')[1] || "0", 10);
+            const numB = parseInt((b.id || "0").split('-')[1] || "0", 10);
+            return numB - numA;
+          });
         setRows(normalized);
       } catch (e) {
         setError(String(e?.message || e));
@@ -182,10 +225,16 @@ export default function ExpenseDataList() {
   };
 
   const filteredRows = React.useMemo(() => {
-    if (activeTab === "pending")   return rows.filter((t) => t.status.type === "pending");
+    setCurrentPage(1);
+    if (activeTab === "pending") return rows.filter((t) => t.status.type === "pending");
     if (activeTab === "completed") return rows.filter((t) => t.status.type === "completed");
     return rows;
   }, [rows, activeTab]);
+  
+  const paginatedRows = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    return filteredRows.slice(startIndex, startIndex + rowsPerPage);
+  }, [filteredRows, currentPage, rowsPerPage]);
 
   const counts = React.useMemo(() => {
     let pending = 0, completed = 0;
@@ -196,8 +245,17 @@ export default function ExpenseDataList() {
     return { all: rows.length, pending, completed };
   }, [rows]);
 
-  if (loading) return <div className="page-container"><main className="table-wrapper">Loading trips…</main></div>;
-  if (error)   return <div className="page-container"><main className="table-wrapper">Error: {error}</main></div>;
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="loading-container">
+          <div className="loader"></div>
+          <span>Loading trips…</span>
+        </div>
+      </div>
+    );
+  }
+  if (error) return <div className="page-container"><main className="table-wrapper">Error: {error}</main></div>;
 
   return (
     <div className="page-container">
@@ -214,12 +272,11 @@ export default function ExpenseDataList() {
           </button>
         </div>
       </header>
-
       <main className="table-wrapper">
         <table className="data-table">
-          <thead>
+         <thead>
             <tr>
-              <th style={{ width: 40 }}><input type="checkbox" /></th>
+              <th><input type="checkbox" /></th>
               <th>TRIP#</th>
               <th>TRIP DETAILS</th>
               <th>DESTINATION</th>
@@ -229,9 +286,9 @@ export default function ExpenseDataList() {
             </tr>
           </thead>
           <tbody>
-            {filteredRows.length === 0 ? (
+            {paginatedRows.length === 0 ? (
               <tr><td colSpan={7} style={{ padding: "1.5rem", color: "#67748e" }}>No trips in this tab.</td></tr>
-            ) : filteredRows.map((t) => (
+            ) : paginatedRows.map((t) => (
               <tr key={t.rowid} className="clickable-row" onClick={() => handleRowClick(t.rowid)}>
                 <td><input type="checkbox" onClick={(e) => e.stopPropagation()} /></td>
                 <td className="trip-id">{t.id}</td>
@@ -252,6 +309,13 @@ export default function ExpenseDataList() {
           </tbody>
         </table>
       </main>
+      <TablePagination
+        totalCount={filteredRows.length}
+        rowsPerPage={rowsPerPage}
+        setRowsPerPage={setRowsPerPage}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+      />
     </div>
   );
 }
