@@ -1,259 +1,224 @@
 /* ---------- Global & Layout Styles ---------- */
-
 :root {
-
   --primary-blue: #0d6efd;
-
   --light-gray-bg: #f8f9fd;
-
   --border-color: #eef2f9;
-
   --text-primary: #344767;
-
   --text-secondary: #67748e;
-
   --text-link: #2563eb;
-
   --booking-icon-border: #e0e0e0;
-
 }
- 
+
 body {
-
   margin: 0;
-
   background-color: var(--light-gray-bg);
-
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-
 }
- 
+
 .page-container {
-
   padding: .5rem;
-
   margin-left: -60px;
-
   margin-right: -60px;
-
   margin-top: -10px;
-
 }
- 
+
 /* ---------- Header ---------- */
-
 .page-header {
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   margin-bottom: 1.5rem;
-
   padding: 0 1.5rem;
-
 }
- 
+
 .header-tabs { display: flex; }
- 
+
 .tab-item {
-
   border: none;
-
   background: none;
-
   padding: 0.5rem 1rem;
-
   font-size: 1rem;
-
   font-weight: 500;
-
   color: var(--text-secondary);
-
   cursor: pointer;
-
   border-bottom: 2px solid transparent;
-
   margin-right: 1rem;
-
 }
- 
+
 .tab-item.active {
-
   color: var(--primary-blue);
-
   border-bottom-color: var(--primary-blue);
-
 }
- 
+
 /* ---------- Table ---------- */
-
 .table-wrapper {
-
   background-color: #fff;
-
   border: 1px solid var(--border-color);
-
   border-radius: 0.75rem;
-
   padding: 1rem;
-
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-
+  max-height: 70vh;
+  overflow: auto;
 }
- 
-.data-table { width: 100%; border-collapse: collapse; }
- 
-.data-table th {
 
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.data-table thead th {
   text-align: left;
-
   padding: 0.75rem 1rem;
-
   color: var(--text-secondary);
-
   font-weight: 600;
-
   font-size: 0.75rem;
-
   text-transform: uppercase;
-
   border-bottom: 1px solid var(--border-color);
-
+  position: sticky;
+  top: -1rem;
+  background: #fff;
+  z-index: 2; 
+  box-shadow: inset 0 -1px var(--border-color);
 }
- 
+
 .data-table td {
-
   padding: 1rem 1rem;
-
-  border-bottom: 1px solid var(--border-color);
-
   color: var(--text-primary);
-
   font-size: 0.9rem;
-
   vertical-align: middle;
-
 }
- 
-.data-table tbody tr:last-child td { border-bottom: none; }
- 
-/* Hover for clickable rows */
 
 .clickable-row:hover { background-color: #f8f9fa; cursor: pointer; }
- 
+
 .data-table input[type="checkbox"] { width: 1rem; height: 1rem; }
- 
+
 .trip-id { font-weight: 600; }
- 
+
 .trip-link {
-
   color: var(--text-link);
-
   text-decoration: none;
-
   font-weight: 600;
-
 }
-
 .trip-link:hover { text-decoration: underline; }
- 
+
 .trip-dates {
-
   color: var(--text-secondary);
-
   font-size: 0.8rem;
-
   margin-top: 0.25rem;
-
 }
- 
+
 /* ---------- Status Pills ---------- */
-
 .status-pill {
-
   display: inline-block;
-
   padding: 4px 10px;
-
   border-radius: 999px;
-
   font-size: 0.75rem;
-
   font-weight: 700;
-
   white-space: nowrap;
-
 }
 
-.pill--pending   { background: #fff8c5; color: #946200; }  /* amber */
+.pill--pending   { background: #fff8c5; color: #946200; }
+.pill--completed { background: #d1fae5; color: #065f46; }
 
-.pill--completed { background: #d1fae5; color: #065f46; }  /* green */
- 
 /* ---------- Approver Pill ---------- */
-
 .approver-pill {
-
   display: inline-flex;
-
   align-items: center;
-
   gap: 0.5rem;
-
   padding: 4px 10px 4px 4px;
-
   border-radius: 999px;
-
   font-weight: 500;
-
 }
-
-.approver-pill--blue { background: #e0e7ff; color: #4338ca; }
 
 .approver-pill--gray { background: #f3f4f6; color: #374151; }
- 
+
 .initial-circle {
-
   width: 24px;
-
   height: 24px;
-
   border-radius: 50%;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   font-weight: 700;
-
   font-size: 0.8rem;
-
   color: #fff;
-
 }
 
-.approver-pill--blue .initial-circle { background-color: #6366f1; }
-
 .approver-pill--gray .initial-circle { background-color: #9ca3af; }
- 
-/* ---------- Booking ---------- */
 
+/* ---------- Booking ---------- */
 .booking-cell { display: flex; gap: 0.25rem; align-items: center; }
 
 .booking-icon-circle {
-
   width: 24px; height: 24px; border-radius: 50%;
-
   display: flex; align-items: center; justify-content: center;
-
   background-color: transparent; color: #4b5563; border: 1px solid var(--booking-icon-border);
-
 }
 
 .booking-icon-circle svg { width: 14px; height: 14px; }
 
- 
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .data-table thead th,
+  .data-table td {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+.data-table tbody tr {
+  box-shadow: inset 0 -1px 0 var(--border-color);
+}
+
+/* ---------- Pagination ---------- */
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  background-color: #fff;
+  border-top: 1px solid var(--border-color);
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.pagination-left, .pagination-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.total-count-btn {
+  border: none;
+  background: none;
+  color: var(--primary-blue);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.rows-per-page-select {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  background-color: #fff;
+}
+
+.nav-arrows button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-arrows button:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}

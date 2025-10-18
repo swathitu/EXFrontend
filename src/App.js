@@ -275,7 +275,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
       <main className={`main ${isApproverDataView ? "main--no-scroll" : ""}`}>
         <div className={`content-card ${isTripData ? "tdv-full-bleed" : ""}`}>
           <Routes>
-            <Route path="/index.html" element={<Navigate to="/home" replace />} />
+           <Route path="/index.html" element={<Navigate to="/home" replace />} />
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/dashboard" element={<Navigate to="/home" replace />} />
 
@@ -443,7 +443,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
             />
 
             {/* Fallback */}
-            <Route path="*" element={<Navigate to="/home" replace />} />
+           <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </div>
       </main>
