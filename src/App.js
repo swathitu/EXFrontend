@@ -36,9 +36,11 @@ import TripDetailView from "./components/expenseData/TripDetailView";
 // ---------------------------------------------
 const ROLES = {
   ADMIN: "admin",
+  ADMIN1: "admin1",        // <--- new role
   APPROVER: "approver",
   SUBMITTER: "submitter",
 };
+
 
 // ---------------------------------------------
 // Small components
@@ -56,11 +58,12 @@ function NotAuthorized() {
 }
 
 function RequireRole({ allow, currentRole, children }) {
-  // Admin can access everything
-  if (currentRole === ROLES.ADMIN) return children;
+  // Admin and Admin1 can access everything
+  if (currentRole === ROLES.ADMIN || currentRole === ROLES.ADMIN1) return children;
   // Other roles must be explicitly allowed
   return allow.includes(currentRole) ? children : <NotAuthorized />;
 }
+
 
 // ---------------------------------------------
 // Auth hook (Catalyst-based) embedded in App.js
@@ -165,11 +168,14 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
 
   const normalizeRole = (value) => {
     const v = String(value || "").toLowerCase();
-    if (v.includes("admin")) return ROLES.ADMIN;
+    if (v === "admin1") return ROLES.ADMIN1; // must come before "admin"
+    if (v === "admin") return ROLES.ADMIN;
     if (v.includes("approver")) return ROLES.APPROVER;
     if (v.includes("submit")) return ROLES.SUBMITTER;
-    return defaultRole; // fallback keeps current behavior unaffected
+    return defaultRole;
   };
+
+
 
   useEffect(() => {
     let cancelled = false;
@@ -249,12 +255,12 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
 
   return (
     <div className={`app-shell${collapsed ? " collapsed" : ""}`}>
-      <Header 
-       userName={userEmail?.split("@")[0]}   // or actual name from Catalyst if available
- userEmail={userEmail}
- userRole={currentRole}
- onLogout={onLogout}
-/>
+      <Header
+        userName={userEmail?.split("@")[0]}   // or actual name from Catalyst if available
+        userEmail={userEmail}
+        userRole={currentRole}
+        onLogout={onLogout}
+      />
 
       <aside className="sidebar">
         <Sidebar
@@ -269,7 +275,9 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
       <main className={`main ${isApproverDataView ? "main--no-scroll" : ""}`}>
         <div className={`content-card ${isTripData ? "tdv-full-bleed" : ""}`}>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/index.html" element={<Navigate to="/home" replace />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/dashboard" element={<Navigate to="/home" replace />} />
 
             {/* Dashboard: everyone */}
             <Route
@@ -321,21 +329,20 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
             <Route
               path="/expenseDataView"
               element={
-                <RequireRole allow={[ROLES.ADMIN]} currentRole={currentRole}>
+                <RequireRole allow={[ROLES.ADMIN, ROLES.ADMIN1]} currentRole={currentRole}>
                   <ExpenseDataList />
                 </RequireRole>
               }
             />
-
-            {/* Detail View */}
             <Route
               path="/expenseDataView/:rowid"
               element={
-                <RequireRole allow={[ROLES.ADMIN]} currentRole={currentRole}>
+                <RequireRole allow={[ROLES.ADMIN, ROLES.ADMIN1]} currentRole={currentRole}>
                   <TripDetailView />
                 </RequireRole>
               }
             />
+
 
             <Route
               path="/approver-trip-data/:tripId"
@@ -436,7 +443,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
             />
 
             {/* Fallback */}
-            <Route path="*" element={<NotAuthorized />} />
+            <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </div>
       </main>
@@ -484,11 +491,11 @@ export default function App() {
             </div>
           ) : (
             <AppShell
-   currentRole={role}
-   userEmail={userEmail}
-   userName={userEmail ? userEmail.split("@")[0] : "User"}
-   onLogout={handleLogout}
- />
+              currentRole={role}
+              userEmail={userEmail}
+              userName={userEmail ? userEmail.split("@")[0] : "User"}
+              onLogout={handleLogout}
+            />
           )}
           {!!roleError && (
             <div style={{ padding: 12, color: "#a00" }}>
