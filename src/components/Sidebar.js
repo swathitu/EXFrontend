@@ -341,7 +341,11 @@ export default function Sidebar({
 
     roleMenu = MENU_ALL.filter((m) => ["home", "my-approvals"].includes(m.key));
 
-  } else {
+  } else if (role === "travel_agent") {
+    // New rule for Travel Agent
+    roleMenu = MENU_ALL.filter((m) => ["expenseDataView"].includes(m.key));
+  }
+  else {
 
     // submitter
 

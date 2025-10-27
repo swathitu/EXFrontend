@@ -38,6 +38,7 @@ const ROLES = {
   ADMIN: "admin",
   APPROVER: "approver",
   SUBMITTER: "submitter",
+  TRAVEL_AGENT: "travel_agent",
 };
 
 // ---------------------------------------------
@@ -168,6 +169,7 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
     if (v.includes("admin")) return ROLES.ADMIN;
     if (v.includes("approver")) return ROLES.APPROVER;
     if (v.includes("submit")) return ROLES.SUBMITTER;
+    if (v.includes("travel_agent")) return ROLES.TRAVEL_AGENT;
     return defaultRole; // fallback keeps current behavior unaffected
   };
 
@@ -215,6 +217,12 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
   return { role, loading, error };
 }
 
+function RoleBasedRedirect({ role }) {
+  if (role === ROLES.TRAVEL_AGENT) {
+    return <Navigate to="/expenseDataView" replace />;
+  }
+  return <Navigate to="/home" replace />;
+}
 // ---------------------------------------------
 // Shell with routes & guards
 // ---------------------------------------------
@@ -269,8 +277,8 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
       <main className={`main ${isApproverDataView ? "main--no-scroll" : ""}`}>
         <div className={`content-card ${isTripData ? "tdv-full-bleed" : ""}`}>
           <Routes>
-           <Route path="/index.html" element={<Navigate to="/home" replace />} />
-            <Route path="/" element={<Navigate to="/home" replace />} />
+           <Route path="/index.html" element={<RoleBasedRedirect role={currentRole} />} />
+            <Route path="/" element={<RoleBasedRedirect role={currentRole} />} />
             <Route path="/dashboard" element={<Navigate to="/home" replace />} />
 
             {/* Dashboard: everyone */}
@@ -323,17 +331,17 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
             <Route
               path="/expenseDataView"
               element={
-                <RequireRole allow={[ROLES.ADMIN]} currentRole={currentRole}>
+                <RequireRole allow={[ROLES.ADMIN, ROLES.TRAVEL_AGENT]} currentRole={currentRole}>
                   <ExpenseDataList />
                 </RequireRole>
               }
             />
 
             {/* Detail View */}
-            <Route
+           <Route
               path="/expenseDataView/:rowid"
               element={
-                <RequireRole allow={[ROLES.ADMIN]} currentRole={currentRole}>
+                <RequireRole allow={[ROLES.ADMIN, ROLES.TRAVEL_AGENT]} currentRole={currentRole}>
                   <TripDetailView />
                 </RequireRole>
               }
@@ -438,7 +446,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
             />
 
             {/* Fallback */}
-           <Route path="*" element={<Navigate to="/home" replace />} />
+           <Route path="*" element={<RoleBasedRedirect role={currentRole} />} />
           </Routes>
         </div>
       </main>

@@ -94,7 +94,7 @@ const mapFlights = (arr = []) =>
            airport: f.flight_arrv_airport || f.arr_airport || "",
          },
          duration: duration,
-         amount: f.amount || f.flight_amount || 0,
+         amount: f.bcy_total_amount || 0,
          meal: f.meal || "",
          seat: f.seat || "",
          flightClass: f.flight_class || f.flightClass || "",
@@ -108,9 +108,18 @@ const mapHotels = (arr = []) =>
      .map((h) => ({
        subRowId: h.ROWID || h.rowid || h.RowId || "",
        status: h.status,
+       
+       // --- New fields to match target UI ---
+       merchantName: h.hotel_name || h.merchant_name || "",
        location: h.hotel_arrv_city || h.hotel_dep_city || "",
-       checkIn:  { date: toDisplayDate(h.hotel_arrv_date), time: h.hotel_arrv_time || "" },
-       checkOut: { date: toDisplayDate(h.hotel_dep_date), time: h.hotel_dep_time || "" },
+       roomType: h.room_type || "None", // Add roomType, default to "None"
+       amount: h.bcy_total_amount || 0, // Add amount
+
+       // --- SWAPPED as per your request ---
+       // Check-in now uses "dep_date"
+       checkIn:  { date: toDisplayDate(h.hotel_dep_date), time: h.hotel_dep_time || "" },
+       // Check-out now uses "arrv_date"
+       checkOut: { date: toDisplayDate(h.hotel_arrv_date), time: h.hotel_arrv_time || "" },
      }));
 
 const mapCars = (arr = []) =>
@@ -120,30 +129,37 @@ const mapCars = (arr = []) =>
        subRowId: c.ROWID || c.rowid || c.RowId || "",
        status: c.status,
        carType: c.car_type || "",
-       pickUp:  { date: toDisplayDate(c.car_dep_date), location: c.car_dep_city || "" },
-       dropOff: { date: toDisplayDate(c.car_arrv_date), location: c.car_arrv_city || "" },
+       pickUp:  { date: toDisplayDate(c.car_dep_date), time: toTime(c.car_dep_time), location: c.car_dep_city || "" },
+       dropOff: { date: toDisplayDate(c.car_arrv_date), time: toTime(c.car_arrv_time), location: c.car_arrv_city || "" },
+       amount: c.bcy_total_amount || 0, // <-- ✅ ADD THIS LINE
      }));
+
+// Replace the entire mapBuses function with this:
 
 const mapBuses = (arr = []) =>
   arr.map((w) => unwrap(w, "busDataZoho"))
      .filter((b) => b && typeof b === "object")
      .map((b) => {
+       
+       // ✅ COPIED THIS LOGIC FROM THE TRAIN MAPPER
        const depDate = b.bus_dep_date || b.dep_date;
        const arrDate = b.bus_arrv_date || b.arrv_date;
        const depTime = b.bus_dep_time || b.dep_time || "";
        const arrTime = b.bus_arrv_time || b.arrv_time || "";
-
        const duration = calculateDuration(depDate, depTime, arrDate, arrTime);
 
        return {
          subRowId: b.ROWID || b.rowid || b.RowId || "",
          status: b.status,
+         merchantName: b.merchant_name || b.bus_name || "",
+         amount: b.bcy_total_amount || 0,
          from: { city: b.bus_dep_city || b.dep_city || "", date: toDisplayDate(depDate), time: depTime },
          to: { city: b.bus_arrv_city || b.arrv_city || "", date: toDisplayDate(arrDate), time: arrTime },
-         duration: duration, // Add duration here
+         duration: duration,
        };
      });
 
+// REPLACE this function (around line 233)
 const mapTrains = (arr = []) =>
   arr.map((w) => unwrap(w, "trainDataZoho"))
      .filter((t) => t && typeof t === "object")
@@ -158,9 +174,11 @@ const mapTrains = (arr = []) =>
        return {
          subRowId: t.ROWID || t.rowid || t.RowId || "",
          status: t.status,
+         merchantName: t.merchant_name || t.train_name || "", // ✅ ADD THIS
+         amount: t.bcy_total_amount || 0, // ✅ ADD THIS
          from: { city: t.train_dep_city || t.dep_city || "", date: toDisplayDate(depDate), time: depTime },
          to: { city: t.train_arrv_city || t.arrv_city || "", date: toDisplayDate(arrDate), time: arrTime },
-         duration: duration, // Add duration here
+         duration: duration,
        };
      });
 /* Trip duration from all modes (supports both shapes) */
@@ -244,14 +262,14 @@ const FlightDetails = ({ bookings, onEdit, mainStatusLower }) =>
 
           {/* Amount & Actions Column */}
           <div className="itinerary-col amount-actions-col">
-            <div className="font-large amount">
-              {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
-            </div>
             {allowEdit && (
-              <button className="btn-icon edit-action" onClick={() => onEdit(item.subRowId, "flight")} title="Edit flight">
+              <button className="btn-icon" onClick={() => onEdit(item.subRowId, "flight")} title="Edit flight">
                 <EditIcon />
               </button>
             )}
+            <div className="amount-display">
+              Amount: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
+            </div>
           </div>
         </div>
       </div>
@@ -263,9 +281,16 @@ const HotelDetails = ({ bookings, onEdit, mainStatusLower }) =>
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
     return (
       <div className="itinerary-item hotel-item" key={`hot-${i}`}>
+        {/* UPDATED: Location column to show merchant, city, and room type */}
         <div className="hotel-info-col hotel-location">
           <LocationIcon />
-          <span>{item.location}</span>
+          {/* This div will stack the text */}
+          <div className="hotel-location-text">
+            <div className="hotel-merchant-name">{item.merchantName || item.location}</div>
+            {/* Only show city separately if merchant name exists */}
+            {item.merchantName && <div className="font-xs text-muted">{item.location}</div>}
+            <div className="font-xs text-muted">Room Type : {item.roomType}</div>
+          </div>
         </div>
 
         <div className="hotel-info-col hotel-checkin">
@@ -283,13 +308,18 @@ const HotelDetails = ({ bookings, onEdit, mainStatusLower }) =>
           {item.checkOut.time && <div className="font-xs">{item.checkOut.time}</div>}
         </div>
 
-        {allowEdit && (
-          <div className="item-actions">
+        {/* UPDATED: Actions column to show amount below icon */}
+        <div className="item-actions hotel-actions">
+          {allowEdit && (
             <button className="btn-icon" onClick={() => onEdit(item.subRowId, "hotel")} title="Edit hotel">
               <EditIcon />
             </button>
+          )}
+          {/* New Amount Display */}
+          <div className="amount-display">
+            Amount: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
           </div>
-        )}
+        </div>
       </div>
     );
   });
@@ -309,7 +339,10 @@ const CarDetails = ({ bookings, onEdit, mainStatusLower }) =>
 
         <div className="car-info-col car-pickup">
           <div className="font-xs text-muted">Pick-Up</div>
-          <div>{item.pickUp.date}</div>
+          <div>
+            {item.pickUp.date}
+            {item.pickUp.time && `, ${item.pickUp.time}`}
+          </div>
           <div className="font-xs">{item.pickUp.location}</div>
         </div>
         
@@ -319,17 +352,25 @@ const CarDetails = ({ bookings, onEdit, mainStatusLower }) =>
 
         <div className="car-info-col car-dropoff">
           <div className="font-xs text-muted">Drop-Off</div>
-          <div>{item.dropOff.date}</div>
+          <div>
+            {item.dropOff.date}
+            {item.dropOff.time && `, ${item.dropOff.time}`}
+          </div>
           <div className="font-xs">{item.dropOff.location}</div>
         </div>
 
-        {allowEdit && (
-          <div className="item-actions">
+        {/* ✅ MODIFIED SECTION TO ADD AMOUNT */}
+        <div className="item-actions">
+          {allowEdit && (
             <button className="btn-icon" onClick={() => onEdit(item.subRowId, "car")} title="Edit car">
               <EditIcon />
             </button>
+          )}
+          {/* ✅ ADDED AMOUNT DISPLAY */}
+          <div className="amount-display">
+            Amount: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
           </div>
-        )}
+        </div>
       </div>
     );
   });
@@ -341,7 +382,8 @@ const BusDetails = ({ bookings, onEdit, mainStatusLower }) =>
       <div className="itinerary-item bus-item" key={`bus-${i}`}>
         <div className="bus-info-col bus-label">
           <BusIcon />
-          <span>Bus</span>
+          {/* ✅ Use merchantName, fallback to "Bus" */}
+          <span>{item.merchantName || "Bus"}</span>
         </div>
 
         <div className="bus-info-col bus-departure">
@@ -361,17 +403,23 @@ const BusDetails = ({ bookings, onEdit, mainStatusLower }) =>
           <div className="font-xs">{item.to.city}</div>
         </div>
 
-        {allowEdit && (
-          <div className="item-actions">
+        {/* ✅ MODIFIED to match car/hotel format */}
+        <div className="item-actions">
+          {allowEdit && (
             <button className="btn-icon" onClick={() => onEdit(item.subRowId, "bus")} title="Edit bus">
               <EditIcon />
             </button>
+          )}
+          {/* ✅ ADDED Amount Display */}
+          <div className="amount-display">
+            Amount: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
           </div>
-        )}
+        </div>
       </div>
     );
   });
 
+// REPLACE this component (around line 504)
 const TrainDetails = ({ bookings, onEdit, mainStatusLower }) =>
   bookings.map((item, i) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
@@ -379,7 +427,8 @@ const TrainDetails = ({ bookings, onEdit, mainStatusLower }) =>
       <div className="itinerary-item train-item" key={`train-${i}`}>
         <div className="train-info-col train-label">
           <TrainIcon />
-          <span>Train</span>
+          {/* ✅ Use merchantName, fallback to "Train" */}
+          <span>{item.merchantName || "Train"}</span>
         </div>
 
         <div className="train-info-col train-departure">
@@ -399,17 +448,21 @@ const TrainDetails = ({ bookings, onEdit, mainStatusLower }) =>
           <div className="font-xs">{item.to.city}</div>
         </div>
 
-        {allowEdit && (
-          <div className="item-actions">
+        {/* ✅ MODIFIED to match car/bus format */}
+        <div className="item-actions">
+          {allowEdit && (
             <button className="btn-icon" onClick={() => onEdit(item.subRowId, "train")} title="Edit train">
               <EditIcon />
             </button>
+          )}
+          {/* ✅ ADDED Amount Display */}
+          <div className="amount-display">
+            Amount: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
           </div>
-        )}
+        </div>
       </div>
     );
   });
-
 /* ---------------- Main Component ---------------- */
 export default function TripDetailView() {
   const navigate = useNavigate();
@@ -460,14 +513,22 @@ export default function TripDetailView() {
         const mainStatusLower = String(rec.status || rec.statusType || "").trim().toLowerCase();
         const mainStatusLabel = mainStatusLower === "completed" ? "Completed" : "Pending";
 
+        // --- 🚀 MODIFIED ---
+        // Get the raw ID (for the URL) and the display ID (for show)
+        const rawTripId = rec.TripId || rec.ROWID || rowid;
+        const displayTripId = rec.tripNumber || rawTripId;
+
         const detail = {
-          id: rec.tripNumber || rec.TripId || rec.ROWID || rowid,
+          // id: rec.tripNumber || rec.TripId || rec.ROWID || rowid, // <-- OLD
+          id: displayTripId, // This is what's displayed (e.g., TRIP-00099)
+          rawId: rawTripId,  // This is for the URL (e.g., 1498659000017188347)
           title: rec.Activity || "Trip",
           duration: durationText,
           mainStatusLower,
           mainStatusLabel,
           bookings: { flight: flights, hotel: hotels, car: cars, bus: buses, train: trains },
         };
+        // --- 🚀 END MODIFICATION ---
 
         if (!cancelled) setTrip(detail);
       } catch (e) {
@@ -503,7 +564,23 @@ export default function TripDetailView() {
     return (
       <div className="ze-detail-view">
         <header className="ze-detail-header">
-          <div className="ze-header-left"><div className="trip-id">{rowid || "—"}</div></div>
+          <div className="ze-header-left">
+            {/* 🚀 MODIFIED: Make rowid clickable even on error */}
+            {rowid ? (
+              <a
+                href={`https://expense.zoho.in/app/60024300150#/trips/${rowid}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="trip-id trip-link"
+                title="Open trip in Zoho Expense"
+                style={{ color: '#0d6efd', textDecoration: 'none' }} // Inline style fallback
+              >
+                {rowid}
+              </a>
+            ) : (
+              <div className="trip-id">{"—"}</div>
+            )}
+          </div>
         </header>
         <div className="ze-detail-content" style={{ color: "#b91c1c" }}>Error: {err}</div>
       </div>
@@ -512,12 +589,38 @@ export default function TripDetailView() {
 
   if (!trip) return null;
 
+  // 🚀 ADDED: Style for the new link
+  const linkStyle = `
+    .trip-id.trip-link {
+      color: #0d6efd; /* Or your app's link color */
+      text-decoration: none;
+    }
+    .trip-id.trip-link:hover {
+      text-decoration: underline;
+      color: #0a58ca;
+    }
+  `;
+
   return (
     <>
+      {/* 🚀 ADDED: Style tag to inject link styles */}
+      <style>{linkStyle}</style>
+
       <div className="ze-detail-view">
         <header className="ze-detail-header">
           <div className="ze-header-left">
-            <div className="trip-id">{trip.id}</div>
+            
+            {/* 🚀 REPLACED: div with <a> tag */}
+            <a
+              href={`https://expense.zoho.in/app/60024300150#/trips/${trip.rawId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="trip-id trip-link"
+              title="Open trip in Zoho Expense"
+            >
+              {trip.id}
+            </a>
+            
             {/* 👇 STATUS PILL IN HEADER */}
             <span className={`status-pill pill--${trip.mainStatusLower}`} style={{ marginLeft: 8 }}>
               {trip.mainStatusLabel}
