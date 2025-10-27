@@ -36,10 +36,12 @@ import TripDetailView from "./components/expenseData/TripDetailView";
 // ---------------------------------------------
 const ROLES = {
   ADMIN: "admin",
+  ADMIN1: "admin1",        // <--- new role
   APPROVER: "approver",
   SUBMITTER: "submitter",
   TRAVEL_AGENT: "travel_agent",
 };
+
 
 // ---------------------------------------------
 // Small components
@@ -57,11 +59,12 @@ function NotAuthorized() {
 }
 
 function RequireRole({ allow, currentRole, children }) {
-  // Admin can access everything
-  if (currentRole === ROLES.ADMIN) return children;
+  // Admin and Admin1 can access everything
+  if (currentRole === ROLES.ADMIN || currentRole === ROLES.ADMIN1) return children;
   // Other roles must be explicitly allowed
   return allow.includes(currentRole) ? children : <NotAuthorized />;
 }
+
 
 // ---------------------------------------------
 // Auth hook (Catalyst-based) embedded in App.js
@@ -166,12 +169,15 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
 
   const normalizeRole = (value) => {
     const v = String(value || "").toLowerCase();
-    if (v.includes("admin")) return ROLES.ADMIN;
+    if (v === "admin1") return ROLES.ADMIN1; // must come before "admin"
+    if (v === "admin") return ROLES.ADMIN;
     if (v.includes("approver")) return ROLES.APPROVER;
     if (v.includes("submit")) return ROLES.SUBMITTER;
     if (v.includes("travel_agent")) return ROLES.TRAVEL_AGENT;
     return defaultRole; // fallback keeps current behavior unaffected
   };
+
+
 
   useEffect(() => {
     let cancelled = false;
@@ -257,12 +263,12 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
 
   return (
     <div className={`app-shell${collapsed ? " collapsed" : ""}`}>
-      <Header 
-       userName={userEmail?.split("@")[0]}   // or actual name from Catalyst if available
- userEmail={userEmail}
- userRole={currentRole}
- onLogout={onLogout}
-/>
+      <Header
+        userName={userEmail?.split("@")[0]}   // or actual name from Catalyst if available
+        userEmail={userEmail}
+        userRole={currentRole}
+        onLogout={onLogout}
+      />
 
       <aside className="sidebar">
         <Sidebar
@@ -346,6 +352,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
                 </RequireRole>
               }
             />
+
 
             <Route
               path="/approver-trip-data/:tripId"
@@ -494,11 +501,11 @@ export default function App() {
             </div>
           ) : (
             <AppShell
-   currentRole={role}
-   userEmail={userEmail}
-   userName={userEmail ? userEmail.split("@")[0] : "User"}
-   onLogout={handleLogout}
- />
+              currentRole={role}
+              userEmail={userEmail}
+              userName={userEmail ? userEmail.split("@")[0] : "User"}
+              onLogout={handleLogout}
+            />
           )}
           {!!roleError && (
             <div style={{ padding: 12, color: "#a00" }}>
