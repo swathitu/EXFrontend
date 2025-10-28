@@ -8,7 +8,7 @@ const roles = [
   { id: "submitter", name: "Submitter" },
   { id: "approver", name: "Approver" },
   { id: "admin", name: "Admin" },
-  { id: "travel_agent", name: "Travel Agent" },
+  { id: "travel_associate", name: "Travel ASSOCIATE" },
 ];
 const EMPTY = {
   firstName: "", lastName: "", employeeId: "", email: "", contactNo: "", roleId: "",

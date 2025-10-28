@@ -30,6 +30,13 @@ import CustomData from "./components/masters/CustomData/CustomData";
 import TripsApprover from "./components/Trip/TripsApprover";
 import ExpenseDataList from "./components/expenseData/expensedatalist";
 import TripDetailView from "./components/expenseData/TripDetailView";
+import AllRequests from "./components/AllRequests/AllRequests";
+import BusDesk from "./components/BusDesk/BusDesk";
+import CarDesk from "./components/CarDesk/CarDesk";
+import FlightDesk from "./components/FlightDesk/FlightDesk";
+import HotelDesk from "./components/HotelDesk/HotelDesk";
+import TrainDesk from "./components/TrainDesk/TrainDesk"
+
 
 // ---------------------------------------------
 // Role constants
@@ -39,8 +46,16 @@ const ROLES = {
   ADMIN1: "admin1",        // <--- new role
   APPROVER: "approver",
   SUBMITTER: "submitter",
-  TRAVEL_AGENT: "travel_agent",
+  TRAVEL_ASSOCIATE: "travel_associate",  // <--- new role
+
 };
+
+
+// const FlightDesk = () => <h1>Flight Desk View</h1>;
+// const HotelDesk = () => <h1>Hotel Desk View</h1>;
+// const CarDesk = () => <h1>Car Rentals View</h1>;
+// const BusDesk = () => <h1>Bus Desk View</h1>;
+// const TrainDesk = () => <h1>Train Desk View</h1>;
 
 
 // ---------------------------------------------
@@ -60,7 +75,7 @@ function NotAuthorized() {
 
 function RequireRole({ allow, currentRole, children }) {
   // Admin and Admin1 can access everything
-  if (currentRole === ROLES.ADMIN || currentRole === ROLES.ADMIN1) return children;
+  if (currentRole === ROLES.ADMIN || currentRole === ROLES.TRAVEL_ASSOCIATE) return children;
   // Other roles must be explicitly allowed
   return allow.includes(currentRole) ? children : <NotAuthorized />;
 }
@@ -75,7 +90,7 @@ function useUserManagement() {
   const [userEmail, setUserEmail] = useState(null);
 
   const renderCatalystLogin = useCallback(() => {
-    const maxAttempts = 20;
+    const maxAttempts = 40;
     let attempt = 0;
 
     const interval = setInterval(() => {
@@ -173,8 +188,9 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
     if (v === "admin") return ROLES.ADMIN;
     if (v.includes("approver")) return ROLES.APPROVER;
     if (v.includes("submit")) return ROLES.SUBMITTER;
-    if (v.includes("travel_agent")) return ROLES.TRAVEL_AGENT;
-    return defaultRole; // fallback keeps current behavior unaffected
+    if (v.includes("travel_associate")) return ROLES.TRAVEL_ASSOCIATE;
+
+    return defaultRole;
   };
 
 
@@ -203,6 +219,10 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
           throw new Error(json?.message || "Access check failed");
         }
 
+        if (json.data?.email) {
+          localStorage.setItem("userEmail", json.data.email);
+        }
+
         // Expecting shape: { status: "success", data: { email, role } }
         const apiRole = json?.data?.role;
         const normalized = normalizeRole(apiRole);
@@ -224,11 +244,12 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
 }
 
 function RoleBasedRedirect({ role }) {
-  if (role === ROLES.TRAVEL_AGENT) {
+  if (role === ROLES.TRAVEL_ASSOCIATE) {  
     return <Navigate to="/expenseDataView" replace />;
   }
   return <Navigate to="/home" replace />;
 }
+
 // ---------------------------------------------
 // Shell with routes & guards
 // ---------------------------------------------
@@ -259,7 +280,17 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
     else if (key === "expenseDataView") navigate("/expenseDataView");
     else if (key === "users") navigate("/masters/users");
     else if (key === "trip-data") navigate("/trip-data");
+    else if (key === "allRequests") navigate("/traveldesk/allRequests");
+    else if (key === "flightDesk") navigate("/traveldesk/flightDesk");
+    else if (key === "hotelDesk") navigate("/traveldesk/hotelDesk");
+    else if (key === "carDesk") navigate("/traveldesk/carDesk");
+    else if (key === "busDesk") navigate("/traveldesk/busDesk");
+    else if (key === "trainDesk") navigate("/traveldesk/trainDesk");
+
   };
+
+    const isSidebarVisible = currentRole !== ROLES.TRAVEL_ASSOCIATE;
+
 
   return (
     <div className={`app-shell${collapsed ? " collapsed" : ""}`}>
@@ -337,17 +368,15 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
             <Route
               path="/expenseDataView"
               element={
-                <RequireRole allow={[ROLES.ADMIN, ROLES.TRAVEL_AGENT]} currentRole={currentRole}>
+                <RequireRole allow={[ROLES.ADMIN, ROLES.TRAVEL_ASSOCIATE]} currentRole={currentRole}>
                   <ExpenseDataList />
                 </RequireRole>
               }
             />
-
-            {/* Detail View */}
-           <Route
+            <Route
               path="/expenseDataView/:rowid"
               element={
-                <RequireRole allow={[ROLES.ADMIN, ROLES.TRAVEL_AGENT]} currentRole={currentRole}>
+                <RequireRole allow={[ROLES.ADMIN, ROLES.TRAVEL_ASSOCIATE]} currentRole={currentRole}>
                   <TripDetailView />
                 </RequireRole>
               }
@@ -451,6 +480,57 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
                 </RequireRole>
               }
             />
+
+            {/* Travel Desk Routes */}
+            <Route
+              path="/traveldesk/allRequests"
+              element={
+                <RequireRole allow={[]} currentRole={currentRole}>
+                  <AllRequests />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="/traveldesk/flightDesk"
+              element={
+                <RequireRole allow={[]} currentRole={currentRole}>
+                  <FlightDesk />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="/traveldesk/hotelDesk"
+              element={
+                <RequireRole allow={[]} currentRole={currentRole}>
+                  <HotelDesk />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="/traveldesk/carDesk"
+              element={
+                <RequireRole allow={[]} currentRole={currentRole}>
+                  <CarDesk />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="/traveldesk/busDesk"
+              element={
+                <RequireRole allow={[]} currentRole={currentRole}>
+                  <BusDesk />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="/traveldesk/trainDesk"
+              element={
+                <RequireRole allow={[]} currentRole={currentRole}>
+                  <TrainDesk />
+                </RequireRole>
+              }
+            />
+
 
             {/* Fallback */}
            <Route path="*" element={<RoleBasedRedirect role={currentRole} />} />

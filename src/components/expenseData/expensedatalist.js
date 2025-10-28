@@ -116,7 +116,7 @@ const TablePagination = ({
     setRowsPerPage(Number(e.target.value));
     setCurrentPage(1); // Reset to first page
   };
-  
+
   if (totalCount === 0) return null;
 
   return (
@@ -181,10 +181,11 @@ export default function ExpenseDataList() {
             const destination = deriveDestination(a);
             const statusType = String(rec.status || "").toLowerCase() === "completed" ? "completed" : "pending";
             const statusLabel = statusType === "completed" ? "Completed" : "Pending";
+
             return {
               rowid: rec.ROWID || rec.rowid || idx + 1,
               id: rec.tripNumber || rec.TripId || rec.id,
-              title: rec.Activity || rec.title || "Trip",
+              title: rec.trip_name,
               startDate: startISO ? toDisplayDate(startISO) : "",
               endDate: endISO ? toDisplayDate(endISO) : "",
               destination,
@@ -230,7 +231,7 @@ export default function ExpenseDataList() {
     if (activeTab === "completed") return rows.filter((t) => t.status.type === "completed");
     return rows;
   }, [rows, activeTab]);
-  
+
   const paginatedRows = React.useMemo(() => {
     const startIndex = (currentPage - 1) * rowsPerPage;
     return filteredRows.slice(startIndex, startIndex + rowsPerPage);
@@ -274,9 +275,9 @@ export default function ExpenseDataList() {
       </header>
       <main className="table-wrapper">
         <table className="data-table">
-         <thead>
+          <thead>
             <tr>
-              <th><input type="checkbox" /></th>
+              {/* <th><input type="checkbox" /></th> */}
               <th>TRIP#</th>
               <th>TRIP DETAILS</th>
               <th>DESTINATION</th>
@@ -290,7 +291,7 @@ export default function ExpenseDataList() {
               <tr><td colSpan={7} style={{ padding: "1.5rem", color: "#67748e" }}>No trips in this tab.</td></tr>
             ) : paginatedRows.map((t) => (
               <tr key={t.rowid} className="clickable-row" onClick={() => handleRowClick(t.rowid)}>
-                <td><input type="checkbox" onClick={(e) => e.stopPropagation()} /></td>
+                {/* <td><input type="checkbox" onClick={(e) => e.stopPropagation()} /></td> */}
                 <td className="trip-id">{t.id}</td>
                 <td>
                   <a className="trip-link" href="#" onClick={(e) => e.preventDefault()}>{t.title}</a>
@@ -299,7 +300,12 @@ export default function ExpenseDataList() {
                   </div>
                 </td>
                 <td>{t.destination || "-"}</td>
-                <td><span className={`status-pill pill--${t.status.type}`}>{t.status.label}</span></td>
+                <span className={`status-pill pill--${(t._raw.EX_Status || "unknown").toLowerCase()}`}>
+                  {(t._raw.EX_Status
+                    ? t._raw.EX_Status.charAt(0).toUpperCase() + t._raw.EX_Status.slice(1)
+                    : "Unknown")}
+                </span>
+
                 <td><ApproverPill user={t.approver} /></td>
                 <td className="booking-cell">
                   {t.booking?.length ? t.booking.map((b, i) => <BookingIcon key={`${t.rowid}-${b}-${i}`} type={b} />) : <span>-</span>}

@@ -28,6 +28,8 @@ const MENU_ALL = [
 
 
   { key: "expenseDataView", label: "Expense Data", icon: "expenseDataView" },
+  { key: "travelDesk", label: "Travel Desk", icon: "police", isExpandable: true },
+
 
 ];
 
@@ -42,6 +44,15 @@ const MASTER_MENU_ALL = [
   { key: "customdata", label: "Custom Data", icon: "customData-master", hasPlus: true },
 
 ];
+
+const TRAVEL_DESK_ALL = [
+  { key: "allRequests", label: "All Requests", icon: "business" },
+  { key: "flightDesk", label: "Flights", icon: "plane" },
+  { key: "hotelDesk", label: "Hotels", icon: "hotel" },
+  { key: "carDesk", label: "Car Rentals", icon: "car" },
+  { key: "busDesk", label: "Buses", icon: "bus" },
+  { key: "trainDesk", label: "Trains", icon: "train" }
+]
 
 const Icon = ({ name }) => {
 
@@ -205,6 +216,86 @@ const Icon = ({ name }) => {
 
       );
 
+
+    case "police":
+      return (
+        <svg {...common}>
+          <rect x="3" y="10" width="18" height="12" rx="2" />
+          <path d="M12 2v3" />
+          <path d="M10 20h4" />
+          <path d="M16 10h1a2 2 0 0 1 2 2v1h-4v-3z" />
+          <path d="M7 10h1a2 2 0 0 0 2 2v1h-4v-3z" />
+        </svg>
+      );
+
+    // Changed 'business' to a Briefcase/All Requests icon
+    case "business":
+      return (
+        <svg {...common}>
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+          <path d="M2 11h20" />
+          <path d="M12 17v-4" />
+        </svg>
+      );
+
+    case "plane": // Icon for "Flights" - Improved for clearer airplane shape
+      return (
+        <svg {...common}>
+          <path d="M14 10l-4 4-2-2l4-4 2 2z" />
+          <path d="M20 5l-2 2" />
+          <path d="M4 19l2-2" />
+          <path d="M22 2l-6 6M2 22l6-6" />
+          <path d="M10 14l-4 4 2 2 4-4-2-2z" />
+        </svg>
+      );
+
+    case "hotel": // Icon for "Hotels" - Uses a more standard building/bed shape
+      return (
+        <svg {...common}>
+          <path d="M20 20V8h-6V4h-4v4H4v12" />
+          <rect x="4" y="14" width="4" height="4" rx="1" />
+          <rect x="16" y="14" width="4" height="4" rx="1" />
+          <path d="M4 20h16" />
+        </svg>
+      );
+
+    case "car": // Icon for "Car Rentals" - Uses a simpler side-view car shape
+      return (
+        <svg {...common}>
+          <path d="M10 20l4 0" />
+          <path d="M17 17H7l-3-5h16l-3 5z" />
+          <circle cx="7" cy="17" r="2" />
+          <circle cx="17" cy="17" r="2" />
+          <path d="M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4" />
+        </svg>
+      );
+
+    case "bus": // Icon for "Buses" - Simple front-view bus
+      return (
+        <svg {...common}>
+          <rect x="4" y="6" width="16" height="12" rx="2" />
+          <path d="M6 18V6" />
+          <path d="M18 18V6" />
+          <path d="M4 13h16" />
+          <circle cx="9" cy="18" r="1.5" />
+          <circle cx="15" cy="18" r="1.5" />
+        </svg>
+      );
+
+    case "train": // Icon for "Trains" - More detailed train/locomotive
+      return (
+        <svg {...common}>
+          <path d="M8 20l-4-4V6h16v10l-4 4H8z" />
+          <path d="M4 14h16" />
+          <circle cx="8" cy="17" r="2" />
+          <circle cx="16" cy="17" r="2" />
+          <path d="M10 10h4" />
+        </svg>
+      );
+
+
+
     default:
 
       return (
@@ -331,7 +422,7 @@ export default function Sidebar({
 
   if (role === "admin") {
     roleMenu = MENU_ALL.filter((m) =>
-      ["home", "trip", "masters", "expenseDataView"].includes(m.key)
+      ["home", "trip", "masters", "expenseDataView", "travelDesk"].includes(m.key)
     );
   } else if (role === "admin1") {
     roleMenu = MENU_ALL.filter((m) =>
@@ -339,13 +430,11 @@ export default function Sidebar({
     );
   } else if (role === "approver") {
     roleMenu = MENU_ALL.filter((m) => ["home", "my-approvals"].includes(m.key));
-
-  } else if (role === "travel_agent") {
+  } else if (role === "travel_associate") {
     // New rule for Travel Agent
     roleMenu = MENU_ALL.filter((m) => ["expenseDataView"].includes(m.key));
   }
   else {
-
     // submitter
     roleMenu = MENU_ALL.filter((m) => ["home", "trip"].includes(m.key));
   }
@@ -354,88 +443,60 @@ export default function Sidebar({
   return (
     <aside className={`sidebar${collapsed ? " collapsed" : ""}`} aria-label="Sidebar">
       <nav className="side-list" role="menu">
+        {roleMenu.map((it) => {
+          // Determine nested menu items based on the key
+          const nestedItems =
+            it.key === "masters"
+              ? MASTER_MENU_ALL
+              : it.key === "travelDesk"
+                ? TRAVEL_DESK_ALL
+                : [];
 
-        {roleMenu.map((it) =>
-
-          it.isExpandable ? (
+          return it.isExpandable ? (
             <SideRow
-
               key={it.key}
-
               item={it}
-
               active={activeKey.startsWith(it.key)}
-
               collapsed={collapsed}
-
               onAdd={onAdd}
             >
               <div className="nested-list">
-
-                {MASTER_MENU_ALL.map((nestedItem) => (
+                {nestedItems.map((nestedItem) => (
                   <SideRow
-
                     key={nestedItem.key}
-
                     item={nestedItem}
-
                     active={activeKey === nestedItem.key}
-
                     onClick={() => {
-
                       setActiveKey(nestedItem.key);
-
                       onSelect?.(nestedItem.key);
-
                     }}
-
                     collapsed={collapsed}
-
                     onAdd={onAdd}
-
                   />
-
                 ))}
               </div>
             </SideRow>
-
           ) : (
             <SideRow
-
               key={it.key}
-
               item={it}
-
               active={activeKey === it.key}
-
               onClick={() => {
-
                 setActiveKey(it.key);
-
                 onSelect?.(it.key);
-
               }}
-
               collapsed={collapsed}
-
               onAdd={onAdd}
-
             />
-
-          )
-
-        )}
+          );
+        })}
       </nav>
 
       <div className="collapse-toggle">
         <button
-
           type="button"
-
           className="collapse-btn"
-
           onClick={() => setCollapsed((prev) => !prev)}
-
           aria-label={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
           <span className="icon">
