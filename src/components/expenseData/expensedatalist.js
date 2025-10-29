@@ -63,22 +63,101 @@ const toDisplayDate = (isoOrYmd) => {
   const fmt = d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
   return fmt.replace(",", "");
 };
+
+
+const parseDateTime = (dateStr, timeStr) => {
+  if (!dateStr) return null;
+  return new Date(`${dateStr}T${timeStr || "00:00"}:00`);
+};
+
 const deriveDestination = (a = {}) => {
-  for (const [lc, pc, inner, field] of [
-    ["flightDataZoho", "FlightDataZoho", "flightDataZoho", "flight_arrv_city"],
-    ["carDataZoho", "CarDataZoho", "carDataZoho", "car_arrv_city"],
-    ["hotelDataZoho", "HotelDataZoho", "hotelDataZoho", "hotel_arrv_city"],
-    ["trainDataZoho", "TrainDataZoho", "trainDataZoho", "train_arrv_city"],
-    ["busDataZoho", "BusDataZoho", "busDataZoho", "bus_arrv_city"],
-  ]) {
-    const arr = getArr(a, lc, pc);
+  const arrivals = [];
+  const departures = [];
+  const cancelledArrivals = [];
+
+  const modes = [
+    ["flightDataZoho", "flight_arrv_city", "flight_arrv_date", "flight_arrv_time", 
+     "flight_dep_city", "flight_dep_date", "flight_dep_time", "reschedule_OR_Cancel", 
+     "unwrap", "flightDataZoho"],
+
+    ["carDataZoho", "car_arrv_city", "car_arrv_date", "car_arrv_time", 
+     "car_dep_city", "car_dep_date", "car_dep_time", "reschedule_OR_Cancel", 
+     "unwrap", "carDataZoho"],
+
+    ["hotelDataZoho", "hotel_arrv_city", "hotel_arrv_date", "hotel_arrv_time", 
+     "hotel_dep_city", "hotel_dep_date", "hotel_dep_time", "reschedule_OR_Cancel", 
+     "unwrap", "hotelDataZoho"],
+
+    ["trainDataZoho", "train_arrv_city", "train_arrv_date", "train_arrv_time", 
+     "train_dep_city", "train_dep_date", "train_dep_time", "reschedule_OR_Cancel", 
+     "unwrap", "trainDataZoho"],
+
+    ["busDataZoho", "bus_arrv_city", "bus_arrv_date", "bus_arrv_time", 
+     "bus_dep_city", "bus_dep_date", "bus_dep_time", "reschedule_OR_Cancel", 
+     "unwrap", "busDataZoho"],
+  ];
+
+  let modeCount = 0;
+  let totalBookings = 0;
+  let cancelledBookings = 0;
+
+  for (const [key, arrCityField, arrDateField, arrTimeField, depCityField, depDateField, depTimeField, cancelField, unwrapFnName, inner] of modes) {
+    const arr = getArr(a, key, inner);
+    if (arr && arr.length > 0) {
+      modeCount++;
+    }
     for (const w of arr) {
+      totalBookings++;
       const rec = unwrap(w, inner) || {};
-      if (rec[field]) return rec[field];
+      if (!rec[arrCityField]) continue;
+
+      const isCancelled = ((rec[cancelField] || "").toLowerCase() === "cancelled");
+
+      const arrivalDateTime = parseDateTime(rec[arrDateField], arrTimeField ? rec[arrTimeField] : null);
+      if (!arrivalDateTime) continue;
+
+      if (isCancelled) {
+        cancelledBookings++;
+        cancelledArrivals.push({ city: rec[arrCityField], date: arrivalDateTime });
+      } else {
+        arrivals.push({ city: rec[arrCityField], date: arrivalDateTime, index: arrivals.length });
+        departures.push({ city: rec[depCityField] || "", date: parseDateTime(rec[depDateField], depTimeField ? rec[depTimeField] : null) });
+      }
     }
   }
-  return "";
+
+  if (modeCount === 0) return "";
+
+  // Single mode logic updated for cancellation
+  if (modeCount === 1) {
+    if (cancelledBookings > 0) {
+      // If there are cancelled bookings, destination is arrival city of the latest cancelled booking
+      cancelledArrivals.sort((a, b) => b.date - a.date);
+      return cancelledArrivals[0].city;
+    } else {
+      // No cancellation - destination is latest arrival city
+      arrivals.sort((a, b) => b.date - a.date);
+      return arrivals[0]?.city || "";
+    }
+  }
+
+  // Multi-mode logic remains same
+  if (!arrivals.length) return "";
+  arrivals.sort((a, b) => a.date - b.date);
+
+  const firstArrival = arrivals[0];
+  const lastArrival = arrivals[arrivals.length - 1];
+
+  if (firstArrival.city === lastArrival.city) {
+    const departureCity = departures[lastArrival.index]?.city || "";
+    return departureCity || lastArrival.city;
+  }
+
+  return lastArrival.city;
 };
+
+
+
 const deriveBookingList = (a = {}) => {
   const list = [];
   if (getArr(a, "flightDataZoho", "FlightDataZoho").length) list.push("flight");

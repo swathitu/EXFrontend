@@ -300,3 +300,20 @@ main.main--no-scroll {
 .loading p {
   margin: 0; /* Remove default paragraph margin for perfect centering */
 }
+
+.app-shell.no-sidebar {
+  /* Single column, header and footer stay as full-width rows */
+  grid-template-columns: 1fr;
+}
+
+.app-shell.no-sidebar .main {
+  grid-column: 1 / -1; /* Main spans the entire grid */
+}
+
+.app-shell.no-sidebar .sidebar {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+}
+
