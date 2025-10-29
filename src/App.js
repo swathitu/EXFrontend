@@ -254,6 +254,7 @@ function RoleBasedRedirect({ role }) {
 // Shell with routes & guards
 // ---------------------------------------------
 function AppShell({ currentRole, userEmail, userName, onLogout }) {
+
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -293,7 +294,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
 
 
   return (
-    <div className={`app-shell${collapsed ? " collapsed" : ""}`}>
+    <div className={`app-shell${collapsed ? " collapsed" : ""}${!isSidebarVisible ? " no-sidebar" : ""}`}>
       <Header
         userName={userEmail?.split("@")[0]}   // or actual name from Catalyst if available
         userEmail={userEmail}
@@ -301,7 +302,8 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
         onLogout={onLogout}
       />
 
-      <aside className="sidebar">
+      {isSidebarVisible &&(
+        <aside className="sidebar">
         <Sidebar
           role={currentRole}
           collapsed={collapsed}
@@ -310,6 +312,9 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
           onSelect={handleSelectFromSidebar}
         />
       </aside>
+      )}
+
+      
 
       <main className={`main ${isApproverDataView ? "main--no-scroll" : ""}`}>
         <div className={`content-card ${isTripData ? "tdv-full-bleed" : ""}`}>

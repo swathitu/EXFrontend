@@ -1,10 +1,10 @@
 import React, { useMemo, useState, useEffect } from "react";
 
 import "./UpdateTripForm.css";
- 
+
 const CloseIcon = () => (
-<svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-<path
+  <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+    <path
 
       fillRule="evenodd"
 
@@ -13,11 +13,11 @@ const CloseIcon = () => (
       clipRule="evenodd"
 
     />
-</svg>
+  </svg>
 
 );
- 
-export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, onSuccess }) {
+
+export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, onSuccess, defaultValues }) {
 
   // Visible inputs
 
@@ -30,7 +30,30 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
   const [amount, setAmount] = useState("");           // keep as string in input; send as int
 
   const [typeOfBook, setTypeOfBook] = useState("");   // "Credit" | "Debit"
- 
+
+  useEffect(() => {
+  console.log("Update form defaultValues:", defaultValues); // Add this to debug
+
+  if (!defaultValues) {
+    setVendorName("");
+    setBillDate("");
+    setBillNumber("");
+    setAmount("");
+    setTypeOfBook("");
+    return;
+  }
+  setVendorName(defaultValues.vendorName || "");
+  setBillDate(defaultValues.BillDate || defaultValues.billDate || "");
+  setBillNumber(defaultValues.BillNumber || defaultValues.billNumber || "");
+  setAmount(
+    defaultValues.Amount !== undefined 
+      ? String(defaultValues.Amount) 
+      : (defaultValues.amount !== undefined ? String(defaultValues.amount) : "")
+  );
+  setTypeOfBook(defaultValues.TypeOfBook || defaultValues.typeOfBook || "");
+}, [defaultValues, subRowId]);
+
+
   // UX
 
   const [submitting, setSubmitting] = useState(false);
@@ -38,7 +61,7 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
   const [err, setErr] = useState("");
 
   const [ok, setOk] = useState(false);
- 
+
   // If parent opens for another row quickly, nothing to sync visibly since ROWID is hidden,
 
   // but we can reset form fields if you want; leaving as-is to preserve user input.
@@ -48,7 +71,7 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
     // no-op for now
 
   }, [subRowId]);
- 
+
   // Hidden status logic (do NOT display hint):
 
   const status = useMemo(() => {
@@ -68,7 +91,7 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
     return hasAll ? "completed" : "pending";
 
   }, [vendorName, billDate, billNumber, amount, typeOfBook]);
- 
+
   const onSubmit = async (e) => {
 
     e.preventDefault();
@@ -76,7 +99,7 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
     setErr("");
 
     setOk(false);
- 
+
     // Parse Amount as integer (not string)
 
     const parsedAmount = Number.parseInt(String(amount).trim(), 10);
@@ -88,7 +111,7 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
       return;
 
     }
- 
+
     const payload = {
 
       ROWID: String(subRowId || ""),      // hidden
@@ -108,7 +131,7 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
       status,                             // hidden/auto
 
     };
- 
+
     try {
 
       setSubmitting(true);
@@ -126,7 +149,7 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       setOk(true);
-      onSuccess?.(); 
+      onSuccess?.();
       onClose?.();
 
     } catch (e) {
@@ -140,29 +163,29 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
     }
 
   };
- 
+
   return (
-<div className="form-overlay">
-<div className="form-container1">
-<header className="form-header">
-<h2>Update Trip Details</h2>
-<button className="btn-icon close-btn" onClick={onClose} aria-label="Close">
-<CloseIcon />
-</button>
-</header>
- 
+    <div className="form-overlay">
+      <div className="form-container1">
+        <header className="form-header">
+          <h2>Update Trip Details</h2>
+          <button className="btn-icon close-btn" onClick={onClose} aria-label="Close">
+            <CloseIcon />
+          </button>
+        </header>
+
         <form className="trip-update-form" onSubmit={onSubmit}>
 
           {/* Hidden fields */}
-<input type="hidden" name="ROWID" value={subRowId || ""} />
-<input type="hidden" name="tripType" value={tripType || ""} />
-<input type="hidden" name="status" value={status} />
- 
+          <input type="hidden" name="ROWID" value={subRowId || ""} />
+          <input type="hidden" name="tripType" value={tripType || ""} />
+          <input type="hidden" name="status" value={status} />
+
           {/* Remove the read-only Trip Type and the status hint per request */}
- 
+
           <div className="form-group">
-<label htmlFor="vendorName">Vendor Name</label>
-<input
+            <label htmlFor="vendorName">Vendor Name</label>
+            <input
 
               type="text"
 
@@ -172,16 +195,16 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
 
               onChange={(e) => setVendorName(e.target.value)}
 
-              placeholder="United Airlines"
+              placeholder="Ex:United Airlines"
 
               required
 
             />
-</div>
- 
+          </div>
+
           <div className="form-group">
-<label htmlFor="billDate">Bill Date</label>
-<input
+            <label htmlFor="billDate">Bill Date</label>
+            <input
 
               type="date"
 
@@ -194,11 +217,11 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
               required
 
             />
-</div>
- 
+          </div>
+
           <div className="form-group">
-<label htmlFor="billNumber">Bill Number</label>
-<input
+            <label htmlFor="billNumber">Bill Number</label>
+            <input
 
               type="text"
 
@@ -208,16 +231,16 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
 
               onChange={(e) => setBillNumber(e.target.value)}
 
-              placeholder="1234566778888"
+              placeholder="Ex:123DGT68"
 
               required
 
             />
-</div>
- 
+          </div>
+
           <div className="form-group">
-<label htmlFor="amount">Amount</label>
-<input
+            <label htmlFor="amount">Amount</label>
+            <input
 
               type="number"
 
@@ -231,16 +254,16 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
 
               step="1"            // integer only
 
-              placeholder="200"
+              placeholder="Ex:200"
 
               required
 
             />
-</div>
- 
+          </div>
+
           <div className="form-group">
-<label htmlFor="typeOfBook">Type Of Book</label>
-<select
+            <label htmlFor="typeOfBook">Type Of Booking</label>
+            <select
 
               id="typeOfBook"
 
@@ -249,33 +272,32 @@ export default function UpdateTripForm({ subRowId = "", tripType = "", onClose, 
               onChange={(e) => setTypeOfBook(e.target.value)}
 
               required
->
-<option value="" disabled>Select type</option>
-<option value="Credit">Credit</option>
-<option value="Debit">Debit</option>
-</select>
-</div>
- 
+            >
+              <option value="" disabled>Select type</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Travel Agent">Travel Agent</option>
+            </select>
+          </div>
+
           {err && <div className="form-error" style={{ color: "#b91c1c" }}>Error: {err}</div>}
 
           {ok && <div className="form-ok" style={{ color: "#065f46" }}>Updated successfully.</div>}
- 
+
           <footer className="form-footer">
-<button className="btn btn-primary" type="submit" disabled={submitting}>
+            <button className="btn btn-primary" type="submit" disabled={submitting}>
 
               {submitting ? "Updating..." : "Update"}
-</button>
-<button className="btn btn-default" type="button" onClick={onClose}>
+            </button>
+            <button className="btn btn-default" type="button" onClick={onClose}>
 
               Cancel
-</button>
-</footer>
-</form>
-</div>
-</div>
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
 
   );
 
 }
 
- 

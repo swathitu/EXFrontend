@@ -65,12 +65,15 @@
 
 .status-pill1 {
   display: flex;
-  align-items: center; /* vertical center */
-  font-size: 11px; /* or your needed font size */
+  align-items: center;
+  /* vertical center */
+  font-size: 11px;
+  /* or your needed font size */
   font-weight: 700;
   padding: 4px 8px;
   border-radius: 4px;
-  height: 24px; /* fix height matching line height */
+  height: 24px;
+  /* fix height matching line height */
   text-transform: uppercase;
 }
 
@@ -581,7 +584,7 @@
 .train-item-toprow {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 4px;
   padding: 5px;
 }
@@ -603,6 +606,7 @@
   gap: 12px;
   font-size: 13px;
   color: #444;
+  margin-top: 7px;
 }
 
 .cancel-reschedule-reason {
@@ -618,6 +622,8 @@
 .line-tag {
 
   display: "flex";
+  justify-content: space-between;
+  align-items: center;
   gap: "8px";
   width: 100%;
 }
@@ -627,3 +633,11 @@
   width: 100%;
   margin: 10px 10px;
 } */
+
+.extra-amount {
+  display: flex;
+  gap: 24px;
+  /* Space between items, adjust as needed */
+  align-items: center;
+  margin-bottom: 5px;
+}
