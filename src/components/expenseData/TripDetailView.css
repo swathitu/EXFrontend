@@ -601,12 +601,19 @@
   margin-right: 8px;
 }
 
+.line-tag {
+  min-width: 150px; /* fixes left side width so all lines align vertical */
+}
+
 .flight-extra-details {
-  display: flex;
-  gap: 12px;
-  font-size: 13px;
-  color: #444;
-  margin-top: 7px;
+  min-width: 200px; /* fixes right side width */
+  text-align: right;
+}
+
+.flight-extra-details span,
+.line-tag span {
+  margin-left: 0.75rem;
+  margin-right: 0.75rem;
 }
 
 .cancel-reschedule-reason {
@@ -619,25 +626,25 @@
   user-select: none;
 }
 
-.line-tag {
+/* .line-tag {
 
   display: "flex";
   justify-content: space-between;
   align-items: center;
   gap: "8px";
-  width: 100%;
-}
-
-/* .dot-line{
- border-top: 2px dotted rgb(107, 104, 104);
-  width: 100%;
-  margin: 10px 10px;
+  min-width: 150px;
 } */
+
+
+/* .line-tag span {
+  margin-right: 0.5rem; 
+} */
+
+
 
 .extra-amount {
   display: flex;
   gap: 24px;
-  /* Space between items, adjust as needed */
   align-items: center;
   margin-bottom: 5px;
 }

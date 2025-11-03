@@ -279,43 +279,49 @@ const FlightDetails = ({ bookings, onEdit, mainStatusLower }) => {
 
   return sortedBookings.map((item, i) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
-    const hasExtraDetails = item.meal || item.seat || item.flightClass;
-    const itemClassName = `itinerary-item flight-item ${hasExtraDetails ? 'has-extra-details' : ''}`;
+    const hasExtraDetails = Boolean(item.meal || item.seat || item.flightClass);
+    const itemClassName = `itinerary-item flight-item`;
     const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
-    const showTopRow = item.rescheduleOrCancel || hasExtraDetails;
 
     return (
       <div className="flight-item-wrapper" key={`flt-${i}`}>
-        {/* Top row: tag to the left, extras to the right */}
-        {showTopRow && (
-          <div className="flight-item-toprow">
-            {/* Left side: reschedule/cancel tag */}
-            <div className="line-tag" >
-              {item.rescheduleOrCancel && (
+        
+        {/* Always rendered top row with flex layout */}
+        <div className="flight-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          
+          {/* Left side: Reschedule/cancel tags or placeholder */}
+          <div className="line-tag" style={{ minWidth: "150px" }}>
+            {item.rescheduleOrCancel ? (
+              <>
                 <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
                   {item.rescheduleOrCancel}
                 </span>
-              )}
-              {item.cancel_or_reschedule_reason && (
-                <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
-                  {item.cancel_or_reschedule_reason}
-                </span>
-              )}
-
-            </div>
-            {/* Right side: extra details */}
-            <div>
-              {hasExtraDetails && (
-                <div className="flight-extra-details">
-                  {item.meal && <span>Meal: {item.meal}</span>}
-                  {item.seat && <span>Seat: {item.seat}</span>}
-                  {item.flightClass && <span>Flight Class: {item.flightClass}</span>}
-                </div>
-              )}
-            </div>
+                {item.cancel_or_reschedule_reason && (
+                  <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                    {item.cancel_or_reschedule_reason}
+                  </span>
+                )}
+              </>
+            ) : (
+              <span style={{ visibility: 'hidden' }}>Placeholder</span>
+            )}
           </div>
-        )}
 
+          {/* Right side: Extra details or placeholder */}
+          <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
+            {hasExtraDetails ? (
+              <>
+                {item.meal && <span>Meal: {item.meal}</span>}
+                {item.seat && <span>Seat: {item.seat}</span>}
+                {item.flightClass && <span>Flight Class: {item.flightClass}</span>}
+              </>
+            ) : (
+              <span style={{ visibility: 'hidden' }}>Placeholder</span>
+            )}
+          </div>
+        </div>
+
+        {/* Main itinerary item container */}
         <div className={itemClassName}>
           {/* Departure Column */}
           <div className="itinerary-col">
@@ -338,23 +344,28 @@ const FlightDetails = ({ bookings, onEdit, mainStatusLower }) => {
 
           {/* Amount & Actions Column */}
           <div className="itinerary-col amount-actions-col">
-
-            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "flight")} title="Edit flight">
+            <button
+              className="btn-icon"
+              onClick={() => allowEdit && onEdit(item.subRowId, "flight")}
+              title="Edit flight"
+              disabled={!allowEdit}
+            >
               <EditIcon />
             </button>
-
             <div className="amount-display">
               Amount: {formatCurrency(item.bcy_amount)}
             </div>
           </div>
         </div>
+
+        {/* Cancellation and refund amounts */}
         <div className="extra-amount">
           {isCancelled && (
             <>
-              <div className="amount-display" >
+              <div className="amount-display">
                 Cancellation Charge: {formatCurrency(item.cancellation_charge)}
               </div>
-              <div className="amount-display" >
+              <div className="amount-display">
                 Refund Amount: {formatCurrency(item.refund_amount)}
               </div>
             </>
@@ -364,6 +375,7 @@ const FlightDetails = ({ bookings, onEdit, mainStatusLower }) => {
     );
   });
 };
+
 
 const HotelDetails = ({ bookings, onEdit, mainStatusLower }) => {
   const sortedBookings = bookings.slice()
@@ -459,86 +471,86 @@ const CarDetails = ({ bookings, onEdit, mainStatusLower }) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
     const showTopRow = item.rescheduleOrCancel;
     const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
-      return (
-        <div className="car-item-wrapper" key={`car-${i}`}>
-          {showTopRow && (
-            <div className="car-item-toprow">
-              <div className="line-tag" >
-                <div className="dot-line"></div>
-                {item.rescheduleOrCancel && (
-                  <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
-                    {item.rescheduleOrCancel}
-                  </span>
-                )}
-                {item.cancel_or_reschedule_reason && (
-                  <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
-                    {item.cancel_or_reschedule_reason}
-                  </span>
-                )}
-              </div>
-              <div>{/* Optional right side content or keep empty */}</div>
+    return (
+      <div className="car-item-wrapper" key={`car-${i}`}>
+        {showTopRow && (
+          <div className="car-item-toprow">
+            <div className="line-tag" >
+              <div className="dot-line"></div>
+              {item.rescheduleOrCancel && (
+                <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
+                  {item.rescheduleOrCancel}
+                </span>
+              )}
+              {item.cancel_or_reschedule_reason && (
+                <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                  {item.cancel_or_reschedule_reason}
+                </span>
+              )}
             </div>
+            <div>{/* Optional right side content or keep empty */}</div>
+          </div>
+        )}
+        <div className="itinerary-item car-item">
+          <div className="car-info-col car-type">
+            <CarIcon />
+            <div>
+              <div className="font-xs text-muted">Car Type</div>
+              <div>{item.carType}</div>
+            </div>
+          </div>
+
+          <div className="car-info-col car-pickup">
+            <div className="font-xs text-muted">Pick-Up</div>
+            <div>
+              {item.pickUp.date}
+              {item.pickUp.time && `, ${item.pickUp.time}`}
+            </div>
+            <div className="font-xs">{item.pickUp.location}</div>
+          </div>
+
+          <div className="car-separator">
+            <ArrowIcon />
+          </div>
+
+          <div className="car-info-col car-dropoff">
+            <div className="font-xs text-muted">Drop-Off</div>
+            <div>
+              {item.dropOff.date}
+              {item.dropOff.time && `, ${item.dropOff.time}`}
+            </div>
+            <div className="font-xs">{item.dropOff.location}</div>
+          </div>
+
+          <div className="item-actions">
+
+            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "car")} title="Edit car">
+              <EditIcon />
+            </button>
+
+            <div className="amount-display">
+              Amount: {formatCurrency(item.bcy_amount)}
+            </div>
+          </div>
+        </div>
+        <div className="extra-amount">
+          {isCancelled && (
+            <>
+              <div className="amount-display" >
+                Cancellation Charge: {formatCurrency(item.cancellation_charge)}
+              </div>
+              <div className="amount-display" >
+                Refund Amount: {formatCurrency(item.refund_amount)}
+              </div>
+            </>
           )}
-          <div className="itinerary-item car-item">
-            <div className="car-info-col car-type">
-              <CarIcon />
-              <div>
-                <div className="font-xs text-muted">Car Type</div>
-                <div>{item.carType}</div>
-              </div>
-            </div>
-
-            <div className="car-info-col car-pickup">
-              <div className="font-xs text-muted">Pick-Up</div>
-              <div>
-                {item.pickUp.date}
-                {item.pickUp.time && `, ${item.pickUp.time}`}
-              </div>
-              <div className="font-xs">{item.pickUp.location}</div>
-            </div>
-
-            <div className="car-separator">
-              <ArrowIcon />
-            </div>
-
-            <div className="car-info-col car-dropoff">
-              <div className="font-xs text-muted">Drop-Off</div>
-              <div>
-                {item.dropOff.date}
-                {item.dropOff.time && `, ${item.dropOff.time}`}
-              </div>
-              <div className="font-xs">{item.dropOff.location}</div>
-            </div>
-
-            <div className="item-actions">
-
-              <button className="btn-icon" onClick={() => onEdit(item.subRowId, "car")} title="Edit car">
-                <EditIcon />
-              </button>
-
-              <div className="amount-display">
-                Amount: {formatCurrency(item.bcy_amount)}
-              </div>
-            </div>
-          </div>
-          <div className="extra-amount">
-            {isCancelled && (
-              <>
-                <div className="amount-display" >
-                  Cancellation Charge: {formatCurrency(item.cancellation_charge)}
-                </div>
-                <div className="amount-display" >
-                  Refund Amount: {formatCurrency(item.refund_amount)}
-                </div>
-              </>
-            )}
-          </div>
-
         </div>
 
-      );
-    });
-  };
+      </div>
+
+    );
+  });
+};
 
 const BusDetails = ({ bookings, onEdit, mainStatusLower }) => {
   const sortedBookings = bookings.slice()
@@ -699,10 +711,13 @@ const TrainDetails = ({ bookings, onEdit, mainStatusLower }) => {
   });
 };
 /* ---------------- Main Component ---------------- */
-export default function TripDetailView() {
+export default function TripDetailView({ tripId, onClose }) {
   const navigate = useNavigate();
-  const { rowid } = useParams();
+  // const { rowid } = useParams();
+  // const rowId = tripId;
 
+
+ 
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [trip, setTrip] = useState(null);
@@ -712,11 +727,14 @@ export default function TripDetailView() {
   const [editCtx, setEditCtx] = useState({ subRowId: "", tripType: "" });
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const handleBack = () => navigate(-1);
+  const handleBack = () => {
+    if (onClose) onClose();
+  };
+
   const handleOpenForm = async (subRowId, tripType) => {
     try {
       // Fetch latest trip data by rowid from your API endpoint
-      const latestTripData = await fetchDetailByRowId(rowid);
+      const latestTripData = await fetchDetailByRowId(tripId);
       const a = latestTripData.associatedData || latestTripData.AsspciatedData || {};
 
       // Map bookings from latest data
@@ -768,15 +786,17 @@ export default function TripDetailView() {
     setRefreshKey(k => k + 1);
   };
 
+
+  
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         setLoading(true);
         setErr("");
-        if (!rowid) throw new Error("No :rowid in route");
+        if (!tripId) throw new Error("No :rowid in route");
 
-        const rec = await fetchDetailByRowId(rowid);
+        const rec = await fetchDetailByRowId(tripId);
         if (!rec) throw new Error("Trip not found");
 
         const a = rec.associatedData || rec.AsspciatedData || {};
@@ -794,7 +814,7 @@ export default function TripDetailView() {
         const exStatus = rec.EX_Status || rec.Ex_Status || rec.ex_status || "";
 
 
-        const rawTripId = rec.TripId || rec.ROWID || rowid;
+        const rawTripId = rec.TripId || rec.ROWID || tripId;
         const displayTripId = rec.tripNumber || rawTripId;
         const tripName = rec.trip_name || "Trip";
 
@@ -817,7 +837,7 @@ export default function TripDetailView() {
       }
     })();
     return () => { cancelled = true; };
-  }, [rowid, refreshKey]);
+  }, [tripId, refreshKey]);
 
   const availableTabs = useMemo(() => {
     if (!trip) return [];
@@ -844,16 +864,16 @@ export default function TripDetailView() {
       <div className="ze-detail-view">
         <header className="ze-detail-header">
           <div className="ze-header-left">
-            {rowid ? (
+            {tripId ? (
               <a
-                href={`https://expense.zoho.in/app/60024300150#/trips/${rowid}`}
+                href={`https://expense.zoho.in/app/60024300150#/trips/${tripId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="trip-id trip-link"
                 title="Open trip in Zoho Expense"
                 style={{ color: '#0d6efd', textDecoration: 'none' }}
               >
-                {rowid}
+                {tripId}
               </a>
             ) : (
               <div className="trip-id">{"—"}</div>

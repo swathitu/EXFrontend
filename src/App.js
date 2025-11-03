@@ -1,7 +1,7 @@
 // src/App.js
 import React, { useEffect, useState, useCallback } from "react";
 import {
-  BrowserRouter,
+  HashRouter,
   Routes,
   Route,
   Navigate,
@@ -101,7 +101,7 @@ function useUserManagement() {
         clearInterval(interval);
         const config = {
           signin_providers_only: true,
-          service_url: "/app/index.html",
+          service_url: "/app/index.html#/",
         };
         window.catalyst.auth.signIn("login-element", config);
       } else {
@@ -264,6 +264,13 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
     "/approver-trip-data"
   );
 
+  const contentCardClassNames = [
+    "content-card",
+    isTripData ? "tdv-full-bleed" : "",
+    currentRole === ROLES.ADMIN ? "content-card-admin" : "content-card-ta"
+    // Add other roles here if needed
+  ].join(" ").trim();
+
   const handleAddFromSidebar = (key) => {
     if (key === "location") navigate("/masters/location/new");
     if (key === "departments") navigate("/masters/department/new");
@@ -317,7 +324,8 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
       
 
       <main className={`main ${isApproverDataView ? "main--no-scroll" : ""}`}>
-        <div className={`content-card ${isTripData ? "tdv-full-bleed" : ""}`}>
+        <div className={contentCardClassNames}>
+       
           <Routes>
            <Route path="/index.html" element={<RoleBasedRedirect role={currentRole} />} />
             <Route path="/" element={<RoleBasedRedirect role={currentRole} />} />
@@ -540,6 +548,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
             {/* Fallback */}
            <Route path="*" element={<RoleBasedRedirect role={currentRole} />} />
           </Routes>
+        
         </div>
       </main>
 
@@ -579,7 +588,7 @@ export default function App() {
       )}
 
       {!authLoading && isAuthenticated && (
-        <BrowserRouter>
+        <HashRouter>
           {roleLoading ? (
             <div className="loading">
               <p>Checking access…</p>
@@ -597,7 +606,7 @@ export default function App() {
               Access check error: {roleError}
             </div>
           )}
-        </BrowserRouter>
+        </HashRouter>
       )}
 
       <ToastContainer />
