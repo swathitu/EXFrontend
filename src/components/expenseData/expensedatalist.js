@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./expensedatalist.css";
+import TripDetailView from "./TripDetailView";
 
 /* ---------- SVG Icon Components ---------- */
 const FlightIcon = () => (
@@ -76,25 +77,25 @@ const deriveDestination = (a = {}) => {
   const cancelledArrivals = [];
 
   const modes = [
-    ["flightDataZoho", "flight_arrv_city", "flight_arrv_date", "flight_arrv_time", 
-     "flight_dep_city", "flight_dep_date", "flight_dep_time", "reschedule_OR_Cancel", 
-     "unwrap", "flightDataZoho"],
+    ["flightDataZoho", "flight_arrv_city", "flight_arrv_date", "flight_arrv_time",
+      "flight_dep_city", "flight_dep_date", "flight_dep_time", "reschedule_OR_Cancel",
+      "unwrap", "flightDataZoho"],
 
-    ["carDataZoho", "car_arrv_city", "car_arrv_date", "car_arrv_time", 
-     "car_dep_city", "car_dep_date", "car_dep_time", "reschedule_OR_Cancel", 
-     "unwrap", "carDataZoho"],
+    ["carDataZoho", "car_arrv_city", "car_arrv_date", "car_arrv_time",
+      "car_dep_city", "car_dep_date", "car_dep_time", "reschedule_OR_Cancel",
+      "unwrap", "carDataZoho"],
 
-    ["hotelDataZoho", "hotel_arrv_city", "hotel_arrv_date", "hotel_arrv_time", 
-     "hotel_dep_city", "hotel_dep_date", "hotel_dep_time", "reschedule_OR_Cancel", 
-     "unwrap", "hotelDataZoho"],
+    ["hotelDataZoho", "hotel_arrv_city", "hotel_arrv_date", "hotel_arrv_time",
+      "hotel_dep_city", "hotel_dep_date", "hotel_dep_time", "reschedule_OR_Cancel",
+      "unwrap", "hotelDataZoho"],
 
-    ["trainDataZoho", "train_arrv_city", "train_arrv_date", "train_arrv_time", 
-     "train_dep_city", "train_dep_date", "train_dep_time", "reschedule_OR_Cancel", 
-     "unwrap", "trainDataZoho"],
+    ["trainDataZoho", "train_arrv_city", "train_arrv_date", "train_arrv_time",
+      "train_dep_city", "train_dep_date", "train_dep_time", "reschedule_OR_Cancel",
+      "unwrap", "trainDataZoho"],
 
-    ["busDataZoho", "bus_arrv_city", "bus_arrv_date", "bus_arrv_time", 
-     "bus_dep_city", "bus_dep_date", "bus_dep_time", "reschedule_OR_Cancel", 
-     "unwrap", "busDataZoho"],
+    ["busDataZoho", "bus_arrv_city", "bus_arrv_date", "bus_arrv_time",
+      "bus_dep_city", "bus_dep_date", "bus_dep_time", "reschedule_OR_Cancel",
+      "unwrap", "busDataZoho"],
   ];
 
   let modeCount = 0;
@@ -179,13 +180,7 @@ const ApproverPill = ({ user }) => (
 );
 
 /* ---------- Pagination Component ---------- */
-const TablePagination = ({
-  totalCount,
-  rowsPerPage,
-  setRowsPerPage,
-  currentPage,
-  setCurrentPage,
-}) => {
+const TablePagination = ({ totalCount, rowsPerPage, setRowsPerPage, currentPage, setCurrentPage }) => {
   const [showCount, setShowCount] = React.useState(false);
   const totalPages = Math.ceil(totalCount / rowsPerPage);
   const startItem = (currentPage - 1) * rowsPerPage + 1;
@@ -234,96 +229,132 @@ export default function ExpenseDataList() {
   const [rows, setRows] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
-
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(50);
+  const [totalRecords, setTotalRecords] = React.useState(0);
+  const [showTripDetail, setShowTripDetail] = React.useState(false);
+  const [selectedTripId, setSelectedTripId] = React.useState(null);
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        const res = await fetch("server/expenseData/", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        const normalized = (json?.data || [])
-          .map((rec, idx) => {
-            const a = rec.associatedData || rec.AsspciatedData || {};
-            const dates = collectDates(a);
-            const sorted = dates.slice().sort();
-            const startISO = sorted[0] || null;
-            const endISO = sorted[sorted.length - 1] || null;
-            const bookingList = deriveBookingList(a);
-            const destination = deriveDestination(a);
-            const statusType = String(rec.status || "").toLowerCase() === "completed" ? "completed" : "pending";
-            const statusLabel = statusType === "completed" ? "Completed" : "Pending";
-
-            return {
-              rowid: rec.ROWID || rec.rowid || idx + 1,
-              id: rec.tripNumber || rec.TripId || rec.id,
-              title: rec.trip_name,
-              startDate: startISO ? toDisplayDate(startISO) : "",
-              endDate: endISO ? toDisplayDate(endISO) : "",
-              destination,
-              status: { label: statusLabel, type: statusType },
-              approver: {
-                name: rec.RequestedBy || rec.UserName || "User",
-                initial: (rec.UserName || rec.RequestedBy || "U")[0]?.toUpperCase() || "U",
-                colorScheme: "gray",
-              },
-              booking: bookingList,
-              _raw: rec,
-              _subforms: {
-                flight: getArr(a, "flightDataZoho", "FlightDataZoho").map((x) => unwrap(x, "flightDataZoho")).filter(Boolean),
-                hotel: getArr(a, "hotelDataZoho", "HotelDataZoho").map((x) => unwrap(x, "hotelDataZoho")).filter(Boolean),
-                car: getArr(a, "carDataZoho", "CarDataZoho").map((x) => unwrap(x, "carDataZoho")).filter(Boolean),
-                train: getArr(a, "trainDataZoho", "TrainDataZoho").map((x) => unwrap(x, "trainDataZoho")).filter(Boolean),
-                bus: getArr(a, "busDataZoho", "BusDataZoho").map((x) => unwrap(x, "busDataZoho")).filter(Boolean),
-              },
-            };
-          })
-          .sort((a, b) => {
-            const numA = parseInt((a.id || "0").split('-')[1] || "0", 10);
-            const numB = parseInt((b.id || "0").split('-')[1] || "0", 10);
-            return numB - numA;
-          });
-        setRows(normalized);
-      } catch (e) {
-        setError(String(e?.message || e));
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  // NEW: Filter dropdown and value state
+  const [filterField, setFilterField] = React.useState("id");
+  const [filterValue, setFilterValue] = React.useState("");
 
   const handleRowClick = (id) => {
-    navigate(`/expenseDataView/${id}`);
+    setSelectedTripId(id);
+    setShowTripDetail(true);
   };
 
+  const handleClose = () => {
+    setShowTripDetail(false);
+    setSelectedTripId(null);
+  };
+
+  const fetchData = React.useCallback(async (page, size) => {
+    try {
+      setLoading(true);
+      setError("");
+      const res = await fetch(`/server/expenseData/?page=${page}&size=${size}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      if (json.status === "success") {
+        const normalized = (json.data || []).map((rec, idx) => {
+          const a = rec.associatedData || rec.AsspciatedData || {};
+          const dates = collectDates(a);
+          const sorted = dates.slice().sort();
+          const startISO = sorted[0] || null;
+          const endISO = sorted[sorted.length - 1] || null;
+          const bookingList = deriveBookingList(a);
+          const destination = deriveDestination(a);
+          const statusType = String(rec.status || "").toLowerCase() === "completed" ? "completed" : "pending";
+          const statusLabel = statusType === "completed" ? "Completed" : "Pending";
+
+          return {
+            rowid: rec.ROWID || rec.rowid || idx + 1,
+            id: rec.tripNumber || rec.TripId || rec.id,
+            title: rec.trip_name,
+            startDate: startISO ? toDisplayDate(startISO) : "",
+            endDate: endISO ? toDisplayDate(endISO) : "",
+            destination,
+            status: { label: statusLabel, type: statusType },
+            approver: {
+              name: rec.RequestedBy || rec.UserName || "User",
+              initial: (rec.UserName || rec.RequestedBy || "U")[0]?.toUpperCase() || "U",
+              colorScheme: "gray",
+            },
+            booking: bookingList,
+            _raw: rec,
+            _subforms: {
+              flight: getArr(a, "flightDataZoho", "FlightDataZoho").map((x) => unwrap(x, "flightDataZoho")).filter(Boolean),
+              hotel: getArr(a, "hotelDataZoho", "HotelDataZoho").map((x) => unwrap(x, "hotelDataZoho")).filter(Boolean),
+              car: getArr(a, "carDataZoho", "CarDataZoho").map((x) => unwrap(x, "carDataZoho")).filter(Boolean),
+              train: getArr(a, "trainDataZoho", "TrainDataZoho").map((x) => unwrap(x, "trainDataZoho")).filter(Boolean),
+              bus: getArr(a, "busDataZoho", "BusDataZoho").map((x) => unwrap(x, "busDataZoho")).filter(Boolean),
+            },
+          };
+        }).sort((a, b) => {
+          const numA = parseInt((a.id || "0").split("-")[1] || "0", 10);
+          const numB = parseInt((b.id || "0").split("-")[1] || "0", 10);
+          return numB - numA;
+        });
+        setRows(normalized);
+        setTotalRecords(json.totalRecords || 0);
+      } else {
+        throw new Error(json.message || "Failed to fetch data");
+      }
+    } catch (e) {
+      setError(String(e?.message || e));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchData(currentPage, rowsPerPage);
+  }, [fetchData, currentPage, rowsPerPage]);
+
+  // Filter data based on dropdown + input value and tab
   const filteredRows = React.useMemo(() => {
-    setCurrentPage(1);
-    if (activeTab === "pending") return rows.filter((t) => t.status.type === "pending");
-    if (activeTab === "completed") return rows.filter((t) => t.status.type === "completed");
-    return rows;
-  }, [rows, activeTab]);
+    if (!filterValue.trim()) {
+      // If no filter, just do tab filtering
+      if (activeTab === "pending") return rows.filter((t) => t.status.type === "pending");
+      if (activeTab === "completed") return rows.filter((t) => t.status.type === "completed");
+      return rows;
+    }
+    const val = filterValue.trim().toLowerCase();
+    const filtered = rows.filter((t) => {
+      switch (filterField) {
+        case "id":
+          return t.id?.toLowerCase().includes(val);
+        case "destination":
+          return t.destination?.toLowerCase().includes(val);
+        case "status": {
+          const expected = val.toLowerCase();
+          return (
+            t._raw.EX_Status &&
+            expected.length > 0 &&
+            ["approved", "pending", "completed"].includes(t._raw.EX_Status.toLowerCase()) &&
+            t._raw.EX_Status.toLowerCase().startsWith(expected)
+          );
+        }
 
-  const paginatedRows = React.useMemo(() => {
-    const startIndex = (currentPage - 1) * rowsPerPage;
-    return filteredRows.slice(startIndex, startIndex + rowsPerPage);
-  }, [filteredRows, currentPage, rowsPerPage]);
-
-  const counts = React.useMemo(() => {
-    let pending = 0, completed = 0;
-    rows.forEach((t) => {
-      if (t.status.type === "pending") pending += 1;
-      if (t.status.type === "completed") completed += 1;
+        case "approver":
+          return t.approver?.name?.toLowerCase().includes(val);
+        default:
+          return true;
+      }
     });
-    return { all: rows.length, pending, completed };
-  }, [rows]);
+
+    // Then tab filtering
+    if (activeTab === "pending") return filtered.filter((t) => t.status.type === "pending");
+    if (activeTab === "completed") return filtered.filter((t) => t.status.type === "completed");
+    return filtered;
+  }, [rows, filterField, filterValue, activeTab]);
+
+  // Handle Clear Filter
+  const clearFilter = () => setFilterValue("");
 
   if (loading) {
     return (
@@ -335,72 +366,132 @@ export default function ExpenseDataList() {
       </div>
     );
   }
-  if (error) return <div className="page-container"><main className="table-wrapper">Error: {error}</main></div>;
+
+  if (error) {
+    return (
+      <div className="page-container">
+        <main className="table-wrapper">Error: {error}</main>
+      </div>
+    );
+  }
 
   return (
-    <div className="page-container">
-      <header className="page-header">
-        <div className="header-tabs">
-          <button className={`tab-item ${activeTab === "all" ? "active" : ""}`} onClick={() => setActiveTab("all")}>
-            All Trips ({counts.all})
-          </button>
-          <button className={`tab-item ${activeTab === "pending" ? "active" : ""}`} onClick={() => setActiveTab("pending")}>
-            Pending ({counts.pending})
-          </button>
-          <button className={`tab-item ${activeTab === "completed" ? "active" : ""}`} onClick={() => setActiveTab("completed")}>
-            Completed ({counts.completed})
-          </button>
+    <>
+      {showTripDetail ? (
+        <TripDetailView tripId={selectedTripId} onClose={handleClose} />
+      ) : (
+        <div className="page-container">
+          <header className="page-header">
+            <div className="header-tabs">
+              <button
+                className={`tab-item ${activeTab === "all" ? "active" : ""}`}
+                onClick={() => setActiveTab("all")}
+              >
+                All Trips ({rows.length})
+              </button>
+              <button
+                className={`tab-item ${activeTab === "pending" ? "active" : ""}`}
+                onClick={() => setActiveTab("pending")}
+              >
+                Pending ({rows.filter(t => t.status.type === "pending").length})
+              </button>
+              <button
+                className={`tab-item ${activeTab === "completed" ? "active" : ""}`}
+                onClick={() => setActiveTab("completed")}
+              >
+                Completed ({rows.filter(t => t.status.type === "completed").length})
+              </button>
+            </div>
+            {/* FILTER UI */}
+            <div className="filter-container" style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: 12 }}>
+              <select
+                value={filterField}
+                onChange={(e) => setFilterField(e.target.value)}
+                style={{ padding: "6px 8px", borderRadius: 4, border: "1px solid #ccc" }}
+              >
+                <option value="id">Trip#</option>
+                <option value="destination">Destination</option>
+                <option value="status">Status</option>
+                <option value="approver">Requested By</option>
+              </select>
+              <input
+                type="text"
+                placeholder={`Filter by ${filterField === "id"
+                  ? "Trip#"
+                  : filterField.charAt(0).toUpperCase() + filterField.slice(1)
+                  }`}
+                value={filterValue}
+                onChange={(e) => setFilterValue(e.target.value)}
+                style={{ flex: 1, padding: "6px 10px", borderRadius: 4, border: "1px solid #ccc" }}
+              />
+              {filterValue && (
+                <button onClick={clearFilter} style={{
+                  padding: "6px 12px", borderRadius: 4, border: "none", backgroundColor: "#aaa",
+                  color: "white", cursor: "pointer"
+                }}>Clear</button>
+              )}
+            </div>
+          </header>
+          <main className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>TRIP#</th>
+                  <th>TRIP DETAILS</th>
+                  <th>DESTINATION</th>
+                  <th>STATUS</th>
+                  <th>REQUESTED BY</th>
+                  <th>BOOKING STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRows.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} style={{ padding: "1.5rem", color: "#67748e" }}>
+                      No trips match the filter.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredRows.map((t) => (
+                    <tr key={t.rowid} className="clickable-row" onClick={() => handleRowClick(t.rowid)}>
+                      <td className="trip-id">{t.id}</td>
+                      <td>
+                        <a className="trip-link" href="#" onClick={(e) => e.preventDefault()}>
+                          {t.title}
+                        </a>
+                        <div className="trip-dates">
+                          {t.startDate} {t.startDate && t.endDate ? " - " : ""} {t.endDate}
+                        </div>
+                      </td>
+                      <td>{t.destination || "-"}</td>
+                      <td>
+                        <span className={`status-pill pill--${(t._raw.EX_Status || "unknown").toLowerCase()}`}>
+                          {t._raw.EX_Status
+                            ? t._raw.EX_Status.charAt(0).toUpperCase() + t._raw.EX_Status.slice(1)
+                            : "Unknown"}
+                        </span>
+                      </td>
+                      <td>
+                        <ApproverPill user={t.approver} />
+                      </td>
+                      <td className="booking-cell">
+                        {t.booking?.length ? t.booking.map((b, i) => <BookingIcon key={`${t.rowid}-${b}-${i}`} type={b} />) : <span>-</span>}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </main>
+          <TablePagination
+            totalCount={totalRecords}
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
-      </header>
-      <main className="table-wrapper">
-        <table className="data-table">
-          <thead>
-            <tr>
-              {/* <th><input type="checkbox" /></th> */}
-              <th>TRIP#</th>
-              <th>TRIP DETAILS</th>
-              <th>DESTINATION</th>
-              <th>STATUS</th>
-              <th>REQUESTED BY</th>
-              <th>BOOKING STATUS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedRows.length === 0 ? (
-              <tr><td colSpan={7} style={{ padding: "1.5rem", color: "#67748e" }}>No trips in this tab.</td></tr>
-            ) : paginatedRows.map((t) => (
-              <tr key={t.rowid} className="clickable-row" onClick={() => handleRowClick(t.rowid)}>
-                {/* <td><input type="checkbox" onClick={(e) => e.stopPropagation()} /></td> */}
-                <td className="trip-id">{t.id}</td>
-                <td>
-                  <a className="trip-link" href="#" onClick={(e) => e.preventDefault()}>{t.title}</a>
-                  <div className="trip-dates">
-                    {t.startDate} {t.startDate && t.endDate ? " - " : ""}{t.endDate}
-                  </div>
-                </td>
-                <td>{t.destination || "-"}</td>
-                <span className={`status-pill pill--${(t._raw.EX_Status || "unknown").toLowerCase()}`}>
-                  {(t._raw.EX_Status
-                    ? t._raw.EX_Status.charAt(0).toUpperCase() + t._raw.EX_Status.slice(1)
-                    : "Unknown")}
-                </span>
-
-                <td><ApproverPill user={t.approver} /></td>
-                <td className="booking-cell">
-                  {t.booking?.length ? t.booking.map((b, i) => <BookingIcon key={`${t.rowid}-${b}-${i}`} type={b} />) : <span>-</span>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </main>
-      <TablePagination
-        totalCount={filteredRows.length}
-        rowsPerPage={rowsPerPage}
-        setRowsPerPage={setRowsPerPage}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-      />
-    </div>
+      )}
+    </>
   );
-}
+};
