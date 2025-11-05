@@ -30,6 +30,11 @@
   color: #6c757d;
 }
 
+.heading {
+  font-weight: 600; /* or bold */
+}
+
+
 .ze-detail-header {
   display: flex;
   justify-content: space-between;
@@ -626,19 +631,7 @@
   user-select: none;
 }
 
-/* .line-tag {
 
-  display: "flex";
-  justify-content: space-between;
-  align-items: center;
-  gap: "8px";
-  min-width: 150px;
-} */
-
-
-/* .line-tag span {
-  margin-right: 0.5rem; 
-} */
 
 
 
@@ -647,4 +640,26 @@
   gap: 24px;
   align-items: center;
   margin-bottom: 5px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.first-row .report-title {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.custom-items-right {
+  display: flex;
+  gap: 16px;
+  flex-wrap: nowrap;
+}
+
+.duration-left {
+  flex-shrink: 0;
 }
