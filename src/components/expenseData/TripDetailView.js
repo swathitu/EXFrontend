@@ -117,6 +117,9 @@ const mapFlights = (arr = []) =>
         BillNumber: f.BillNumber || "",
         TypeOfBook: f.TypeOfBook || "",
         MODIFIEDTIME: f.MODIFIEDTIME || "",
+        bookingId: f.BookingId || "",
+        bookingDate: f.BookingDate || "",
+        Notes: f.Notes || "",
       };
     });
 
@@ -141,6 +144,9 @@ const mapHotels = (arr = []) =>
       BillNumber: h.BillNumber || "",
       TypeOfBook: h.TypeOfBook || "",
       MODIFIEDTIME: h.MODIFIEDTIME || "",
+      bookingId: h.BookingId || "",
+      bookingDate: h.BookingDate || "",
+      Notes: h.Notes || "",
 
       checkIn: { date: toDisplayDate(h.hotel_dep_date), time: h.hotel_dep_time || "" },
       checkOut: { date: toDisplayDate(h.hotel_arrv_date), time: h.hotel_arrv_time || "" },
@@ -166,6 +172,9 @@ const mapCars = (arr = []) =>
       cancellation_charge: c.cancellation_charge || 0,
       cancel_or_reschedule_reason: c.cancel_or_reschedule_reason || "",
       MODIFIEDTIME: c.MODIFIEDTIME || "",
+      bookingId: c.BookingId || "",
+      bookingDate: c.BookingDate || "",
+      Notes: c.Notes || "",
     }));
 
 const mapBuses = (arr = []) =>
@@ -196,6 +205,9 @@ const mapBuses = (arr = []) =>
         BillNumber: b.BillNumber || "",
         TypeOfBook: b.TypeOfBook || "",
         MODIFIEDTIME: b.MODIFIEDTIME || "",
+        bookingId: b.BookingId || "",
+        bookingDate: b.BookingDate || "",
+        Notes: b.Notes || "",
       };
     });
 
@@ -228,6 +240,9 @@ const mapTrains = (arr = []) =>
         BillNumber: t.BillNumber || "",
         TypeOfBook: t.TypeOfBook || "",
         MODIFIEDTIME: t.MODIFIEDTIME || "",
+        bookingId: t.BookingId || "",
+        bookingDate: t.BookingDate || "",
+        Notes: t.Notes || "",
       };
     });
 
@@ -278,17 +293,18 @@ const FlightDetails = ({ bookings, onEdit, mainStatusLower }) => {
     .sort((a, b) => parseDate(b.MODIFIEDTIME) - parseDate(a.MODIFIEDTIME));
 
   return sortedBookings.map((item, i) => {
+    console.log("notes", item.Notes);
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
-    const hasExtraDetails = Boolean(item.meal || item.seat || item.flightClass);
+    const hasExtraDetails = Boolean(item.bookingId || item.bookingDate);
     const itemClassName = `itinerary-item flight-item`;
     const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
 
     return (
       <div className="flight-item-wrapper" key={`flt-${i}`}>
-        
+
         {/* Always rendered top row with flex layout */}
         <div className="flight-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          
+
           {/* Left side: Reschedule/cancel tags or placeholder */}
           <div className="line-tag" style={{ minWidth: "150px" }}>
             {item.rescheduleOrCancel ? (
@@ -307,13 +323,12 @@ const FlightDetails = ({ bookings, onEdit, mainStatusLower }) => {
             )}
           </div>
 
-          {/* Right side: Extra details or placeholder */}
+          {/* Right side: Booking ID and Booking Date or placeholder */}
           <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
             {hasExtraDetails ? (
               <>
-                {item.meal && <span>Meal: {item.meal}</span>}
-                {item.seat && <span>Seat: {item.seat}</span>}
-                {item.flightClass && <span>Flight Class: {item.flightClass}</span>}
+                <span>Booking ID: {item.bookingId}</span>
+                <span style={{ marginLeft: '10px' }}>Booking Date: {item.bookingDate}</span>
               </>
             ) : (
               <span style={{ visibility: 'hidden' }}>Placeholder</span>
@@ -325,20 +340,19 @@ const FlightDetails = ({ bookings, onEdit, mainStatusLower }) => {
         <div className={itemClassName}>
           {/* Departure Column */}
           <div className="itinerary-col">
-            <div>{item.dep.date}, {item.dep.time}</div>
+            <div>{item.dep.date}</div>
             <div className="font-large">{item.dep.city} - {item.dep.code}</div>
           </div>
 
           {/* Middle Column */}
           <div className="itinerary-col text-center">
             <ArrowIcon />
-            <div className="font-xs text-muted">{item.duration}</div>
             <div className="font-xs text-muted">{item.nonStop ? "non-stop" : ""}</div>
           </div>
 
           {/* Arrival Column */}
           <div className="itinerary-col">
-            <div>{item.arr.date}, {item.arr.time}</div>
+            <div>{item.arr.date}</div>
             <div className="font-large">{item.arr.city} - {item.arr.code}</div>
           </div>
 
@@ -357,6 +371,15 @@ const FlightDetails = ({ bookings, onEdit, mainStatusLower }) => {
             </div>
           </div>
         </div>
+
+        {item.Notes != null && item.Notes !== "" && (
+          <div className="flight-notes" style={{ padding: '8px 0px', color: '#555' }}>
+            <span className="heading">Notes:</span> {item.Notes}
+          </div>
+
+        )}
+
+
 
         {/* Cancellation and refund amounts */}
         <div className="extra-amount">
@@ -377,36 +400,52 @@ const FlightDetails = ({ bookings, onEdit, mainStatusLower }) => {
 };
 
 
+
 const HotelDetails = ({ bookings, onEdit, mainStatusLower }) => {
   const sortedBookings = bookings.slice()
     .sort((a, b) => parseDate(b.MODIFIEDTIME) - parseDate(a.MODIFIEDTIME));
 
   return sortedBookings.map((item, i) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
-    const showTopRow = item.rescheduleOrCancel;
     const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
+    const hasExtraDetails = Boolean(item.bookingId || item.bookingDate);
 
     return (
       <div className="hotel-item-wrapper" key={`hot-${i}`}>
-        {/* Top row: tag left */}
-        {showTopRow && (
-          <div className="hotel-item-toprow">
-            <div className="line-tag" >
-              <div className="dot-line"></div>
-              {item.rescheduleOrCancel && (
+        {/* Top row: reschedule/cancel tags on left, Booking info right */}
+        <div className="hotel-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {/* Left side */}
+          <div className="line-tag" style={{ minWidth: "150px" }}>
+            {item.rescheduleOrCancel ? (
+              <>
                 <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
                   {item.rescheduleOrCancel}
                 </span>
-              )}
-              {item.cancel_or_reschedule_reason && (
-                <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
-                  {item.cancel_or_reschedule_reason}
-                </span>
-              )}
-            </div>
-            <div>{/* Optional right side content or leave empty for spacing */}</div>
+                {item.cancel_or_reschedule_reason && (
+                  <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                    {item.cancel_or_reschedule_reason}
+                  </span>
+                )}
+              </>
+            ) : (
+              <span style={{ visibility: 'hidden' }}>Placeholder</span>
+            )}
           </div>
-        )}
+
+          {/* Right side: Booking ID and Booking Date or placeholder */}
+          <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
+            {hasExtraDetails ? (
+              <>
+                <span>Booking ID: {item.bookingId}</span>
+                <span style={{ marginLeft: '10px' }}>Booking Date: {item.bookingDate}</span>
+              </>
+            ) : (
+              <span style={{ visibility: 'hidden' }}>Placeholder</span>
+            )}
+          </div>
+        </div>
+
+        {/* Main itinerary item container */}
         <div className="itinerary-item hotel-item">
           <div className="hotel-info-col hotel-location">
             <LocationIcon />
@@ -420,7 +459,6 @@ const HotelDetails = ({ bookings, onEdit, mainStatusLower }) => {
           <div className="hotel-info-col hotel-checkin">
             <div className="font-xs text-muted">Check-in</div>
             <div>{item.checkIn.date}</div>
-            {item.checkIn.time && <div className="font-xs">{item.checkIn.time}</div>}
           </div>
 
           <div className="hotel-date-separator">-</div>
@@ -428,27 +466,34 @@ const HotelDetails = ({ bookings, onEdit, mainStatusLower }) => {
           <div className="hotel-info-col hotel-checkout">
             <div className="font-xs text-muted">Check-out</div>
             <div>{item.checkOut.date}</div>
-            {item.checkOut.time && <div className="font-xs">{item.checkOut.time}</div>}
           </div>
 
           <div className="item-actions hotel-actions">
-
             <button className="btn-icon" onClick={() => onEdit(item.subRowId, "hotel")} title="Edit hotel">
               <EditIcon />
             </button>
-
             <div className="amount-display">
               Amount: {formatCurrency(item.bcy_amount)}
             </div>
           </div>
         </div>
+
+        {/* Notes Section */}
+        {item.Notes != null && item.Notes !== "" && (
+          <div className="flight-notes" style={{ padding: '8px 0px', color: '#555' }}>
+            Notes: {item.Notes}
+          </div>
+        )}
+
+
+        {/* Cancellation and refund amounts */}
         <div className="extra-amount">
           {isCancelled && (
             <>
-              <div className="amount-display" >
+              <div className="amount-display">
                 Cancellation Charge: {formatCurrency(item.cancellation_charge)}
               </div>
-              <div className="amount-display" >
+              <div className="amount-display">
                 Refund Amount: {formatCurrency(item.refund_amount)}
               </div>
             </>
@@ -459,38 +504,53 @@ const HotelDetails = ({ bookings, onEdit, mainStatusLower }) => {
   });
 };
 
+
 const CarDetails = ({ bookings, onEdit, mainStatusLower }) => {
-  // Create the sorted copy
   const sortedBookings = bookings.slice()
     .sort((a, b) => parseDate(b.MODIFIEDTIME) - parseDate(a.MODIFIEDTIME));
-
-  // Log the sorted array to verify order
-  console.log("Sorted bookings by MODIFIEDTIME descending:", sortedBookings);
 
   return sortedBookings.map((item, i) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
     const showTopRow = item.rescheduleOrCancel;
     const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
+    const hasExtraDetails = Boolean(item.bookingId || item.bookingDate);
+
     return (
       <div className="car-item-wrapper" key={`car-${i}`}>
-        {showTopRow && (
-          <div className="car-item-toprow">
-            <div className="line-tag" >
-              <div className="dot-line"></div>
-              {item.rescheduleOrCancel && (
-                <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
-                  {item.rescheduleOrCancel}
-                </span>
-              )}
-              {item.cancel_or_reschedule_reason && (
-                <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
-                  {item.cancel_or_reschedule_reason}
-                </span>
+        {/* Top row: reschedule/cancel tags left, booking info right */}
+        {showTopRow || hasExtraDetails ? (
+          <div className="car-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="line-tag" style={{ minWidth: "150px" }}>
+              {item.rescheduleOrCancel ? (
+                <>
+                  <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
+                    {item.rescheduleOrCancel}
+                  </span>
+                  {item.cancel_or_reschedule_reason && (
+                    <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                      {item.cancel_or_reschedule_reason}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
               )}
             </div>
-            <div>{/* Optional right side content or keep empty */}</div>
+
+            <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
+              {hasExtraDetails ? (
+                <>
+                  <span>Booking ID: {item.bookingId}</span>
+                  <span style={{ marginLeft: '10px' }}>Booking Date: {item.bookingDate}</span>
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
+              )}
+            </div>
           </div>
-        )}
+        ) : null}
+
+        {/* Main itinerary item container */}
         <div className="itinerary-item car-item">
           <div className="car-info-col car-type">
             <CarIcon />
@@ -502,10 +562,7 @@ const CarDetails = ({ bookings, onEdit, mainStatusLower }) => {
 
           <div className="car-info-col car-pickup">
             <div className="font-xs text-muted">Pick-Up</div>
-            <div>
-              {item.pickUp.date}
-              {item.pickUp.time && `, ${item.pickUp.time}`}
-            </div>
+            <div>{item.pickUp.date}</div>
             <div className="font-xs">{item.pickUp.location}</div>
           </div>
 
@@ -515,42 +572,46 @@ const CarDetails = ({ bookings, onEdit, mainStatusLower }) => {
 
           <div className="car-info-col car-dropoff">
             <div className="font-xs text-muted">Drop-Off</div>
-            <div>
-              {item.dropOff.date}
-              {item.dropOff.time && `, ${item.dropOff.time}`}
-            </div>
+            <div>{item.dropOff.date}</div>
             <div className="font-xs">{item.dropOff.location}</div>
           </div>
 
           <div className="item-actions">
-
-            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "car")} title="Edit car">
+            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "car")} title="Edit car" disabled={!allowEdit}>
               <EditIcon />
             </button>
-
             <div className="amount-display">
               Amount: {formatCurrency(item.bcy_amount)}
             </div>
           </div>
         </div>
+
+        {/* Notes Section */}
+        {item.Notes != null && item.Notes !== "" && (
+          <div className="flight-notes" style={{ padding: '8px 0px', color: '#555' }}>
+            Notes: {item.Notes}
+          </div>
+        )}
+
+
+        {/* Cancellation and refund amounts */}
         <div className="extra-amount">
           {isCancelled && (
             <>
-              <div className="amount-display" >
+              <div className="amount-display">
                 Cancellation Charge: {formatCurrency(item.cancellation_charge)}
               </div>
-              <div className="amount-display" >
+              <div className="amount-display">
                 Refund Amount: {formatCurrency(item.refund_amount)}
               </div>
             </>
           )}
         </div>
-
       </div>
-
     );
   });
 };
+
 
 const BusDetails = ({ bookings, onEdit, mainStatusLower }) => {
   const sortedBookings = bookings.slice()
@@ -560,27 +621,44 @@ const BusDetails = ({ bookings, onEdit, mainStatusLower }) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
     const showTopRow = item.rescheduleOrCancel;
     const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
+    const hasExtraDetails = Boolean(item.bookingId || item.bookingDate);
 
     return (
       <div className="bus-item-wrapper" key={`bus-${i}`}>
-        {showTopRow && (
-          <div className="bus-item-toprow">
-            <div className="line-tag" >
-              <div className="dot-line"></div>
-              {item.rescheduleOrCancel && (
-                <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
-                  {item.rescheduleOrCancel}
-                </span>
-              )}
-              {item.cancel_or_reschedule_reason && (
-                <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
-                  {item.cancel_or_reschedule_reason}
-                </span>
+        {/* Top row with reschedule/cancel tags and booking info */}
+        {showTopRow || hasExtraDetails ? (
+          <div className="bus-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="line-tag" style={{ minWidth: "150px" }}>
+              {item.rescheduleOrCancel ? (
+                <>
+                  <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
+                    {item.rescheduleOrCancel}
+                  </span>
+                  {item.cancel_or_reschedule_reason && (
+                    <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                      {item.cancel_or_reschedule_reason}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
               )}
             </div>
-            <div>{/* Optional right side content or keep empty */}</div>
+
+            <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
+              {hasExtraDetails ? (
+                <>
+                  <span>Booking ID: {item.bookingId}</span>
+                  <span style={{ marginLeft: '10px' }}>Booking Date: {item.bookingDate}</span>
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
+              )}
+            </div>
           </div>
-        )}
+        ) : null}
+
+        {/* Main itinerary item container */}
         <div className="itinerary-item bus-item">
           <div className="bus-info-col bus-label">
             <BusIcon />
@@ -589,24 +667,22 @@ const BusDetails = ({ bookings, onEdit, mainStatusLower }) => {
 
           <div className="bus-info-col bus-departure">
             <div className="font-xs text-muted">Departure</div>
-            <div>{item.from.date}{item.from.time ? `, ${item.from.time}` : ""}</div>
+            <div>{item.from.date}</div>
             <div className="font-xs">{item.from.city}</div>
           </div>
 
           <div className="bus-separator">
             <ArrowIcon />
-            <div className="font-xs text-muted">{item.duration}</div>
           </div>
 
           <div className="bus-info-col bus-arrival">
             <div className="font-xs text-muted">Arrival</div>
-            <div>{item.to.date}{item.to.time ? `, ${item.to.time}` : ""}</div>
+            <div>{item.to.date}</div>
             <div className="font-xs">{item.to.city}</div>
           </div>
 
           <div className="item-actions">
-
-            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "bus")} title="Edit bus">
+            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "bus")} title="Edit bus" disabled={!allowEdit}>
               <EditIcon />
             </button>
 
@@ -615,13 +691,23 @@ const BusDetails = ({ bookings, onEdit, mainStatusLower }) => {
             </div>
           </div>
         </div>
+
+        {/* Notes Section */}
+        {item.Notes != null && item.Notes !== "" && (
+          <div className="flight-notes" style={{ padding: '8px 0px', color: '#555' }}>
+            Notes: {item.Notes}
+          </div>
+        )}
+
+
+        {/* Cancellation and refund amounts */}
         <div className="extra-amount">
           {isCancelled && (
             <>
-              <div className="amount-display" >
+              <div className="amount-display">
                 Cancellation Charge: {formatCurrency(item.cancellation_charge)}
               </div>
-              <div className="amount-display" >
+              <div className="amount-display">
                 Refund Amount: {formatCurrency(item.refund_amount)}
               </div>
             </>
@@ -641,25 +727,44 @@ const TrainDetails = ({ bookings, onEdit, mainStatusLower }) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
     const showTopRow = item.rescheduleOrCancel;
     const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
+    const hasExtraDetails = Boolean(item.bookingId || item.bookingDate);
+
     return (
       <div className="train-item-wrapper" key={`train-${i}`}>
-        {showTopRow && (
-          <div className="train-item-toprow">
-            <div style={{ display: "flex", gap: "8px" }}>
-              {item.rescheduleOrCancel && (
-                <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
-                  {item.rescheduleOrCancel}
-                </span>
-              )}
-              {item.cancel_or_reschedule_reason && (
-                <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
-                  {item.cancel_or_reschedule_reason}
-                </span>
+        {/* Top row tags left, booking info right */}
+        {showTopRow || hasExtraDetails ? (
+          <div className="train-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ minWidth: "150px" }}>
+              {item.rescheduleOrCancel ? (
+                <>
+                  <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
+                    {item.rescheduleOrCancel}
+                  </span>
+                  {item.cancel_or_reschedule_reason && (
+                    <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                      {item.cancel_or_reschedule_reason}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
               )}
             </div>
-            <div>{/* Optional right side content or keep empty */}</div>
+
+            <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
+              {hasExtraDetails ? (
+                <>
+                  <span>Booking ID: {item.bookingId}</span>
+                  <span style={{ marginLeft: '10px' }}>Booking Date: {item.bookingDate}</span>
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
+              )}
+            </div>
           </div>
-        )}
+        ) : null}
+
+        {/* Main itinerary item container */}
         <div className="itinerary-item train-item">
           <div className="train-info-col train-label">
             <TrainIcon />
@@ -668,24 +773,22 @@ const TrainDetails = ({ bookings, onEdit, mainStatusLower }) => {
 
           <div className="train-info-col train-departure">
             <div className="font-xs text-muted">Departure</div>
-            <div>{item.from.date}{item.from.time ? `, ${item.from.time}` : ""}</div>
+            <div>{item.from.date}</div>
             <div className="font-xs">{item.from.city}</div>
           </div>
 
           <div className="train-separator">
             <ArrowIcon />
-            <div className="font-xs text-muted">{item.duration}</div>
           </div>
 
           <div className="train-info-col train-arrival">
             <div className="font-xs text-muted">Arrival</div>
-            <div>{item.to.date}{item.to.time ? `, ${item.to.time}` : ""}</div>
+            <div>{item.to.date}</div>
             <div className="font-xs">{item.to.city}</div>
           </div>
 
           <div className="item-actions">
-
-            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "train")} title="Edit train">
+            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "train")} title="Edit train" disabled={!allowEdit}>
               <EditIcon />
             </button>
 
@@ -694,13 +797,23 @@ const TrainDetails = ({ bookings, onEdit, mainStatusLower }) => {
             </div>
           </div>
         </div>
+
+        {/* Notes Section */}
+        {item.Notes != null && item.Notes !== "" && (
+          <div className="flight-notes" style={{ padding: '8px 0px', color: '#555' }}>
+            Notes: {item.Notes}
+          </div>
+        )}
+
+
+        {/* Cancellation and refund amounts */}
         <div className="extra-amount">
           {isCancelled && (
             <>
-              <div className="amount-display" >
+              <div className="amount-display">
                 Cancellation Charge: {formatCurrency(item.cancellation_charge)}
               </div>
-              <div className="amount-display" >
+              <div className="amount-display">
                 Refund Amount: {formatCurrency(item.refund_amount)}
               </div>
             </>
@@ -710,6 +823,7 @@ const TrainDetails = ({ bookings, onEdit, mainStatusLower }) => {
     );
   });
 };
+
 /* ---------------- Main Component ---------------- */
 export default function TripDetailView({ tripId, onClose }) {
   const navigate = useNavigate();
@@ -717,7 +831,7 @@ export default function TripDetailView({ tripId, onClose }) {
   // const rowId = tripId;
 
 
- 
+
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [trip, setTrip] = useState(null);
@@ -787,7 +901,7 @@ export default function TripDetailView({ tripId, onClose }) {
   };
 
 
-  
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -812,6 +926,11 @@ export default function TripDetailView({ tripId, onClose }) {
         const mainStatusLower = String(rec.status || rec.statusType || "").trim().toLowerCase();
         const mainStatusLabel = mainStatusLower === "completed" ? "Completed" : "Pending";
         const exStatus = rec.EX_Status || rec.Ex_Status || rec.ex_status || "";
+        const activity = rec.Activity || "";
+        const branch = rec.Branch || "";
+        const conditionArea = rec.Condition_Areas || "";
+        const donor = rec.Donor || "";
+        const location = rec.Location || "";
 
 
         const rawTripId = rec.TripId || rec.ROWID || tripId;
@@ -826,6 +945,11 @@ export default function TripDetailView({ tripId, onClose }) {
           mainStatusLower,
           mainStatusLabel,
           exStatus,
+          activity,
+          branch,
+          conditionArea,
+          donor,
+          location,
           bookings: { flight: flights, hotel: hotels, car: cars, bus: buses, train: trains },
         };
 
@@ -931,13 +1055,42 @@ export default function TripDetailView({ tripId, onClose }) {
 
         <div className="ze-detail-content">
           <section className="trip-summary">
-            <h1 className="report-title">{trip.title}</h1>
-            {trip.duration && (
-              <div className="text-muted font-small">
-                Duration <InfoIcon /> : {trip.duration}
+            {/* First row: Title left, 3 custom items right */}
+            <div className="row first-row">
+              <h1 className="report-title">{trip.title}</h1>
+              <div className="custom-items-right">
+                <span className="text-muted font-small">
+                  <span className="heading">Activity:</span> {trip.activity}
+                </span>
+                <span className="text-muted font-small">
+                  <span className="heading">Branch:</span> {trip.branch}
+                </span>
+                <span className="text-muted font-small">
+                  <span className="heading">Condition Area:</span> {trip.conditionArea}
+                </span>
               </div>
-            )}
+
+            </div>
+
+            {/* Second row: Duration left, 2 custom fields right */}
+            <div className="row second-row">
+              {trip.duration && (
+                <div className="duration-left">
+                  Duration <InfoIcon /> : {trip.duration}
+                </div>
+              )}
+              <div className="custom-items-right">
+                <span className="text-muted font-small">
+                  <span className="heading">Donor:</span> {trip.donor}
+                </span>
+                <span className="text-muted font-small">
+                  <span className="heading">Location:</span> {trip.location}
+                </span>
+              </div>
+
+            </div>
           </section>
+
 
           <section className="trip-itinerary">
             <div className="details-nav-tab">
