@@ -46,7 +46,7 @@
   /* This is the key change to ensure labels are visible */
   .form-group1>label {
     display: flex;
-    font-weight: 600;
+    /* font-weight: 600; */
     color: #4a5568;
     align-items: flex-start;
   }
@@ -64,7 +64,7 @@
   .form-group1 label {
     font-size: 0.9rem;
     margin-bottom: 5px;
-    color: #666;
+    /* color: #666; */
   }
 
   .form-group1 input,
@@ -73,7 +73,7 @@
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 12px;
     box-sizing: border-box;
     /* Ensures padding doesn't affect total width */
   }
@@ -83,9 +83,20 @@
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 12px;
     box-sizing: border-box;
     /* Ensures padding doesn't affect total width */
+  }
+
+  .form-group2 label {
+    font-size: .9rem;
+    margin-bottom: 5px;
+  }
+
+  .form-group2>label {
+    align-items: flex-start;
+    color: #4a5568;
+    display: flex;
   }
 
   .form-group input[type="text"],
@@ -223,20 +234,17 @@
 
   .button-group {
     display: flex;
-    width: 300px;
-    justify-content: flex-end;
-    /* Aligns the buttons to the right side of the container */
+    width: 350px;
+    justify-content: flex-start;
     gap: 15px;
-    /* Adds space between the buttons */
     margin-top: 20px;
-    /* Provides space above the button group */
   }
 
   /* Optional: You might want to style the buttons themselves to match your design */
   .submit-btn {
     display: block;
-    width: 100%;
-    padding: 12px;
+    width: 200px;
+    padding: 5px;
     background-color: #007bff;
     color: white;
     border: none;
@@ -330,4 +338,19 @@
   .confirm-btn:hover {
     background-color: #4338ca;
     transform: translateY(-1px);
+  }
+
+  .loading-overlay {
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    color: #333;
   }

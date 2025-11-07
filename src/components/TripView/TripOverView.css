@@ -35,7 +35,7 @@
         margin-bottom: 1.5rem;
     }
     .trip-id {
-        font-size: 1.25rem;
+        /* font-size: 1.25rem; */
         font-weight: 600;
         display: flex;
         align-items: center;
@@ -84,7 +84,7 @@
         background-color: #fef2f2; /* red-50 */
     }
     .trip-info h1 {
-        font-size: 1.875rem;
+        font-size: 20px;
         font-weight: 700;
         margin-bottom: 0.25rem;
     }
@@ -181,7 +181,7 @@
     }
     .date-info span {
         margin-left: 0.25rem;
-        font-weight: 700;
+        /* font-weight: 700; */
     }
     .route-details {
         display: flex;
@@ -193,15 +193,15 @@
         text-align: center;
     }
     .cities .code {
-        font-size: 1.5rem;
+        /* font-size: 1.5rem; */
         font-weight: 700;
     }
     .cities .name {
         font-size: 0.75rem;
         color: #6b7280; /* gray-500 */
     }
-    .arrow {
-        font-size: 1.5rem;
+    .arrow {    
+        /* font-size: 1.5rem; */
         color: #d1d5db; /* gray-300 */
     }
     .more-options-btn {
