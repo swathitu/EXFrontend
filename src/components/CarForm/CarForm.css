@@ -33,6 +33,7 @@
   gap: 15px;
   align-items: flex-start; /* Align contents to the top */
   margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 /* Groups for Pick-up and Drop-off content */
@@ -41,7 +42,7 @@
   display: flex;
   flex-direction: column; /* Stack date/time row and city dropdown */
   gap: 10px; /* Space between date/time and city */
-  border:1px solid gainsboro;
+  /* border:1px solid gainsboro; */
   border-radius: 8px;
   padding: 5px;
 }
@@ -158,6 +159,7 @@
 .driver-needed-label {
   font-weight: normal;
   color: #666;
+  font-size: .9rem;
 }
 
 .radio-group-horizontal {

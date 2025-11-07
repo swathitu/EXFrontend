@@ -3,8 +3,7 @@ import TripView from '../TripView/TripView';
 import RequestForms from '../RequestForms/RequestForms';
 import "./Trip.css";
 
-// Define the RequestForms component directly in this file
-const RequestForm = ({ onClose }) => (
+const RequestForm = ({ tripId, onClose }) => (
   <div className="form-modal-overlay">
     <div className="form-modal-content">
       <button onClick={onClose} className="close-button">
@@ -13,45 +12,69 @@ const RequestForm = ({ onClose }) => (
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
-      <h2>New Trip Request</h2>
-      <RequestForms />
-      <button className='cancel-btn' onClick={onClose}>Cancel</button>
+      <h2>{tripId ? 'Edit Trip Request' : 'New Trip Request'}</h2>
+      <RequestForms tripId={tripId} onFormClose={onClose} />
     </div>
   </div>
 );
 
-
-
 function Trip() {
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = React.useState(false);
+  const [editTripId, setEditTripId] = React.useState(null);
+  const [isDetailOpen, setIsDetailOpen] = React.useState(false);
 
   const openForm = () => {
+    setEditTripId(null);
     setShowForm(true);
+    setIsDetailOpen(false);  // ensure detail closed if form opens
+  };
+
+  const openFormWithId = (tripId) => {
+    setEditTripId(tripId);
+    setShowForm(true);
+    setIsDetailOpen(false);
   };
 
   const closeForm = () => {
     setShowForm(false);
+    setEditTripId(null);
+  };
+
+  // Called when detail view opens/closes
+  const handleDetailOpen = () => {
+    setIsDetailOpen(true);
+    setShowForm(false);  // close form if detail opens
+  };
+
+  const handleDetailClose = () => {
+    setIsDetailOpen(false);
   };
 
   return (
-    <>
-     
-      <div className="Trip-container">
-        <h1>Trip Page</h1>
-        <div className='trip-button'>
+    <div className="Trip-container">
+      <h1 className="titleTrip">Trip Page</h1>
+
+      {/* Hide button if form or detail is open */}
+      {!(showForm || isDetailOpen) && (
+        <div className="trip-button">
           <button onClick={openForm} className="main-button">
-          + New Trip
-        </button>
+            + New Trip
+          </button>
         </div>
-       
-        {showForm ? (
-          <RequestForm onClose={closeForm} />
-        ) : (
-          <TripView />
-        )}
-      </div>
-    </>
+      )}
+
+      {showForm ? (
+        <RequestForm tripId={editTripId} onClose={closeForm} onFormClose={closeForm} />
+      ) : (
+        <TripView
+          onOpenForm={openFormWithId}
+          onOpenDetail={handleDetailOpen}
+          onCloseDetail={handleDetailClose}
+        />
+      )}
+    </div>
   );
 }
+
 
 export default Trip;

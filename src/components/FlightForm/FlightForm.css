@@ -14,6 +14,7 @@ h2, h3 {
     border-bottom: 2px solid #ccc;
     padding-bottom: 10px;
     margin-top: 0;
+    font-size:20px;
 }
 
 .form-group {
@@ -23,7 +24,7 @@ h2, h3 {
 .form-group label {
     display: block;
     margin-bottom: 5px;
-    font-weight: bold;
+    /* font-weight: bold; */
     color: #555;
 }
 
@@ -34,7 +35,7 @@ h2, h3 {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    font-size: 16px;
+    font-size: 12px;
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -47,9 +48,6 @@ h2, h3 {
 .checkbox-group label {
     font-weight: normal;
 }
-
-/* Common button styles */
-
 
 /* --- FlightForm Specific Styles --- */
 .travel-mode-section {
@@ -85,6 +83,7 @@ h2, h3 {
     align-items: center;
     font-weight: 500;
     cursor: pointer;
+    font-size:.9rem;
 }
 
 .radio-group-horizontal input[type="radio"] {
@@ -111,170 +110,134 @@ h2, h3 {
     font-size: 14px;
 }
 
-/* .inline-dropdown label {
-    display: none;
-} */
-
-/* Adjusting the grid for the main flight row */
-.flight-segment-headers,
+/* Main flight row grid layout */
 .flight-segment-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr) 1fr 1fr 1fr; /* Default for one-way */
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Grid for when return date is visible */
-.flight-segment-headers.round-trip,
-.flight-segment-row.round-trip {
-    grid-template-columns: repeat(2, 1fr) 1fr 1fr 1.5fr auto; /* Adds a 5th column */
+/* First line: main flight inputs */
+.flight-segment-main-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap; /* force single line */
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
-/* Headers styling */
-.flight-segment-headers {
-    margin-bottom: 10px;
-    font-size: 0.8em;
-    font-weight: bold;
-    color: #666;
-    padding: 5px 0;
-    border-bottom: 1px solid #ddd;
+/* Make each child grow equally with minimum width */
+.flight-segment-main-row > * {
+  flex: 1 1 0;
+  min-width: 120px;
 }
 
-.flight-segment-headers span {
-    text-align: left;
-    padding-left: 5px;
+/* Second line: grouped dropdowns for time and flight preference */
+.flight-segment-preference-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap; /* force single line */
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
-.required::after {
-    content: ' *';
-    color: red;
+/* Each preference group column */
+.preference-group-segment {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 230px;
 }
 
-/* Row styling */
-.flight-segment-row .form-group {
-    margin-bottom: 0;
+/* Heading style for preference groups */
+.preference-heading-segment {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  color: #333;
 }
 
-.flight-segment-row .form-group label {
-    display: block;
+/* Row container for departure/return dropdowns */
+.pref-dropdowns-row-segment {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: nowrap; /* force single line */
 }
 
-.flight-segment-row input,
-.flight-segment-row select {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-.delete-row-btn {
-    background: none;
-    border: none;
-    color: #e74c3c;
-    font-size: 1.2em;
-    cursor: pointer;
-    padding: 5px;
-    transition: color 0.2s;
-}
-
-.delete-row-btn:hover {
-    color: #c0392b;
-}
-
-/* Bottom preferences section */
-/* .flight-bottom-preferences {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-    flex-wrap: wrap;
-} */
-
-.flight-bottom-preferences .time-pref-label {
-    font-weight: bold;
-    color: #555;
-    white-space: nowrap;
-}
-
-.flight-bottom-preferences .inline-dropdown select {
-    min-width: 120px;
-    padding: 8px 10px;
-}
-
-.add-flight-btn-container{
-    display: flex;
-    justify-content: flex-start;
-    margin-top: 20px;
-}
-.add-flight-btn{
-    background-color: transparent;
-    border: none;
-    color: #007bff;
-    font-weight: 500;
-    cursor: pointer;
-    padding: 5px 0;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.flight-bottom-preferences {
-    display: flex;
-    flex-direction: row; /* Adjusted for side-by-side layout */
-    justify-content: space-between;
-    gap: 2rem;
-    flex-wrap: wrap;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 2px solid #e5e7eb;
-}
-
-.preference-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    flex: 1; /* Allows groups to grow and fill space */
-    min-width: 280px; /* Ensures they don't get too squished */
-}
-
-.preference-heading {
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: #374151;
-}
-
-.time-pref-label,
-.flight-pref-label {
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: #4b5563;
-}
-
+/* Each dropdown with label */
 .inline-dropdown-with-label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    flex: 1;
+  flex: 1 1 0;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.inline-dropdown-with-label .dropdown-label {
-    font-size: 0.875rem;
-    color: #4b5563;
+/* General form group styling */
+.form-group1 {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
-.pref-dropdowns-row {
-    display: flex;
-    gap: 1rem;
+.form-group1 label {
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+  font-size: 0.85rem;
+}
+
+/* Delete button styling */
+.delete-row-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 5px;
+  transition: color 0.2s;
+  margin-top: 20px;
+}
+.delete-row-btn:hover {
+  color: #c0392b;
+}
+
+/* Add Flight button container */
+.add-flight-btn-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 20px;
+}
+
+.add-flight-btn {
+  background-color: transparent;
+  border: none;
+  color: #007bff;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Responsive fallback: revert to stacked layout on narrow screens */
+@media (max-width: 768px) {
+  .flight-segment-main-row,
+  .flight-segment-preference-row,
+  .pref-dropdowns-row-segment {
     flex-wrap: wrap;
-}
+    flex-direction: row;
+  }
 
-@media (min-width: 640px) {
-    .preference-dropdowns {
-        margin-top: 0;
-    }
+  .flight-segment-main-row > *,
+  .preference-group-segment,
+  .inline-dropdown-with-label {
+    flex: 1 1 100%;
+    min-width: auto;
+  }
 }
