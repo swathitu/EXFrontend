@@ -155,6 +155,7 @@ const TripView = ({ onSelectTrip, onOpenForm, onOpenDetail, onCloseDetail }) => 
           return {
             id: tripId,
             tripName: item.TRIP_NAME,
+            tripNumber: item.TRIP_NUMBER,
             tripDates: tripDatesString,
             destination: getDestination(item),
             status: item.STATUS,
@@ -279,6 +280,7 @@ const TripView = ({ onSelectTrip, onOpenForm, onOpenDetail, onCloseDetail }) => 
                       <td className="trip-details">
                         <div className="details-group">
                           <span className="trip-name">{trip.tripName}</span>
+                          <span className="trip-number">({trip.tripNumber})</span>
                           <span className="trip-dates">{trip.tripDates}</span>
                         </div>
                       </td>
