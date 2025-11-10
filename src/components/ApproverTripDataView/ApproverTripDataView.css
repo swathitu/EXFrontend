@@ -1,13 +1,50 @@
 /* === APPROVER DETAIL VIEW STYLES === */
 
+
 /* ---------- Main View & Layout ---------- */
 .ze-detail-view {
-  background: #fff;
-  border: 1px solid #e5e8f1;
+  background: #f8f9fa;
   padding: 0;
   color: #333;
   font-family: "Zoho Puvi", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+
+/* --- CORRECTED: Use Flexbox for 2-column layout --- */
+.details-grid-container {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+
+/* --- CORRECTED: Remove gap and let child margin control spacing --- */
+.main-content-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* NO automatic gap */
+  min-height: 0;
+}
+
+
+.details-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #fff;
+  border: 1px solid #e5e8f1;
+  border-radius: 6px;
+  padding: 16px;
+  height: fit-content;
 }
 
 
@@ -19,15 +56,19 @@
   justify-content: space-between;
   padding: 16px 24px;
   border-bottom: 1px solid #e5e8f1;
-  background-color: #f8f9fa;
-  position: relative;
+  background-color: #fff;
+  flex-shrink: 0;
 }
 
-.submitter-main-left-block {
+
+.submitter-main-left-block,
+.header-actions,
+.action-buttons {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
 }
+
 
 .submitter-info-block {
   display: flex;
@@ -35,10 +76,13 @@
   gap: 12px;
 }
 
+
 .submitter-details {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
+
 
 .submitter-name {
   font-weight: 600;
@@ -46,17 +90,26 @@
   color: #344767;
 }
 
+
 .submitter-email {
   font-size: 13px;
   color: #67748e;
 }
 
+
+.header-divider {
+  width: 1px;
+  height: 32px;
+  background-color: #e5e8f1;
+}
+
+
 .trip-summary-status {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 4px;
 }
+
 
 .trip-id-header {
   font-weight: 600;
@@ -64,69 +117,59 @@
   color: #344767;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
 
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
+/* ---------- Main Content Sections (Left Column) ---------- */
 
-/* ---------- Buttons ---------- */
-.btn {
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-.btn-secondary {
-  background-color: #fff;
-  border-color: #d1d5db;
-  color: #374151;
-}
-.btn-secondary:hover { background-color: #f9fafb; }
-.btn-approve {
-  background-color: #f0fdf4;
-  color: #15803d;
-  border-color: #bbf7d0;
-}
-.btn-approve:hover { background-color: #10b981; color: #fff; }
-.btn-reject {
-  background-color: #fef2f2;
-  color: #b91c1c;
-  border-color: #fecaca;
-}
-.btn-reject:hover { background-color: #ef4444; color: #fff; }
 
-/* ---------- Main Content Sections ---------- */
+/* --- CORRECTED: This now controls the space below it --- */
 .trip-summary {
-  display: flex;                 /* Makes it a flex container */
-  justify-content: space-between;  /* Pushes title to the left, booking status to the right */
-  align-items: flex-start;         /* Aligns items to the top */
-  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px; /* THE ONLY space between summary and itinerary */
   background-color: #fff;
   border: 1px solid #e5e8f1;
   border-radius: 6px;
   padding: 16px;
+  flex-shrink: 0; /* Prevent this card from shrinking */
 }
 
-.report-title {
-  font-size: 24px;
-  font-weight: 300;
-  margin: 0 0 8px 0;
+
+.trip-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
+
+
+.report-title {
+  font-size: 22px;
+  font-weight: 400;
+  margin: 0;
+}
+
+
+.trip-itinerary {
+  background-color: #fff;
+  border: 1px solid #e5e8f1;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allows this section to scroll internally if needed */
+}
+
 
 .details-nav-tab {
   display: flex;
   border-bottom: 1px solid #e5e8f1;
   margin-bottom: 16px;
+  flex-shrink: 0;
 }
+
+
 .details-nav-tab .nav-item {
   border: none; background: none; padding: 12px 16px; font-size: 14px;
   font-weight: 600; color: #6c757d; cursor: pointer; border-bottom: 3px solid transparent;
@@ -137,107 +180,186 @@
   border-bottom-color: #0d6efd;
 }
 
-.itinerary-item {
-  display: flex; border: 1px solid #e5e8f1; border-radius: 6px;
-  padding: 16px; margin-bottom: 16px; align-items: center;
-}
-.itinerary-date {
-  width: 140px; font-weight: 500; display: flex;
-  align-items: center; gap: 8px; color: #555; flex-shrink: 0;
-}
-.itinerary-leg {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-.itinerary-leg .arrow {
-  padding: 0 24px;
-  color: #6c757d;
-}
-.date-block {
-  flex: 1;
-}
 
+/* --- Booking Status Widget --- */
 .booking-status-widget {
-  display: flex;        /* Aligns "Booking Status" title and icons horizontally */
-  align-items: center;
-  gap: 16px;            /* Space between the title and the icons */
-  flex-shrink: 0;
-  /* The widget no longer needs its own border or background */
-}
-.widget-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #67748e;
-}
-.booking-status-icons {
   display: flex;
-  gap: 12px;
-  margin-top: 16px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
 }
-.booking-status-icon {
-  width: 36px; height: 36px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  border: 2px solid transparent;
-}
-.booking-status-icon--open, .booking-status-icon--empty {
-  background-color: #f3f4f6;
-  color: #6b7280;
-}
-.booking-status-icon--booked {
-  background-color: #dcfce7;
-  color: #166534;
-}
-.booking-status-icon--partially {
-  color: #92400e;
-  background: conic-gradient(#fef9c3 50%, #f3f4f6 50%);
+.widget-title { font-size: 14px; font-weight: 600; color: #67748e; }
+.booking-status-icons { display: flex; gap: 12px; margin-top: 0; }
+.booking-status-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 2px solid transparent; }
+.booking-status-icon--open, .booking-status-icon--empty { background-color: #f3f4f6; color: #6b7280; }
+.booking-status-icon--booked { background-color: #dcfce7; color: #166534; }
+.booking-status-icon--partially { color: #92400e; background: conic-gradient(#fef9c3 50%, #f3f4f6 50%); }
+
+
+
+/* ---------- RIGHT SIDEBAR STYLES (Custom Fields) ---------- */
+.sidebar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #344767;
+  margin: 0 0 8px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e8f1;
 }
 
 
-/* ---------- Component-Specific Styles ---------- */
-.status-pill {
-  display: inline-block; padding: 4px 10px; border-radius: 6px;
-  font-size: 0.75rem; font-weight: 700; text-transform: uppercase; white-space: nowrap;
+.sidebar-field-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
+
+
+.sidebar-field-label {
+  color: #344767;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+
+.sidebar-field-value {
+  color: #67748e;
+  font-weight: 400;
+  font-size: 13px;
+}
+
+
+
+/* --- Other Styles --- */
+.btn { padding: 8px 16px; font-size: 14px; font-weight: 600; border-radius: 6px; border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; }
+.btn-secondary { background-color: #fff; border-color: #d1d5db; color: #374151; }
+.btn-secondary:hover { background-color: #f9fafb; }
+.btn-approve { background-color: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.btn-approve:hover { background-color: #10b981; color: #fff; }
+.btn-reject { background-color: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.btn-reject:hover { background-color: #ef4444; color: #fff; }
+.status-pill { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
 .pill--pending { background: #fff8c5; color: #946200; }
 .pill--approved { background: #d1fae5; color: #065f46; }
 .pill--rejected { background: #fee2e2; color: #991b1b; }
-.pill--cancelled { background: #fee2e2; color: #991b1b; }
 .pill--completed { background: #dcfce7; color: #166534; }
-
-.initial-circle {
-  width: 36px; height: 36px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 1rem; color: #fff;
-  background-color: #6366f1;
-}
-
-/* ---------- Icons & Helpers ---------- */
-.icon, .icon-sm, .icon-xs, .icon-hover {
-  height: 1em; width: 1em; vertical-align: middle; fill: currentColor;
-}
+.initial-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; color: #fff; background-color: #6366f1; }
+.icon, .icon-sm, .icon-xs, .icon-hover { height: 1em; width: 1em; vertical-align: middle; fill: currentColor; }
 .icon { font-size: 20px; }
 .icon-sm { font-size: 18px; }
 .icon-xs { font-size: 14px; }
-.icon-hover { font-size: 22px; color: #6c757d; }
-.btn-icon { background: none; border: none; cursor: pointer; }
-.icon-hover:hover { color: #333; }
 .font-small { font-size: 13px; }
-.font-xs { font-size: 12px; }
 .text-muted { color: #6c757d; }
+.btn-icon { background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 6px; width: 36px; height: 36px; border-radius: 50%; }
+.btn-icon:hover { background-color: #f0f0f0; }
+.header-actions .icon-hover { font-size: 24px; color: #6c757d; }
+.itinerary-item { border-bottom: 1px solid #e5e8f1; padding: 16px 0; }
+.itinerary-item:first-child { padding-top: 0; }
+.itinerary-item:last-child { border-bottom: none; }
+.itinerary-leg { display: flex; align-items: center; gap: 16px; }
+.date-block { flex: 1; }
+.arrow { color: #9ca3af; }
 
-/* ---------- Loading State ---------- */
-.ze-loading-container {
-  display: flex; flex-direction: column; justify-content: center;
-  align-items: center; min-height: 60vh; gap: 1rem; color: #6c757d;
+/* === NEW: Flight Details (Zoho Style) === */
+.flight-details-container {
+    display: flex;
+    flex-direction: column;
 }
-.ze-loader {
-  border: 5px solid #e5e8f1; border-top: 5px solid #0d6efd;
-  border-radius: 50%; width: 40px; height: 40px;
-  animation: ze-spin 1s linear infinite;
+
+.flight-preferences-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e8f1;
+    background-color: #fdfdfd;
 }
-@keyframes ze-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.pref-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #344767;
+}
+.pref-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #67748e;
+}
+.pref-item .icon-sm {
+    font-size: 16px; /* Make pref icons a bit smaller */
+}
+
+.flight-leg-card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    border-bottom: 1px solid #e5e8f1;
+}
+.flight-leg-card:last-child {
+    border-bottom: none;
+}
+
+.flight-leg-main-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.flight-date-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-basis: 200px;
+    flex-shrink: 0;
+}
+.date-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.date-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #344767;
+}
+.pref-time {
+    font-size: 13px;
+    color: #d9480f; /* Orange color for preferred time */
+    padding-left: 26px; /* Align with date text (icon width + gap) */
+}
+
+.flight-route-col {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-grow: 1;
+}
+.location-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.city-code {
+    font-size: 16px;
+    font-weight: 500;
+    color: #344767;
+}
+.airport-name {
+    font-size: 13px;
+    color: #67748e;
+}
+.arrow-group {
+    color: #9ca3af;
+}
+
+.flight-comments-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding-left: 26px; /* Align with pref-time */
+    font-size: 13px;
+    color: #67748e;
 }

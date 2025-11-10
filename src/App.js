@@ -259,16 +259,22 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isTripsApproverPage = location.pathname === "/trips-approver";
+  const isTripDetailView = location.pathname.startsWith("/expenseDataView/");
   const isTripData = location.pathname.startsWith("/trip-data");
   const isApproverDataView = location.pathname.startsWith(
     "/approver-trip-data"
   );
 
+const needsFullPageLayout = isTripData || isApproverDataView || isTripDetailView || isTripsApproverPage;
+const noScrollMain = isTripData || isTripDetailView || isTripsApproverPage;
+
   const contentCardClassNames = [
     "content-card",
-    isTripData ? "tdv-full-bleed" : "",
-    currentRole === ROLES.ADMIN ? "content-card-admin" : "content-card-ta"
-    // Add other roles here if needed
+    // This applies your role-based class (e.g., for themes)
+    currentRole === ROLES.ADMIN ? "content-card-admin" : "content-card-ta",
+    // This *also* applies the layout class when needed
+    needsFullPageLayout ? "content-card--full-page" : ""
   ].join(" ").trim();
 
   const handleAddFromSidebar = (key) => {
@@ -323,7 +329,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
 
       
 
-      <main className={`main ${isApproverDataView ? "main--no-scroll" : ""}`}>
+     <main className={`main ${noScrollMain ? "main--no-scroll" : ""}`}>
         <div className={contentCardClassNames}>
        
           <Routes>

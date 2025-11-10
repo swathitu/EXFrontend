@@ -38,3 +38,63 @@ export async function fetchTripById(id, signal) {
     throw error;
   }
 }
+
+//Approve Action API Call 
+export const approveTrip = async (tripId) => {
+  try {
+    // We'll replace this with your actual backend function URL later
+    const functionUrl = `/server/trips_api/approve`; 
+
+    const response = await fetch(functionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: tripId }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log("Approval successful:", result);
+    return result;
+
+  } catch (error) {
+    console.error("Failed to approve trip:", error);
+    throw error; // Re-throw the error so the component can handle it
+  }
+};
+
+
+// --- NEW: Reject Action API Call ---
+export const rejectTrip = async (tripId, reason) => {
+  try {
+    // Define the backend function URL for rejection
+    const functionUrl = `/server/trips_api/reject`;
+
+    const response = await fetch(functionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // Send both the ID and the reason in the body
+      body: JSON.stringify({ id: tripId, reason: reason }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log("Rejection successful:", result);
+    return result;
+
+  } catch (error) {
+    console.error("Failed to reject trip:", error);
+    throw error; // Re-throw for the component to handle
+  }
+};
