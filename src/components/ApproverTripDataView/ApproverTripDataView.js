@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./ApproverTripDataView.css";
-import { fetchTripById } from "../../api/trips";
+// MODIFIED: Import rejectTrip from your API file and the new modal
+import { fetchTripById, approveTrip, rejectTrip } from "../../api/trips"; 
+import TripRejectModal from "../Trip/TripRejectModal";
+
 
 /* ---------------- Icons ---------------- */
 const CloseIcon = () => (<svg viewBox="0 0 512 512" className="icon-hover"><path d="m285.7 256 198-198c8.2-8.2 8.2-21.5 0-29.7s-21.5-8.2-29.7 0l-198 198-198-198c-8.2-8.2-21.5-8.2-29.7 0s-8.2 21.5 0 29.7l198 198-198 198c-8.2 8.2-8.2 21.5 0 29.7 4.1 4.1 9.5 6.2 14.8 6.2s10.7-2 14.8-6.2l198-198 198 198c4.1 4.1 9.5 6.2 14.8 6.2s10.7-2 14.8-6.2c8.2-8.2 8.2-21.5 0-29.7L285.7 256z" /></svg>);
@@ -12,88 +15,205 @@ const CarIcon = () => (<svg viewBox="0 0 512 512" className="icon"><path d="m462
 const BusIcon  = () => (<svg viewBox="0 0 640 512" className="icon"><path d="M80 64C35.8 64 0 99.8 0 144v224c0 17.7 14.3 32 32 32h32c0 35.3 28.7 64 64 64s64-28.7 64-64h256c0 35.3 28.7 64 64 64s64-28.7 64-64h32c17.7 0 32-14.3 32-32V144c0-44.2-35.8-80-80-80H80zM64 144c0-8.8 7.2-16 16-16h480c8.8 0 16 7.2 16 16v128H64z"/></svg>);
 const TrainIcon = () => (<svg viewBox="0 0 448 512" className="icon"><path d="M96 0C60.7 0 32 28.7 32 64V288c0 35.3 28.7 64 64 64l-32 32v32H160l32-32h64l32 32H384V384l-32-32c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H96zM96 64H352V208H96zM128 416l-32 32 32 32h32l32-32-32-32H128zM320 416H288l-32 32 32 32h32l32-32-32-32z"/></svg>);
 const ArrowIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm"><path d="M415.2 230.1l-85.3-51-74.3-44.4c-23.2-13.9-54.4 1-54.4 25.9V221h-84.9c-19.3 0-35 15.7-35 35s15.7 35 35 35h84.9v60.3c0 25 31.2 39.8 54.4 25.9l74.3-44.4 85.3-51c20.6-12.2 20.6-39.4 0-51.7z"/></svg>);
+const CalendarIcon = () => (<svg viewBox="0 0 448 512" className="icon-sm" style={{ color: '#67748e' }}><path d="M128 0c17.7 0 32 14.3 32 32v32h128V32c0-17.7 14.3-32 32-32s32 14.3 32 32v32h48c26.5 0 48 21.5 48 48v48H0v-48c0-26.5 21.5-48 48-48h48V32c0-17.7 14.3-32 32-32zM0 192h448v272c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V192z"/></svg>);
+const CommentsIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm" style={{ color: '#67748e' }}><path d="M256 32C114.6 32 0 125.1 0 240c0 49.6 21.4 95 57 130.7C44.5 401.5 32 440 32 440c0 8.8 7.2 16 16 16c5.5 0 10.7-2.8 13.9-7.3c27.1-37.1 55.4-60.6 77.4-75.1c31.3 10.3 64.9 15.9 99.8 15.9c141.4 0 256-93.1 256-208S397.4 32 256 32z"/></svg>);
+const WindowSeatIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm" style={{ color: '#67748e' }}><path d="M384 32H128c-35.3 0-64 28.7-64 64v224c0 35.3 28.7 64 64 64h256c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64zM160 288c-17.7 0-32-14.3-32-32s14.3-32 32-32s32 14.3 32 32s-14.3 32-32 32zm192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32s32 14.3 32 32s-14.3 32-32 32z"/></svg>);
+const MealIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm" style={{ color: '#67748e' }}><path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 464c-114.9 0-208-93.1-208-208S141.1 48 256 48s208 93.1 208 208s-93.1 208-208 208zm-72-208c0 39.8 32.2 72 72 72s72-32.2 72-72s-32.2-72-72-72s-72 32.2-72 72z"/></svg>);
 
 /* ---------------- Tabs ---------------- */
 const ALL_TABS = [
-  { key: "flight", label: "Flight", icon: <FlightIcon /> },
-  { key: "hotel",  label: "Hotel",  icon: <HotelIcon /> },
-  { key: "car",    label: "Car Rental", icon: <CarIcon /> },
-  { key: "bus",    label: "Bus",    icon: <BusIcon /> },
-  { key: "train",  label: "Train",  icon: <TrainIcon /> },
+ { key: "flight", label: "Flight", icon: <FlightIcon /> },
+ { key: "hotel",  label: "Hotel",  icon: <HotelIcon /> },
+ { key: "car",    label: "Car Rental", icon: <CarIcon /> },
+ { key: "bus",    label: "Bus",    icon: <BusIcon /> },
+ { key: "train",  label: "Train",  icon: <TrainIcon /> },
 ];
+
 
 /* ---------------- Helpers & Mappers ---------------- */
 const toDisplayDate = (dateStr) => {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+ if (!dateStr) return "";
+ const date = new Date(dateStr);
+ if (isNaN(date.getTime())) return "";
+ return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 };
 const toTime = (hhmm) => (hhmm || "");
 
-const mapFlights = (arr = []) => arr.map((f) => ({ dep: { date: toDisplayDate(f.FLIGHT_DEP_DATE), time: toTime(f.FLIGHT_DEP_TIME), city: f.FLIGHT_DEP_CITY }, arr: { date: toDisplayDate(f.FLIGHT_ARRV_DATE), time: toTime(f.FLIGHT_ARRV_TIME), city: f.FLIGHT_ARRV_CITY } }));
+
+const mapFlights = (arr = []) => arr.map((f) => ({
+    depDate: toDisplayDate(f.FLIGHT_DEP_DATE),
+    depTime: f.FLIGHT_DEP_TIME || "",
+    depCity: f.FLIGHT_DEP_CITY || "N/A",
+    depAirport: f.DEP_AIRPORT_NAME || "Airport",
+    depCode: f.DEP_CITY_CODE || (f.FLIGHT_DEP_CITY ? f.FLIGHT_DEP_CITY.substring(0, 3).toUpperCase() : ""),
+    arrCity: f.FLIGHT_ARRV_CITY || "N/A",
+    arrAirport: f.ARR_AIRPORT_NAME || "Airport",
+    arrCode: f.ARR_CITY_CODE || (f.FLIGHT_ARRV_CITY ? f.FLIGHT_ARRV_CITY.substring(0, 3).toUpperCase() : ""),
+    seatPref: f.SEAT_PREF || "",
+    mealPref: f.MEAL_PREF || "",
+    description: f.DESCRIPTION || "", // For comments
+}));
+
+
 const mapHotels = (arr = []) => arr.map((h) => ({ location: h.HOTEL_ARRV_CITY || "", checkIn:  { date: toDisplayDate(h.HOTEL_ARRV_DATE)}, checkOut: { date: toDisplayDate(h.HOTEL_DEP_DATE)} }));
 const mapCars = (arr = []) => arr.map((c) => ({ carType: c.CAR_TYPE || "", pickUp:  { date: toDisplayDate(c.CAR_DEP_DATE), location: c.CAR_DEP_CITY || "" }, dropOff: { date: toDisplayDate(c.CAR_ARRV_DATE), location: c.CAR_ARRV_CITY || "" } }));
 const mapBuses = (arr = []) => arr.map((b) => ({ from: { city: b.BUS_DEP_CITY || "", date: toDisplayDate(b.BUS_DEP_DATE) }, to: { city: b.BUS_ARRV_CITY || "", date: toDisplayDate(b.BUS_ARRV_DATE) } }));
 const mapTrains = (arr = []) => arr.map((t) => ({ from: { city: t.TRAIN_DEP_CITY || "", date: toDisplayDate(t.TRAIN_DEP_DATE) }, to: { city: t.TRAIN_ARRV_CITY || "", date: toDisplayDate(t.TRAIN_ARRV_DATE) } }));
 
+
 const deriveDuration = (a = {}) => {
-  const dates = [];
-  const push = (v) => v && dates.push(v);
-  (a.FlightData || []).forEach(f => { push(f.FLIGHT_DEP_DATE); push(f.FLIGHT_ARRV_DATE); });
-  (a.HotelData || []).forEach(h => { push(h.HOTEL_DEP_DATE); push(h.HOTEL_ARRV_DATE); });
-  (a.CarData || []).forEach(c => { push(c.CAR_DEP_DATE); push(c.CAR_ARRV_DATE); });
-  (a.BusData || []).forEach(b => { push(b.BUS_DEP_DATE); push(b.BUS_ARRV_DATE); });
-  (a.TrainData || []).forEach(t => { push(t.TRAIN_DEP_DATE); push(t.TRAIN_ARRV_DATE); });
-  if (!dates.length) return "";
-  const sorted = dates.filter(Boolean).slice().sort();
-  if (!sorted.length) return "";
-  const start = sorted[0], end = sorted[sorted.length - 1];
-  const days = Math.max(1, Math.round((new Date(end) - new Date(start)) / 86400000) + 1);
-  return `${toDisplayDate(start)} - ${toDisplayDate(end)} (${days} ${days > 1 ? "Days" : "Day"})`;
+ const dates = [];
+ const push = (v) => v && dates.push(v);
+ (a.FlightData || []).forEach(f => { push(f.FLIGHT_DEP_DATE); push(f.FLIGHT_ARRV_DATE); });
+ (a.HotelData || []).forEach(h => { push(h.HOTEL_DEP_DATE); push(h.HOTEL_ARRV_DATE); });
+ (a.CarData || []).forEach(c => { push(c.CAR_DEP_DATE); push(c.CAR_ARRV_DATE); });
+ (a.BusData || []).forEach(b => { push(b.BUS_DEP_DATE); push(b.BUS_ARRV_DATE); });
+ (a.TrainData || []).forEach(t => { push(t.TRAIN_DEP_DATE); push(t.TRAIN_ARRV_DATE); });
+ if (!dates.length) return "";
+ const sorted = dates.filter(Boolean).slice().sort();
+ if (!sorted.length) return "";
+ const start = sorted[0], end = sorted[sorted.length - 1];
+ const days = Math.max(1, Math.round((new Date(end) - new Date(start)) / 86400000) + 1);
+ return `${toDisplayDate(start)} - ${toDisplayDate(end)} (${days} ${days > 1 ? "Days" : "Day"})`;
 };
 
-/* --- ADDED: All required sub-component definitions --- */
-const SubmitterHeader = ({ trip, onBack }) => {
-  if (!trip) return null;
-  const showActionButtons = trip.status === 'PENDING';
-  return (
-    <div className="submitter-header">
-      <div className="submitter-info-block">
-        <span className="initial-circle">{trip.submitter?.initials || '?'}</span>
-        <div className="submitter-details">
-          <span className="submitter-name">{trip.submitter?.name || 'N/A'}</span>
-          <span className="submitter-email">{trip.submitter?.email || ''}</span>
+   
+
+
+const SubmitterHeader = ({ trip, onBack, onApprove, isApproving, onReject, isRejecting, onUpdate}) => {
+    if (!trip) return null;
+    
+    const submitterName = trip.submitter?.name || "Naveen";
+    const submitterInitials = trip.submitter?.initials || submitterName.charAt(0) || '?';
+    const submitterEmail = trip.submitter?.email || "naveen@noorahealth.org";
+    const tripNumber = trip.trip_number || "TRIP-00128";
+    
+    const tripStatus = (trip.status || "PENDING").toUpperCase();
+    let tripStatusText = tripStatus;
+    if (tripStatus === "PENDING" || tripStatus === "SUBMITTED") {
+        tripStatusText = "AWAITING APPROVAL";
+    }
+    
+    const showActionButtons = tripStatus !== 'APPROVED' && tripStatus !== 'REJECTED';
+
+
+    return (
+        <div className="submitter-header">
+            <div className="submitter-main-left-block">
+                <div className="submitter-info-block">
+                    <span className="initial-circle">{submitterInitials}</span>
+                    <div className="submitter-details">
+                        <span className="submitter-name">{submitterName}</span>
+                        <span className="submitter-email">{submitterEmail}</span>
+                    </div>
+                </div>
+                <div className="header-divider"></div>
+                <div className="trip-summary-status">
+                    <span className="trip-id-header">{tripNumber}</span>
+                    <span className={`status-pill pill--${(tripStatus === 'PENDING' || tripStatus === 'SUBMITTED') ? 'pending' : tripStatus.toLowerCase()}`}>
+                        {tripStatusText}
+                    </span>
+                </div>
+            </div>
+            
+            <div className="header-actions">
+                {showActionButtons && (
+                    <div className="action-buttons">
+                        <button 
+                className="btn btn-secondary"
+                onClick={onUpdate}
+                disabled={isApproving || isRejecting}
+            >
+                Update
+            </button>
+                       <button 
+                            className="btn btn-approve" 
+                            onClick={onApprove}
+                            disabled={isApproving || isRejecting}
+                        >
+                            {isApproving ? 'Approving...' : 'Approve'}
+                        </button>
+                        <button 
+                            className="btn btn-reject"
+                            onClick={onReject}
+                            disabled={isApproving || isRejecting}
+                        >
+                            {isRejecting ? 'Rejecting...' : 'Reject'}
+                        </button>
+                    </div>
+                )}
+                <button className="btn btn-icon" onClick={onBack} title="Close">
+                    <CloseIcon />
+                </button>
+            </div>
         </div>
-      </div>
-      <div className="trip-info-block">
-        <span className="trip-id-header">{trip.trip_number}</span>
-        <span className={`status-pill pill--${trip.status.toLowerCase()}`}>{trip.status}</span>
-      </div>
-      <div className="header-actions">
-        {showActionButtons && (
-          <div className="action-buttons">
-            <button className="btn btn-secondary">Update</button>
-            <button className="btn btn-approve">Approve</button>
-            <button className="btn btn-reject">Reject</button>
-            <button className="btn btn-secondary">Cancel Trip</button>
-          </div>
-        )}
-        <button className="btn btn-icon" onClick={onBack}><CloseIcon /></button>
-      </div>
-    </div>
-  );
+    );
 };
 
-const FlightDetails = ({ bookings }) => bookings.map((item, i) => (
-    <div className="itinerary-item flight-item" key={`flt-${i}`}>
-        <div className="itinerary-leg">
-            <div className="date-block"><div className="font-xs text-muted">Departure</div><div>{item.dep.date}, {item.dep.time} at {item.dep.city}</div></div>
-            <div className="arrow"><ArrowIcon /></div>
-            <div className="date-block"><div className="font-xs text-muted">Arrival</div><div>{item.arr.date}, {item.arr.time} at {item.arr.city}</div></div>
+
+// --- NEW: Rewritten FlightDetails component to match Zoho Expense style ---
+const FlightDetails = ({ bookings }) => {
+    if (!bookings || bookings.length === 0) {
+        return <div className="itinerary-item">No flight details available.</div>;
+    }
+
+    // Extract preferences from the first flight (assuming they are the same for all)
+    const firstFlight = bookings[0];
+    const seatPref = firstFlight.seatPref;
+    const mealPref = firstFlight.mealPref;
+    const hasPrefs = seatPref || mealPref;
+
+    return (
+        <div className="flight-details-container">
+            {hasPrefs && (
+                <div className="flight-preferences-header">
+                    <span className="pref-title">Preferences :</span>
+                    {seatPref && (
+                        <span className="pref-item"><WindowSeatIcon /> {seatPref}</span>
+                    )}
+                    {mealPref && (
+                        <span className="pref-item"><MealIcon /> {mealPref}</span>
+                    )}
+                </div>
+            )}
+
+            {bookings.map((item, i) => (
+                <div className="flight-leg-card" key={`flt-${i}`}>
+                    <div className="flight-leg-main-row">
+                        <div className="flight-date-col">
+                            <div className="date-row">
+                                <CalendarIcon />
+                                <span className="date-text">{item.depDate}</span>
+                            </div>
+                            <span className="pref-time">Preferred Time: {item.depTime}</span>
+                        </div>
+
+                        <div className="flight-route-col">
+                            <div className="location-group">
+                                <span className="city-code">{item.depCity} - {item.depCode}</span>
+                                <span className="airport-name">{item.depAirport}</span>
+                            </div>
+                            <div className="arrow-group">
+                                <ArrowIcon />
+                            </div>
+                            <div className="location-group">
+                                <span className="city-code">{item.arrCity} - {item.arrCode}</span>
+                                <span className="airport-name">{item.arrAirport}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {item.description && (
+                        <div className="flight-comments-row">
+                            <CommentsIcon />
+                            <span>{item.description}</span>
+                        </div>
+                    )}
+                </div>
+            ))}
         </div>
-    </div>
-));
+    );
+};
+
 const HotelDetails = ({ bookings }) => bookings.map((item, i) => (
     <div className="itinerary-item hotel-item" key={`hot-${i}`}>
         <div className="itinerary-date"><HotelIcon /> {item.location}</div>
@@ -133,18 +253,19 @@ const TrainDetails = ({ bookings }) => bookings.map((item, i) => (
     </div>
 ));
 
+
 const BookingStatus = ({ trip }) => {
-  const availableBookings = ALL_TABS.filter((t) => trip.bookings[t.key]?.length > 0);
-  const getBookingStatus = (bookings) => {
+ const availableBookings = ALL_TABS.filter((t) => trip.bookings[t.key]?.length > 0);
+ const getBookingStatus = (bookings) => {
     if (!bookings || bookings.length === 0) return 'empty';
     const allBooked = bookings.every(b => (b.STATUS || '').toLowerCase() === 'booked');
     if (allBooked) return 'booked';
     const anyBooked = bookings.some(b => (b.STATUS || '').toLowerCase() === 'booked');
     if (anyBooked) return 'partially';
     return 'open';
-  };
-  if (availableBookings.length === 0) return null;
-  return (
+ };
+ if (availableBookings.length === 0) return null;
+ return (
     <div className="booking-status-widget">
        <span className="widget-title">Booking Status</span>
       <div className="booking-status-icons">
@@ -159,105 +280,194 @@ const BookingStatus = ({ trip }) => {
         })}
       </div>
     </div>
-  );
+ );
 };
+
+
+const CustomFieldsSidebar = () => {
+    const fields = [
+        { label: "Policy", value: "Noora Health India Private Limited" },
+        { label: "Destination", value: "Dehra Dun" },
+        { label: "Business Purpose", value: "Multiple Options" },
+        { label: "Activity", value: "12.1-Strategic Global Development-Advocacy" },
+        { label: "Donor", value: "NH-Agency Fund-2024" },
+        { label: "Condition Areas", value: "Tuberculosis Care" },
+        { label: "Location", value: "India KA" },
+        { label: "Branch", value: "11.IN-OPS-P&C" },
+    ];
+
+
+    return (
+        <aside className="details-sidebar">
+            <h3 className="sidebar-title">Trip Details</h3>
+            {fields.map((field) => (
+                <div key={field.label} className="sidebar-field-item">
+                    <span className="sidebar-field-label">{field.label}</span>
+                    <span className="sidebar-field-value">{field.value}</span>
+                </div>
+            ))}
+        </aside>
+    );
+};
+
 
 /* ---------------- Main Component ---------------- */
 export default function ApproverTripDataView() {
-  const navigate = useNavigate();
-  const { tripId } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
-  const [trip, setTrip] = useState(null);
-  const [activeTab, setActiveTab] = useState("");
+    const navigate = useNavigate();
+    const { tripId } = useParams();
+    const [loading, setLoading] = useState(true);
+    const [isApproving, setIsApproving] = useState(false);
+    // NEW: State for reject modal and loading
+    const [isRejecting, setIsRejecting] = useState(false);
+    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+    const [err, setErr] = useState("");
+    const [trip, setTrip] = useState(null);
+    const [activeTab, setActiveTab] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        setLoading(true); setErr("");
-        if (!tripId) throw new Error("No Trip ID in route");
+ // --- NEW: Placeholder for Update function ---
+    const handleUpdate = () => {
+        if (!trip) return;
+        // This will navigate to a new route like /update-trip/21513000000076854
+        navigate(`/update-trip/${trip.id}`);
+    };
 
-        const rec = await fetchTripById(tripId);
-        if (!rec) throw new Error("Trip not found");
 
-        const a = rec.associatedData || {};
-        const detail = {
-          ...rec,
-          duration: deriveDuration(a),
-          bookings: {
-            flight: mapFlights(a.FlightData), hotel: mapHotels(a.HotelData),
-            car: mapCars(a.CarData), bus: mapBuses(a.BusData), train: mapTrains(a.TrainData),
-          },
-        };
-        if (!cancelled) setTrip(detail);
-      } catch (e) {
-        if (!cancelled) setErr(String(e?.message || e));
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
- }, [tripId]);
+    const handleApprove = async () => {
+        if (!trip || isApproving || isRejecting) return;
+        setIsApproving(true);
+        try {
+            await approveTrip(trip.id);
+            setTrip(prevTrip => ({ ...prevTrip, status: 'APPROVED' }));
+            alert("Trip has been approved successfully!");
+        } catch (e) {
+            alert(`Failed to approve trip: ${e.message}`);
+        } finally {
+            setIsApproving(false);
+        }
+    };
 
-  const availableTabs = useMemo(() => {
-    if (!trip) return [];
-    return ALL_TABS.filter((t) => trip.bookings[t.key]?.length > 0);
-  }, [trip]);
 
-  useEffect(() => {
-    if (availableTabs.length > 0 && !activeTab) setActiveTab(availableTabs[0].key);
-  }, [availableTabs, activeTab]);
+    // NEW: Handler to process the rejection
+    const handleRejectSubmit = async (reason) => {
+        if (!trip || isRejecting) return;
+        setIsRejecting(true);
+        try {
+            // NOTE: You will need to create this 'rejectTrip' function in your api/trips.js file
+            await rejectTrip(trip.id, reason);
+            setTrip(prevTrip => ({ ...prevTrip, status: 'REJECTED' }));
+            setIsRejectModalOpen(false); // Close modal on success
+            alert("Trip has been rejected successfully.");
+        } catch (e) {
+            alert(`Failed to reject trip: ${e.message}`);
+        } finally {
+            setIsRejecting(false);
+        }
+    };
 
-  if (loading) {
-    return (<div className="ze-detail-view"><div className="ze-loading-container"><div className="ze-loader"></div></div></div>);
-  }
-  if (err) {
-    return (<div className="ze-detail-view"><header className="ze-detail-header">Error</header><div className="ze-detail-content" style={{color: 'red'}}>{err}</div></div>);
-  }
-  if (!trip) return null;
 
-  return (
-    <div className="ze-detail-view">
-        <SubmitterHeader trip={trip} onBack={() => navigate(-1)} />
-        
-        <div className="ze-detail-content">
-          
-          {/* This section is now a single card containing title and booking status */}
-          <section className="trip-summary">
-            {/* Wrapper for the left side (Title and Duration) */}
-            <div className="trip-title-wrapper">
-              <h1 className="report-title">{trip.tripName}</h1>
-              {trip.duration && (
-                <div className="text-muted font-small">
-                  <InfoIcon /> Duration: {trip.duration}
-                </div>
-              )}
-            </div>
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                setLoading(true); setErr("");
+                if (!tripId) throw new Error("No Trip ID in route");
+                const rec = await fetchTripById(tripId);
+                if (!rec) throw new Error("Trip not found");
+                const a = rec.associatedData || {};
+                const detail = {
+                    ...rec,
+                    duration: deriveDuration(a),
+                    bookings: {
+                        flight: mapFlights(a.FlightData), hotel: mapHotels(a.HotelData),
+                        car: mapCars(a.CarData), bus: mapBuses(a.BusData), train: mapTrains(a.TrainData),
+                    },
+                };
+                if (!cancelled) setTrip(detail);
+            } catch (e) {
+                if (!cancelled) setErr(String(e?.message || e));
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [tripId]);
+
+
+    const availableTabs = useMemo(() => {
+        if (!trip) return [];
+        return ALL_TABS.filter((t) => trip.bookings[t.key]?.length > 0);
+    }, [trip]);
+
+
+    useEffect(() => {
+        if (availableTabs.length > 0 && !activeTab) setActiveTab(availableTabs[0].key);
+    }, [availableTabs, activeTab]);
+
+
+    if (loading) {
+        return (<div className="ze-detail-view"><div className="ze-loading-container"><div className="ze-loader"></div></div></div>);
+    }
+    if (err) {
+        return (<div className="ze-detail-view"><header className="ze-detail-header">Error</header><div className="ze-detail-content" style={{color: 'red'}}>{err}</div></div>);
+    }
+    if (!trip) return null;
+
+
+    return (
+        <div className="ze-detail-view">
+            {/* MODIFIED: Pass reject handlers to the header */}
+            <SubmitterHeader 
+                trip={trip} 
+                onBack={() => navigate(-1)} 
+                onApprove={handleApprove} 
+                isApproving={isApproving}
+                onReject={() => setIsRejectModalOpen(true)}
+                isRejecting={isRejecting}
+                 onUpdate={handleUpdate}
+            />
             
-            {/* The BookingStatus component is now inside the summary card */}
-            <BookingStatus trip={trip} />
-          </section>
+            <div className="details-grid-container">
+                <div className="main-content-col">
+                    <section className="trip-summary">
+                        <div className="trip-title-wrapper">
+                            <h1 className="report-title">{trip.tripName}</h1>
+                            {trip.duration && (
+                                <div className="text-muted font-small">
+                                    <InfoIcon /> Duration: {trip.duration}
+                                </div>
+                            )}
+                        </div>
+                        <BookingStatus trip={trip} />
+                    </section>
 
-          {/* The Itinerary section now sits below the summary card */}
-          <section className="trip-itinerary">
-              <div className="details-nav-tab">
-                  {availableTabs.map((tab) => (
-                      <button key={tab.key} className={`nav-item ${activeTab === tab.key ? "active" : ""}`} onClick={() => setActiveTab(tab.key)}>
-                          {tab.icon} {tab.label}
-                      </button>
-                  ))}
-              </div>
-              <div>
-                  {activeTab === "flight" && <FlightDetails bookings={trip.bookings.flight} />}
-                  {activeTab === "hotel" && <HotelDetails bookings={trip.bookings.hotel} />}
-                  {activeTab === "car" && <CarDetails bookings={trip.bookings.car} />}
-                  {activeTab === "bus" && <BusDetails bookings={trip.bookings.bus} />}
-                  {activeTab === "train" && <TrainDetails bookings={trip.bookings.train} />}
-              </div>
-          </section>
 
+                    <section className="trip-itinerary">
+                        <div className="details-nav-tab">
+                            {availableTabs.map((tab) => (
+                                <button key={tab.key} className={`nav-item ${activeTab === tab.key ? "active" : ""}`} onClick={() => setActiveTab(tab.key)}>
+                                    {tab.icon} {tab.label}
+                                </button>
+                            ))}
+                        </div>
+                        <div>
+                            {activeTab === "flight" && <FlightDetails bookings={trip.bookings.flight} />}
+                            {activeTab === "hotel" && <HotelDetails bookings={trip.bookings.hotel} />}
+                            {activeTab === "car" && <CarDetails bookings={trip.bookings.car} />}
+                            {activeTab === "bus" && <BusDetails bookings={trip.bookings.bus} />}
+                            {activeTab === "train" && <TrainDetails bookings={trip.bookings.train} />}
+                        </div>
+                    </section>
+                </div>
+                <CustomFieldsSidebar />
+            </div>
+
+
+            {/* NEW: Render the reject modal */}
+            <TripRejectModal
+                open={isRejectModalOpen}
+                onClose={() => setIsRejectModalOpen(false)}
+                onSubmit={handleRejectSubmit}
+            />
         </div>
-    </div>
-  );
+    );
 }

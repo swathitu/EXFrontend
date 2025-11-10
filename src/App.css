@@ -278,8 +278,21 @@ sidebar {
 
 main.main--no-scroll {
   overflow-y: hidden;
-  padding: 0; /* Remove padding to allow the component to control it */
+  display: flex;
+  flex-direction: column;
 }
+
+.content-card-ta {
+  /* 1. Override the max-width and margin from .content-card */
+  max-width: none;
+  margin: 0;
+
+  /* 2. Make it grow to fill the main element */
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
  
 /* ========= Loading State ========= */
 .loading {
@@ -317,3 +330,40 @@ main.main--no-scroll {
   max-width: 0 !important;
 }
 
+/* Ensure the main area truly fills the viewport */
+.main.main--no-scroll {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100%;
+  background: transparent;
+}
+ 
+/* Safety net for any page container inside approver pages */
+.page-container,
+.trips-approver-page,
+.approver-detail-root {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Make sure the main grid cell can shrink and scroll */
+.main {
+  min-height: 0;          /* critical in CSS grid to allow child overflow */
+  overflow-y: auto;       /* default behavior: scroll when needed */
+}
+ 
+/* Only disable scrolling where the class is explicitly set in App.js */
+.main.main--no-scroll {
+  overflow-y: hidden;
+}
+ 
+/* In full-page layouts, don’t constrain the inner wrapper */
+.content-card--full-page {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  width: 100% !important;
+  min-height: 100%;
+}
