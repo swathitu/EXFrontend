@@ -39,10 +39,17 @@ const LabeledDropdown = ({
 }) => (
   <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
-    <select name={name} value={value} onChange={onChange} disabled={disabled}>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
+    <select
+      name={name}
+      value={JSON.stringify(value)}
+      onChange={(e) => onChange({ target: { name: e.target.name, value: JSON.parse(e.target.value) } })}
+      disabled={disabled}
+    >
+      {options.map((option, idx) => (
+        <option key={idx} value={JSON.stringify(option)}>
+          {option.cityCode === ""
+            ? option.cityName // fallback default option label 
+            : `${option.cityName} (${option.cityCode})`}
         </option>
       ))}
     </select>
@@ -50,6 +57,7 @@ const LabeledDropdown = ({
 );
 
 const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
+  // Map API/Backend flight data to UI segments with detailed city info
   const mapApiFlightDataToSegments = (flights) => {
     if (!Array.isArray(flights) || flights.length === 0) {
       return [
@@ -58,8 +66,8 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
           tripType: "oneWay",
           seatPreference: "",
           mealPreference: "",
-          departFrom: "",
-          arriveAt: "",
+          departFrom: { cityCode: "", cityName: "", airportName: "" },
+          arriveAt: { cityCode: "", cityName: "", airportName: "" },
           departureDate: "",
           returnDate: "",
           description: "",
@@ -78,8 +86,16 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
       tripType: flight.TRIP_TYPE || "oneWay",
       seatPreference: flight.SEAT_PREF || "",
       mealPreference: flight.MEAL_PREF || "",
-      departFrom: flight.FLIGHT_DEP_CITY || "",
-      arriveAt: flight.FLIGHT_ARR_CITY || "",
+      departFrom: {
+        cityCode: flight.DEP_CITY_CODE || "",
+        cityName: flight.FLIGHT_DEP_CITY || "",
+        airportName: flight.DEP_AIRPORT_NAME || "",
+      },
+      arriveAt: {
+        cityCode: flight.ARR_CITY_CODE || "",
+        cityName: flight.FLIGHT_ARR_CITY || "",
+        airportName: flight.ARR_AIRPORT_NAME || "",
+      },
       departureDate: flight.FLIGHT_DEP_DATE || "",
       returnDate: flight.FLIGHT_ARR_DATE || "",
       description: flight.DESCRIPTION || "",
@@ -106,13 +122,14 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
     }
   }, [flightData]);
 
+  // City options with code, name, and airport name
   const cityOptions = [
-    { value: "", label: "Select City" },
-    { value: "NYC", label: "New York" },
-    { value: "LON", label: "London" },
-    { value: "PAR", label: "Paris" },
-    { value: "DXB", label: "Dubai" },
-    { value: "TYO", label: "Tokyo" },
+    { cityCode: "", cityName: "Select City", airportName: "" },
+    { cityCode: "NYC", cityName: "New York", airportName: "JFK" },
+    { cityCode: "LON", cityName: "London", airportName: "Heathrow" },
+    { cityCode: "PAR", cityName: "Paris", airportName: "CDG" },
+    { cityCode: "DXB", cityName: "Dubai", airportName: "DXB" },
+    { cityCode: "TYO", cityName: "Tokyo", airportName: "NRT" },
   ];
 
   const seatPreferenceOptions = [
@@ -146,8 +163,8 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
   ];
 
   const isNewSegment = (segment) =>
-    !segment.departFrom &&
-    !segment.arriveAt &&
+    !segment.departFrom.cityCode &&
+    !segment.arriveAt.cityCode &&
     !segment.departureDate &&
     !segment.returnDate &&
     !segment.description;
@@ -157,10 +174,16 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
   const handleSegmentChange = (e, index) => {
     if (isReadOnly && !flightSegments[index].isNew) return;
     const { name, value } = e.target;
+
     const newSegments = flightSegments.map((segment, i) => {
       if (i === index) {
-        const updatedSegment = { ...segment, [name]: value, isNew: segment.isNew };
-        // Sync returnDate with departureDate for oneWay/multiCity
+        let updatedSegment = { ...segment };
+        if (name === "departFrom" || name === "arriveAt") {
+          updatedSegment[name] = value; // value is an object {cityCode, cityName, airportName}
+        } else {
+          updatedSegment[name] = value;
+        }
+        // Sync returnDate with departureDate for oneWay/multiCity trip types
         if (updatedSegment.tripType === "oneWay" || updatedSegment.tripType === "multiCity") {
           updatedSegment.returnDate = updatedSegment.departureDate;
         }
@@ -177,7 +200,6 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
     let newSegments;
 
     if (value === "multiCity") {
-      // For multiCity, set tripType and for each segment set returnDate = departureDate
       newSegments = flightSegments.map((segment) => ({
         ...segment,
         tripType: "multiCity",
@@ -195,54 +217,50 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
   };
 
   const handleAddSegment = () => {
-  const firstSegment = flightSegments[0] || {};
-  const newSegment = {
-    isNew: true,
-    tripType: "multiCity",
-    seatPreference: firstSegment.seatPreference || "",
-    mealPreference: firstSegment.mealPreference || "",
-    departFrom: "",
-    arriveAt: "",
-    departureDate: "",
-    description: "",
-    timePreference: "",
-    flightPreferences: "",
-    departureTimePreference: "",
-    arrivalTimePreference: "",
-    departureFlightPreferences: "",
-    arrivalFlightPreferences: "",
+    const firstSegment = flightSegments[0] || {};
+    const newSegment = {
+      isNew: true,
+      tripType: "multiCity",
+      seatPreference: firstSegment.seatPreference || "",
+      mealPreference: firstSegment.mealPreference || "",
+      departFrom: { cityCode: "", cityName: "", airportName: "" },
+      arriveAt: { cityCode: "", cityName: "", airportName: "" },
+      departureDate: "",
+      returnDate: "",
+      description: "",
+      timePreference: "",
+      flightPreferences: "",
+      departureTimePreference: "",
+      arrivalTimePreference: "",
+      departureFlightPreferences: "",
+      arrivalFlightPreferences: "",
+    };
+    const newSegments = [...flightSegments, newSegment];
+    setFlightSegments(newSegments);
+    onDataChange(newSegments);
   };
-  const newSegments = [...flightSegments, newSegment];
-  setFlightSegments(newSegments);
-  onDataChange(newSegments);
-  };
-
 
   const handleGlobalPreferenceChange = (e) => {
-  if (isReadOnly) return;
-  const { name, value } = e.target;
+    if (isReadOnly) return;
+    const { name, value } = e.target;
 
-  // Update all flight segments with the new preference value
-  const newSegments = flightSegments.map((segment) => {
-    const updatedSegment = { ...segment, [name]: value };
+    const newSegments = flightSegments.map((segment) => {
+      const updatedSegment = { ...segment, [name]: value };
 
-    // Optional: sync related departure/arrival preferences for timePreference & flightPreferences
-    if (name === "timePreference") {
-      updatedSegment.departureTimePreference = value;
-      updatedSegment.arrivalTimePreference = value;
-    }
-    if (name === "flightPreferences") {
-      updatedSegment.departureFlightPreferences = value;
-      updatedSegment.arrivalFlightPreferences = value;
-    }
+      if (name === "timePreference") {
+        updatedSegment.departureTimePreference = value;
+        updatedSegment.arrivalTimePreference = value;
+      }
+      if (name === "flightPreferences") {
+        updatedSegment.departureFlightPreferences = value;
+        updatedSegment.arrivalFlightPreferences = value;
+      }
+      return updatedSegment;
+    });
 
-    return updatedSegment;
-  });
-
-  setFlightSegments(newSegments);
-  onDataChange(newSegments);
-};
-
+    setFlightSegments(newSegments);
+    onDataChange(newSegments);
+  };
 
   const handleRemoveSegment = (index) => {
     if (isReadOnly && !flightSegments[index].isNew) return;
@@ -296,22 +314,33 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
 
         {(tripType === "multiCity" || tripType === "oneWay" || tripType === "roundTrip") && (
           <div className="preference-dropdowns">
-            <LabeledDropdown
+            <select
               name="seatPreference"
-              value={flightSegments[0]?.seatPreference}
+              value={flightSegments[0]?.seatPreference || ""}
               onChange={handleGlobalPreferenceChange}
-              options={seatPreferenceOptions}
-              className="inline-dropdown"
+              className="inline-dropdown2"
               disabled={isReadOnly}
-            />
-            <LabeledDropdown
+            >
+              {seatPreferenceOptions.map((opt, idx) => (
+                <option key={idx} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+
+            <select
               name="mealPreference"
-              value={flightSegments[0]?.mealPreference}
+              value={flightSegments[0]?.mealPreference || ""}
               onChange={handleGlobalPreferenceChange}
-              options={mealPreferenceOptions}
-              className="inline-dropdown"
+              className="inline-dropdown2"
               disabled={isReadOnly}
-            />
+            >
+              {mealPreferenceOptions.map((opt, idx) => (
+                <option key={idx} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
         )}
       </div>
@@ -323,7 +352,16 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
           <React.Fragment key={index}>
             <div className="flight-segment-row">
               {/* First row: main inputs */}
-              <div className="flight-segment-main-row" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center", marginBottom: "0.5rem" }}>
+              <div
+                className="flight-segment-main-row"
+                style={{
+                  display: "flex",
+                  gap: "1rem",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 <LabeledDropdown
                   label="Depart From*"
                   name="departFrom"
@@ -379,7 +417,6 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
                   disabled={disabled}
                 />
 
-                
                 {flightSegments.length > 1 && !disabled && (
                   <button
                     type="button"
@@ -392,90 +429,120 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
               </div>
 
               {/* Second row: grouped dropdowns */}
-              <div className="flight-segment-preference-row" style={{display: "flex", gap: "2rem", flexWrap: "wrap", alignItems: "flex-start", marginBottom: "1rem"}}>
-                <div className="preference-group-segment" style={{display: "flex", flexDirection: "column"}}>
-                  <span className="preference-heading-segment" style={{fontWeight: "600", marginBottom: "0.25rem"}}>
+              <div
+                className="flight-segment-preference-row"
+                style={{
+                  display: "flex",
+                  gap: "2rem",
+                  flexWrap: "wrap",
+                  alignItems: "flex-start",
+                  marginBottom: "1rem",
+                }}
+              >
+                <div className="preference-group-segment" style={{ display: "flex", flexDirection: "column" }}>
+                  <span className="preference-heading-segment" style={{ fontWeight: "500", marginBottom: "0.25rem", fontSize:".85rem" }}>
                     Time Preference
                   </span>
-                  <div className="pref-dropdowns-row-segment" style={{display: "flex", gap: "1rem"}}>
+                  <div className="pref-dropdowns-row-segment" style={{ display: "flex", gap: "1rem" }}>
                     {tripType === "roundTrip" && index === 0 ? (
                       <>
-                        <LabeledDropdown
-                          label="Departure"
+                        <select
                           name="departureTimePreference"
                           value={segment.departureTimePreference}
                           onChange={(e) => handleSegmentChange(e, index)}
-                          options={timePreferenceOptions}
                           className="inline-dropdown-with-label"
                           disabled={disabled}
-                        />
-                        <LabeledDropdown
-                          label="Return"
+                        >
+                          {timePreferenceOptions.map((opt, idx) => (
+                            <option key={idx} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                        <select
                           name="arrivalTimePreference"
                           value={segment.arrivalTimePreference}
                           onChange={(e) => handleSegmentChange(e, index)}
-                          options={timePreferenceOptions}
                           className="inline-dropdown-with-label"
                           disabled={disabled}
-                        />
+                        >
+                          {timePreferenceOptions.map((opt, idx) => (
+                            <option key={idx} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
                       </>
                     ) : (
-                      <LabeledDropdown
-                        label="Departure"
+                      <select
                         name="departureTimePreference"
                         value={segment.departureTimePreference}
                         onChange={(e) => handleSegmentChange(e, index)}
-                        options={timePreferenceOptions}
                         className="inline-dropdown-with-label"
                         disabled={disabled}
-                      />
+                      >
+                        {timePreferenceOptions.map((opt, idx) => (
+                          <option key={idx} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
                     )}
                   </div>
                 </div>
 
-                <div className="preference-group-segment" style={{display: "flex", flexDirection: "column"}}>
-                  <span className="preference-heading-segment" style={{fontWeight: "600", marginBottom: "0.25rem"}}>
+                <div className="preference-group-segment" style={{ display: "flex", flexDirection: "column" }}>
+                  <span className="preference-heading-segment" style={{ fontWeight: "500", marginBottom: "0.25rem", fontSize:".85rem" }}>
                     Flight Preference
                   </span>
-                  <div className="pref-dropdowns-row-segment" style={{display: "flex", gap: "1rem"}}>
+                  <div className="pref-dropdowns-row-segment" style={{ display: "flex", gap: "1rem" }}>
                     {tripType === "roundTrip" && index === 0 ? (
                       <>
-                        <LabeledDropdown
-                          label="Departure"
+                        <select
                           name="departureFlightPreferences"
                           value={segment.departureFlightPreferences}
                           onChange={(e) => handleSegmentChange(e, index)}
-                          options={flightPreferenceOptions}
                           className="inline-dropdown-with-label"
                           disabled={disabled}
-                        />
-                        <LabeledDropdown
-                          label="Return"
+                        >
+                          {flightPreferenceOptions.map((opt, idx) => (
+                            <option key={idx} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                        <select
                           name="arrivalFlightPreferences"
                           value={segment.arrivalFlightPreferences}
                           onChange={(e) => handleSegmentChange(e, index)}
-                          options={flightPreferenceOptions}
                           className="inline-dropdown-with-label"
                           disabled={disabled}
-                        />
+                        >
+                          {flightPreferenceOptions.map((opt, idx) => (
+                            <option key={idx} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
                       </>
                     ) : (
-                      <LabeledDropdown
-                        label="Departure"
+                      <select
                         name="departureFlightPreferences"
                         value={segment.departureFlightPreferences}
                         onChange={(e) => handleSegmentChange(e, index)}
-                        options={flightPreferenceOptions}
                         className="inline-dropdown-with-label"
                         disabled={disabled}
-                      />
+                      >
+                        {flightPreferenceOptions.map((opt, idx) => (
+                          <option key={idx} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
                     )}
                   </div>
                 </div>
               </div>
-
-              
-
             </div>
           </React.Fragment>
         );
@@ -484,17 +551,12 @@ const FlightForm = ({ onDataChange, flightData, isReadOnly = false }) => {
       {/* Add Flight button */}
       {((isFlightDataEmpty(flightSegments) && tripType === "multiCity") ||
         !isFlightDataEmpty(flightSegments)) && (
-        <div className="add-flight-btn-container" style={{ marginTop: "1rem" }}>
-          <button
-            type="button"
-            onClick={handleAddSegment}
-            className="add-flight-btn"
-            disabled={false}
-          >
-            + Add Another Flight
-          </button>
-        </div>
-      )}
+          <div className="add-flight-btn-container" style={{ marginTop: "1rem" }}>
+            <button type="button" onClick={handleAddSegment} className="add-flight-btn" disabled={false}>
+              + Add Another Flight
+            </button>
+          </div>
+        )}
     </section>
   );
 };

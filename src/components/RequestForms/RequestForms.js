@@ -138,7 +138,14 @@ const RequestForms = ({ onFormClose, tripId }) => {
   const [isTrainReadOnly, setIsTrainReadOnly] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [isDropdownLoading, setIsDropdownLoading] = useState(false);
+  const [savedEmail, setSavedEmail] = useState(null);
 
+
+  useEffect(() => {
+    const emailFromStorage = localStorage.getItem("userEmail");
+    setSavedEmail(emailFromStorage);
+    console.log("Saved Email from localStorage:", emailFromStorage);
+  }, []);
 
   // New state for the popup
   const [showPopup, setShowPopup] = useState(false);
@@ -196,7 +203,7 @@ const RequestForms = ({ onFormClose, tripId }) => {
         console.error(error);
       } finally {
         setIsLoadingData(false);
-        
+
       }
     };
 
@@ -496,7 +503,7 @@ const RequestForms = ({ onFormClose, tripId }) => {
   };
 
   // Your existing handleFinalSubmit with approver/submitter API calls integrated
-  const userEmail = "srikanth.thanniru@gurujana.com"; // your user email
+  // const userEmail = "srikanth.thanniru@gurujana.com"; // your user email
 
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
@@ -516,7 +523,7 @@ const RequestForms = ({ onFormClose, tripId }) => {
       const checkAccessResponse = await fetch("/server/find_userDetails/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: userEmail, action: "check_access" }),
+        body: JSON.stringify({ email: savedEmail, action: "check_access" }),
       });
       const checkAccessResult = await checkAccessResponse.json();
 
@@ -530,14 +537,45 @@ const RequestForms = ({ onFormClose, tripId }) => {
       setUserData(submitterData);
       const { role, reporting_manager_id } = submitterData;
 
-      // Step 2: If submitter has reporting manager, fetch manager info and show popup for confirmation
-      if (role === "submitter" && reporting_manager_id) {
+      if (role === "admin") {
+        // Admin acts as both submitter and approver
+        const adminId = submitterData.row_id;
+        const adminName = submitterData.first_name;
+        const adminEmail = submitterData.email;
+
+        setStatusMessage("Admin submission: acting as both submitter and approver.");
+        let payload;
+        if (tripId) {
+          payload = buildUpdatePayload(
+            "Submitted",
+            adminId,   // ApproverId
+            adminName, // ApproverName
+            adminEmail,// ApproverEmail
+            adminId,   // SubmitterId
+            adminName, // SubmitterName
+            adminEmail // SubmitterEmail
+          );
+        } else {
+          payload = buildNewPayload(
+            "Submitted",
+            adminId,
+            adminName,
+            adminEmail,
+            adminId,
+            adminName,
+            adminEmail
+          );
+        }
+        await sendPayload(payload);
+        setIsLoading(false);
+      }
+      else if (role === "submitter" && reporting_manager_id) {
+        // Existing submitter + manager flow
         const getManagerResponse = await fetch("/server/find_userDetails/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: "get_manager", reporting_manager_id }),
         });
-
         const getManagerResult = await getManagerResponse.json();
 
         if (getManagerResponse.ok && getManagerResult.status === "success") {
@@ -548,14 +586,14 @@ const RequestForms = ({ onFormClose, tripId }) => {
           setStatusMessage(getManagerResult.message || "Could not retrieve manager details.");
           setIsLoading(false);
         }
-      } else {
-        // No manager needed: proceed with submission directly
+      }
+      else {
+        // Submitter without manager or other roles: direct submit
         setStatusMessage("User details retrieved successfully. Submitting form...");
         const sId = submitterData.row_id;
         const sName = submitterData.first_name;
         const sEmail = submitterData.email;
 
-        // Decide payload by presence of tripId
         let payload;
         if (tripId) {
           payload = buildUpdatePayload("Submitted", null, null, null, sId, sName, sEmail);
@@ -563,6 +601,7 @@ const RequestForms = ({ onFormClose, tripId }) => {
           payload = buildNewPayload("Submitted", null, null, null, sId, sName, sEmail);
         }
         await sendPayload(payload);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("API call failed:", error);
@@ -570,6 +609,7 @@ const RequestForms = ({ onFormClose, tripId }) => {
       setIsLoading(false);
     }
   };
+
   // New handler for confirming submission from the popup
 
   const triggerMail = async (submitterEmail, approverEmail) => {
@@ -789,69 +829,69 @@ const RequestForms = ({ onFormClose, tripId }) => {
           )}
           {statusMessage && <div className="status-message">{statusMessage}</div>}
           <div className="button-group">
-          {formData && formData.status === "Draft" ? (
-            <>
+            {formData && formData.status === "Draft" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleDraftSubmit}
+                  className="submit-btn"
+                  disabled={isLoading}
+                >
+                  Save as Draft
+                </button>
+                <button
+                  type="button"
+                  onClick={handleFinalSubmit}
+                  className="submit-btn"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Loading..." : "Save and Submit"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="submit-btn"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : formData ? (
               <button
                 type="button"
-                onClick={handleDraftSubmit}
+                onClick={handleUpdate}
                 className="submit-btn"
                 disabled={isLoading}
               >
-                Save as Draft
+                {isLoading ? "Updating..." : "Update"}
               </button>
-              <button
-                type="button"
-                onClick={handleFinalSubmit}
-                className="submit-btn"
-                disabled={isLoading}
-              >
-                {isLoading ? "Loading..." : "Save and Submit"}
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="submit-btn"
-              >
-                Cancel
-              </button>
-            </>
-          ) : formData ? (
-            <button
-              type="button"
-              onClick={handleUpdate}
-              className="submit-btn"
-              disabled={isLoading}
-            >
-              {isLoading ? "Updating..." : "Update"}
-            </button>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={handleDraftSubmit}
-                className="submit-btn"
-                disabled={isLoading}
-              >
-                Save as Draft
-              </button>
-              <button
-                type="button"
-                onClick={handleFinalSubmit}
-                className="submit-btn"
-                disabled={isLoading}
-              >
-                {isLoading ? "Loading..." : "Save and Submit"}
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="submit-btn"
-              >
-                Cancel
-              </button>
-            </>
-          )}
-        </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleDraftSubmit}
+                  className="submit-btn"
+                  disabled={isLoading}
+                >
+                  Save as Draft
+                </button>
+                <button
+                  type="button"
+                  onClick={handleFinalSubmit}
+                  className="submit-btn"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Loading..." : "Save and Submit"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="submit-btn"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
 
         </form>
       )}
