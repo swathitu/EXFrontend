@@ -363,3 +363,303 @@
     font-size: 13px;
     color: #67748e;
 }
+
+
+/* --- (All previous CSS remains unchanged) --- */
+
+
+/* === NEW: Hotel Details Card Styles === */
+.hotel-details-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.hotel-card {
+    border: 1px solid #e5e8f1;
+    border-radius: 6px;
+    margin-bottom: 16px; /* Space between multiple hotel cards */
+}
+
+.hotel-main-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 16px;
+    gap: 24px;
+}
+
+.hotel-location-col {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-basis: 30%;
+}
+.hotel-location-col .icon-sm {
+    font-size: 20px;
+}
+.location-text {
+    display: flex;
+    flex-direction: column;
+}
+.city-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: #344767;
+}
+
+.hotel-dates-col {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-grow: 1;
+}
+.hotel-date-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+    flex-basis: 50%;
+}
+.date-label {
+    font-size: 13px;
+    color: #67748e;
+}
+.date-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #344767;
+}
+.date-separator {
+    color: #adb5bd;
+    font-size: 24px;
+}
+
+.hotel-comments-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    font-size: 13px;
+    color: #67748e;
+    border-top: 1px solid #e5e8f1;
+}
+
+/* === NEW: Car Rental Card Styles === */
+.car-details-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.car-card {
+    border: 1px solid #e5e8f1;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+.car-main-row {
+    display: flex;
+    align-items: center;
+    padding: 24px 16px;
+    gap: 16px;
+}
+
+.car-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-basis: 25%;
+    flex-shrink: 0;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #344767;
+}
+.info-item .icon-sm {
+    font-size: 16px;
+}
+.info-item-desc {
+    color: #67748e;
+    padding-left: 24px; /* Align with text from rows above */
+}
+
+.car-time-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+.time-label {
+    font-size: 13px;
+    color: #67748e;
+}
+.date-time {
+    font-size: 14px;
+    font-weight: 600;
+    color: #344767;
+}
+.location {
+    font-size: 13px;
+    color: #67748e;
+}
+
+.car-arrow-col {
+    color: #9ca3af;
+}
+
+.car-comments-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    font-size: 13px;
+    color: #67748e;
+    border-top: 1px solid #e5e8f1;
+}
+
+/* === NEW: Bus Card Styles === */
+.bus-details-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.bus-card {
+    border: 1px solid #e5e8f1;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+.bus-main-row {
+    display: flex;
+    align-items: center;
+    padding: 24px 16px;
+    gap: 16px;
+}
+
+.bus-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-basis: 25%;
+    flex-shrink: 0;
+}
+.bus-date-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.bus-date-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #344767;
+}
+.bus-desc {
+    font-size: 13px;
+    color: #67748e;
+    padding-left: 26px; /* Align with date text */
+}
+
+.bus-location-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+.bus-location-label {
+    font-size: 13px;
+    color: #67748e;
+}
+.bus-location-city {
+    font-size: 14px;
+    font-weight: 600;
+    color: #344767;
+}
+
+.bus-arrow-col {
+    color: #9ca3af;
+}
+
+.bus-comments-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    font-size: 13px;
+    color: #67748e;
+    border-top: 1px solid #e5e8f1;
+}
+
+/* === NEW: Train Card Styles (copied from Bus) === */
+.train-details-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.train-card {
+    border: 1px solid #e5e8f1;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+.train-main-row {
+    display: flex;
+    align-items: center;
+    padding: 24px 16px;
+    gap: 16px;
+}
+
+.train-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-basis: 25%;
+    flex-shrink: 0;
+}
+.train-date-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.train-date-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #344767;
+}
+.train-desc {
+    font-size: 13px;
+    color: #67748e;
+    padding-left: 26px; /* Align with date text */
+}
+
+.train-location-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+.train-location-label {
+    font-size: 13px;
+    color: #67748e;
+}
+.train-location-city {
+    font-size: 14px;
+    font-weight: 600;
+    color: #344767;
+}
+
+.train-arrow-col {
+    color: #9ca3af;
+}
+
+.train-comments-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    font-size: 13px;
+    color: #67748e;
+    border-top: 1px solid #e5e8f1;
+}

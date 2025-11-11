@@ -19,7 +19,9 @@ const CalendarIcon = () => (<svg viewBox="0 0 448 512" className="icon-sm" style
 const CommentsIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm" style={{ color: '#67748e' }}><path d="M256 32C114.6 32 0 125.1 0 240c0 49.6 21.4 95 57 130.7C44.5 401.5 32 440 32 440c0 8.8 7.2 16 16 16c5.5 0 10.7-2.8 13.9-7.3c27.1-37.1 55.4-60.6 77.4-75.1c31.3 10.3 64.9 15.9 99.8 15.9c141.4 0 256-93.1 256-208S397.4 32 256 32z"/></svg>);
 const WindowSeatIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm" style={{ color: '#67748e' }}><path d="M384 32H128c-35.3 0-64 28.7-64 64v224c0 35.3 28.7 64 64 64h256c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64zM160 288c-17.7 0-32-14.3-32-32s14.3-32 32-32s32 14.3 32 32s-14.3 32-32 32zm192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32s32 14.3 32 32s-14.3 32-32 32z"/></svg>);
 const MealIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm" style={{ color: '#67748e' }}><path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 464c-114.9 0-208-93.1-208-208S141.1 48 256 48s208 93.1 208 208s-93.1 208-208 208zm-72-208c0 39.8 32.2 72 72 72s72-32.2 72-72s-32.2-72-72-72s-72 32.2-72 72z"/></svg>);
-
+const LocationPinIcon = () => (<svg viewBox="0 0 384 512" className="icon-sm" style={{ color: '#67748e' }}><path d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67a24 24 0 01-43.464 0zM192 256a64 64 0 100-128 64 64 0 000 128z"/></svg>);
+const CarTypeIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm" style={{ color: '#67748e' }}><path d="M18.61 199.39l75.43 14.2c2.47 6.42 7.77 11.72 14.2 14.2l14.2 75.43c2.46 13.06 15.3 21.05 28.36 18.59l259.61-48.79c13.06-2.46 21.05-15.3 18.59-28.36l-14.2-75.43c-2.47-6.42-7.77-11.72-14.2-14.2l-75.43-14.2c-13.06-2.46-21.05-15.3-18.59-28.36l14.2-75.43c2.46-13.06-5.52-25.9-18.59-28.36L132.4 1c-13.06-2.46-25.9 5.52-28.36 18.59l-75.43 399.2c-2.46 13.06 5.52 25.9 18.59 28.36l48.79 9.18c13.06 2.46 25.9-5.52 28.36-18.59l11.79-62.61-40.38-7.59c-13.06-2.46-21.05-15.3-18.59-28.36zM320 224a32 32 0 100-64 32 32 0 000 64zm-128-64a32 32 0 10-64 0 32 32 0 0064 0z"/></svg>);
+const DriverIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm" style={{ color: '#67748e' }}><path d="M256 0c-70.69 0-128 57.31-128 128s57.31 128 128 128 128-57.31 128-128S326.69 0 256 0zm0 224c-53.02 0-96-42.98-96-96s42.98-96 96-96 96 42.98 96 96-42.98 96-96 96zm240 256h-16c-18.51 0-34.61-12.27-39.22-30.08C430.82 402.04 391.82 384 352 384h-16v-32h16c26.47 0 50.73 8.35 70.31 23.01C427.7 348.6 448 316.51 448 280c0-61.75-50.25-112-112-112h-160c-61.75 0-112 50.25-112 112 0 36.51 20.3 68.6 51.69 95.01C139.27 360.35 163.53 352 192 352h16v32h-16c-39.82 0-78.82 18.04-108.78 65.92C78.61 467.73 62.51 480 44 480H28c-15.46 0-28 12.54-28 28v2c0 1.69.14 3.36.4 5 1.48 9.25 9.77 15 19.6 15h432c9.83 0 18.12-5.75 19.6-15 .26-1.64.4-3.31.4-5v-2c0-15.46-12.54-28-28-28z"/></svg>);
 /* ---------------- Tabs ---------------- */
 const ALL_TABS = [
  { key: "flight", label: "Flight", icon: <FlightIcon /> },
@@ -54,11 +56,43 @@ const mapFlights = (arr = []) => arr.map((f) => ({
     description: f.DESCRIPTION || "", // For comments
 }));
 
+//Hotel Mapper
+const mapHotels = (arr = []) => arr.map((h) => ({
+    locationCity: h.HOTEL_ARR_CITY || "N/A",
+    checkInDate: toDisplayDate(h.HOTEL_ARR_DATE),
+    checkInTime: h.HOTEL_ARR_TIME || "00:00",
+    checkOutDate: toDisplayDate(h.HOTEL_DEP_DATE),
+    checkOutTime: h.HOTEL_DEP_TIME || "00:00",
+    description: h.DESCRIPTION || ""
+}));
 
-const mapHotels = (arr = []) => arr.map((h) => ({ location: h.HOTEL_ARRV_CITY || "", checkIn:  { date: toDisplayDate(h.HOTEL_ARRV_DATE)}, checkOut: { date: toDisplayDate(h.HOTEL_DEP_DATE)} }));
-const mapCars = (arr = []) => arr.map((c) => ({ carType: c.CAR_TYPE || "", pickUp:  { date: toDisplayDate(c.CAR_DEP_DATE), location: c.CAR_DEP_CITY || "" }, dropOff: { date: toDisplayDate(c.CAR_ARRV_DATE), location: c.CAR_ARRV_CITY || "" } }));
-const mapBuses = (arr = []) => arr.map((b) => ({ from: { city: b.BUS_DEP_CITY || "", date: toDisplayDate(b.BUS_DEP_DATE) }, to: { city: b.BUS_ARRV_CITY || "", date: toDisplayDate(b.BUS_ARRV_DATE) } }));
-const mapTrains = (arr = []) => arr.map((t) => ({ from: { city: t.TRAIN_DEP_CITY || "", date: toDisplayDate(t.TRAIN_DEP_DATE) }, to: { city: t.TRAIN_ARRV_CITY || "", date: toDisplayDate(t.TRAIN_ARRV_DATE) } }));
+//car mapper
+const mapCars = (arr = []) => arr.map((c) => ({
+    carType: c.CAR_TYPE || "N/A",
+    driver: c.CAR_DRIVER ? (c.CAR_DRIVER.toLowerCase() === 'yes' ? 'Yes' : 'No') : 'N/A',
+    description: c.DESCRIPTION || "",
+    pickUpDate: toDisplayDate(c.CAR_DEP_DATE),
+    pickUpTime: c.CAR_DEP_TIME || "00:00",
+    pickUpLocation: c.CAR_DEP_CITY || "",
+    dropOffDate: toDisplayDate(c.CAR_ARR_DATE),
+    dropOffTime: c.CAR_ARR_TIME || "00:00",
+    dropOffLocation: c.CAR_ARR_CITY || ""
+}));
+
+const mapBuses = (arr = []) => arr.map((b) => ({
+    depDate: toDisplayDate(b.BUS_DEP_DATE),
+    depCity: b.BUS_DEP_CITY || "N/A",
+    arrCity: b.BUS_ARR_CITY || "N/A",
+    description: b.DESCRIPTION || "" // This is 'Meeting1', 'Meeting2'
+}));
+
+const mapTrains = (arr = []) => arr.map((t) => ({
+    depDate: toDisplayDate(t.TRAIN_DEP_DATE),
+    depCity: t.TRAIN_DEP_CITY || "N/A",
+    arrCity: t.TRAIN_ARR_CITY || "N/A",
+    description: t.DESCRIPTION || "" // This is 'Testing', 'Testing2'
+}));
+
 
 
 const deriveDuration = (a = {}) => {
@@ -213,46 +247,173 @@ const FlightDetails = ({ bookings }) => {
         </div>
     );
 };
+//Hotel Details Component
+const HotelDetails = ({ bookings }) => {
+    if (!bookings || bookings.length === 0) {
+        return <div className="itinerary-item">No hotel details available.</div>;
+    }
 
-const HotelDetails = ({ bookings }) => bookings.map((item, i) => (
-    <div className="itinerary-item hotel-item" key={`hot-${i}`}>
-        <div className="itinerary-date"><HotelIcon /> {item.location}</div>
-        <div className="itinerary-leg">
-            <div className="date-block"><div className="font-xs text-muted">Check-in</div><div>{item.checkIn.date}</div></div>
-            <div className="date-block"><div className="font-xs text-muted">Check-out</div><div>{item.checkOut.date}</div></div>
+    return (
+        <div className="hotel-details-container">
+            {bookings.map((item, i) => (
+                <div className="hotel-card" key={`hot-${i}`}>
+                    <div className="hotel-main-row">
+                        <div className="hotel-location-col">
+                            <LocationPinIcon />
+                            <div className="location-text">
+                                <span className="city-name">{item.locationCity}</span>
+                                {/* Secondary location like 'Near India Gate' is not in the provided data */}
+                            </div>
+                        </div>
+                        <div className="hotel-dates-col">
+                            <div className="hotel-date-group">
+                                <span className="date-label">Check-in</span>
+                                <span className="date-value">{item.checkInDate}, {item.checkInTime}</span>
+                            </div>
+                            <span className="date-separator">-</span>
+                            <div className="hotel-date-group">
+                                <span className="date-label">Check-out</span>
+                                <span className="date-value">{item.checkOutDate}, {item.checkOutTime}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {item.description && (
+                        <div className="hotel-comments-row">
+                            <CommentsIcon />
+                            <span>{item.description}</span>
+                        </div>
+                    )}
+                </div>
+            ))}
         </div>
-    </div>
-));
-const CarDetails = ({ bookings }) => bookings.map((item, i) => (
-    <div className="itinerary-item car-item" key={`car-${i}`}>
-      <div className="itinerary-date"><div className="font-xs text-muted">Car Type: {item.carType}</div></div>
-      <div className="itinerary-leg">
-          <div className="date-block"><div className="font-xs text-muted">Pick-Up</div><div>{item.pickUp.date} at {item.pickUp.location}</div></div>
-          <div className="date-block"><div className="font-xs text-muted">Drop-Off</div><div>{item.dropOff.date} at {item.dropOff.location}</div></div>
-      </div>
-    </div>
-));
-const BusDetails = ({ bookings }) => bookings.map((item, i) => (
-    <div className="itinerary-item" key={`bus-${i}`}>
-        <div className="itinerary-date"><BusIcon /> Bus</div>
-        <div className="itinerary-leg">
-            <div className="date-block"><div className="font-xs text-muted">From {item.from.city}</div><div>{item.from.date}, {item.from.time}</div></div>
-            <div className="arrow"><ArrowIcon /></div>
-            <div className="date-block"><div className="font-xs text-muted">To {item.to.city}</div><div>{item.to.date}, {item.to.time}</div></div>
-        </div>
-    </div>
-));
-const TrainDetails = ({ bookings }) => bookings.map((item, i) => (
-    <div className="itinerary-item" key={`train-${i}`}>
-        <div className="itinerary-date"><TrainIcon /> Train</div>
-        <div className="itinerary-leg">
-            <div className="date-block"><div className="font-xs text-muted">From {item.from.city}</div><div>{item.from.date}, {item.from.time}</div></div>
-            <div className="arrow"><ArrowIcon /></div>
-            <div className="date-block"><div className="font-xs text-muted">To {item.to.city}</div><div>{item.to.date}, {item.to.time}</div></div>
-        </div>
-    </div>
-));
+    );
+};
 
+//car details component
+const CarDetails = ({ bookings }) => {
+    if (!bookings || bookings.length === 0) {
+        return <div className="itinerary-item">No car rental details available.</div>;
+    }
+
+    return (
+        <div className="car-details-container">
+            {bookings.map((item, i) => (
+                <div className="car-card" key={`car-${i}`}>
+                    <div className="car-main-row">
+                        <div className="car-info-col">
+                            <div className="info-item">
+                                <CarTypeIcon />
+                                <span>Car Type : {item.carType}</span>
+                            </div>
+                            <div className="info-item">
+                                <DriverIcon />
+                                <span>Driver : {item.driver}</span>
+                            </div>
+                            {item.description && (
+                                <div className="info-item info-item-desc">
+                                    <span>{item.description}</span>
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="car-time-col">
+                            <span className="time-label">Pick-Up</span>
+                            <span className="date-time">{item.pickUpDate}, {item.pickUpTime}</span>
+                            <span className="location">{item.pickUpLocation}</span>
+                        </div>
+                        
+                        <div className="car-arrow-col">
+                            <ArrowIcon />
+                        </div>
+
+                        <div className="car-time-col">
+                            <span className="time-label">Drop-Off</span>
+                            <span className="date-time">{item.dropOffDate}, {item.dropOffTime}</span>
+                            <span className="location">{item.dropOffLocation}</span>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+
+const BusDetails = ({ bookings }) => {
+    if (!bookings || bookings.length === 0) {
+        return <div className="itinerary-item">No bus details available.</div>;
+    }
+
+    return (
+        <div className="bus-details-container">
+            {bookings.map((item, i) => (
+                <div className="bus-card" key={`bus-${i}`}>
+                    <div className="bus-main-row">
+                        <div className="bus-info-col">
+                            <div className="bus-date-row">
+                                <CalendarIcon />
+                                <span className="bus-date-text">{item.depDate}</span>
+                            </div>
+                            <span className="bus-desc">{item.description}</span>
+                        </div>
+
+                        <div className="bus-location-col">
+                            <span className="bus-location-label">Departure</span>
+                            <span className="bus-location-city">{item.depCity}</span>
+                        </div>
+                        
+                        <div className="bus-arrow-col">
+                            <ArrowIcon />
+                        </div>
+
+                        <div className="bus-location-col">
+                            <span className="bus-location-label">Arrival</span>
+                            <span className="bus-location-city">{item.arrCity}</span>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const TrainDetails = ({ bookings }) => {
+    if (!bookings || bookings.length === 0) {
+        return <div className="itinerary-item">No train details available.</div>;
+    }
+
+    return (
+        <div className="train-details-container">
+            {bookings.map((item, i) => (
+                <div className="train-card" key={`train-${i}`}>
+                    <div className="train-main-row">
+                        <div className="train-info-col">
+                            <div className="train-date-row">
+                                <CalendarIcon />
+                                <span className="train-date-text">{item.depDate}</span>
+                            </div>
+                            <span className="train-desc">{item.description}</span>
+                        </div>
+
+                        <div className="train-location-col">
+                            <span className="train-location-label">Departure</span>
+                            <span className="train-location-city">{item.depCity}</span>
+                        </div>
+                        
+                        <div className="train-arrow-col">
+                            <ArrowIcon />
+                        </div>
+
+                        <div className="train-location-col">
+                            <span className="train-location-label">Arrival</span>
+                            <span className="train-location-city">{item.arrCity}</span>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
 
 const BookingStatus = ({ trip }) => {
  const availableBookings = ALL_TABS.filter((t) => trip.bookings[t.key]?.length > 0);
