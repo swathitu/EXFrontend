@@ -1,190 +1,284 @@
 import React, { useState, useEffect } from "react";
 import "./TrainDesk.css";
+import OptionForm from "../OptionForm/OptionForm";
 
-// --- Constant Dropdown Options (Unchanged) ---
 const AVAILABLE_ACTION_STATUSES = ["Cancel", "On Hold"];
 const ASSIGNED_TO_OPTIONS = ["Unassigned", "Swathi", "Suresh", "Admin Team", "Finance"];
 
-// --- Helper Functions (Unchanged) ---
 const getModeAvatar = (mode) => {
-    switch (mode.toLowerCase()) {
-        case 'flight':
-            return { avatar: 'FL', name: 'Flight' }; 
-        case 'car':
-            return { avatar: 'CA', name: 'Car' }; // This is what we expect to see
-        case 'train':
-            return { avatar: 'TR', name: 'Train' };
-        case 'bus':
-            return { avatar: 'BU', name: 'Bus' };
-        case 'hotel':
-            return { avatar: 'HO', name: 'Hotel' };
-        default:
-            return { avatar: '??', name: 'N/A' };
-    }
+  switch (mode.toLowerCase()) {
+    case "flight":
+      return { avatar: "FL", name: "Flight" };
+    case "car":
+      return { avatar: "CA", name: "Car" };
+    case "train":
+      return { avatar: "TR", name: "Train" };
+    case "bus":
+      return { avatar: "BU", name: "Bus" };
+    case "hotel":
+      return { avatar: "HO", name: "Hotel" };
+    default:
+      return { avatar: "??", name: "N/A" };
+  }
 };
 
-// --- MODIFIED: Helper Function to Extract Itinerary Details (Now prioritizing Car) ---
 const getItineraryDetails = (associatedData) => {
-    // ⭐ MODIFIED: Check for CarData and return Car details
-    if (associatedData.TrainData && associatedData.TrainData.length > 0) {
-        const train = associatedData.TrainData[0];
-        return {
-            mode: 'Train',
-            itinerary: `${train.TRAIN_DEP_CITY} - ${train.TRAIN_ARR_CITY}`,
-            startDate: train.TRAIN_DEP_DATE
-        };
-    }
-    
-    // Keeping this section clean since this desk should only focus on CarData
-    return { mode: 'N/A', itinerary: 'N/A', startDate: 'N/A' };
+  if (associatedData.TrainData && associatedData.TrainData.length > 0) {
+    const train = associatedData.TrainData[0];
+    return {
+      mode: "Train",
+      itinerary: `${train.TRAIN_DEP_CITY} - ${train.TRAIN_ARR_CITY}`,
+      startDate: train.TRAIN_DEP_DATE,
+      subtableRowId: train.ROWID,
+      agentRowId: train.AGENT_ID || null,
+      agentEmail: train.AGENT_EMAIL || null,
+      agentName: train.AGENT_NAME || null,
+    };
+  }
+  return { mode: "N/A", itinerary: "N/A", startDate: "N/A", subtableRowId: null };
 };
 
-// ---------------------------------------------
-// --- React Component: FlightDesk 
-// ---------------------------------------------
-const TrainDesk = () => { 
-    const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
+const TrainDesk = () => {
+  const [requests, setRequests] = useState([]);
+  const [agents, setAgents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingRequestId, setLoadingRequestId] = useState(null);
+  const [savedEmail, setSavedEmail] = useState(null);
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
-    useEffect(() => {
-        const fetchRequests = async () => {
-            try {
-                const response = await fetch('/server/travelDesk_data/'); 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const apiData = await response.json();
-                const rawData = apiData.data || [];
+  useEffect(() => {
+    const emailFromStorage = localStorage.getItem("userEmail");
+    setSavedEmail(emailFromStorage);
+  }, []);
 
-                // ⭐ MODIFIED CORE LOGIC: Filter data to keep ONLY requests with CarData
-                const trainRequests = rawData.filter(trip => 
-                    trip.associatedData && 
-                    trip.associatedData.TrainData && // Check for CarData instead of BusData
-                    trip.associatedData.TrainData.length > 0
-                );
-                
-                // Process ONLY the filtered Car requests
-                const processedData = trainRequests.map(trip => {
-                    const details = getItineraryDetails(trip.associatedData);
-                    return {
-                        id: trip.ROWID,
-                        requestType: details.mode,
-                        requestedBy: trip.SUBMITTER_NAME, 
-                        tripNumber: trip.TRIP_NUMBER || 'N/A',
-                        itinerary: details.itinerary,
-                        startDate: details.startDate,
-                        
-                        apiStatus: trip.STATUS, 
-                        status: 'Open', 
-                        assignedTo: 'Unassigned', 
-                    };
-                });
-                
-                setRequests(processedData);
-            } catch (error) {
-                console.error("Failed to fetch requests:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        
-        fetchRequests();
-    }, []);
+  useEffect(() => {
+    fetch("/server/getagent_sendmail/agent")
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (data.status === "success" && data.agents) {
+          setAgents(data.agents);
+        } else {
+          console.error("Error fetching agents:", data.message || data);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch agents:", err));
+  }, []);
 
-    const handleDropdownChange = (id, field, value) => {
-        setRequests(prevRequests => 
-            prevRequests.map(req => 
-                req.id === id ? { ...req, [field]: value } : req
-            )
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const response = await fetch("/server/travelDesk_data/");
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const apiData = await response.json();
+        const rawData = apiData.data || [];
+
+        const trainRequests = rawData.filter(
+          (trip) =>
+            trip.associatedData &&
+            trip.associatedData.TrainData &&
+            trip.associatedData.TrainData.length > 0
         );
-        console.log(`Updated Request ID ${id} - ${field}: ${value}`);
+
+        const processedData = trainRequests.map((trip) => {
+          const details = getItineraryDetails(trip.associatedData);
+          return {
+            id: trip.ROWID,
+            requestType: details.mode,
+            requestedBy: trip.SUBMITTER_NAME || "N/A",
+            tripNumber: trip.TRIP_NUMBER || "N/A",
+            itinerary: details.itinerary,
+            startDate: details.startDate,
+            apiStatus: trip.STATUS || "N/A",
+            status: "Open",
+            assignedTo: details.agentName
+              ? `${details.agentName} (${details.agentEmail})`
+              : "Unassigned",
+            agentRowId: details.agentRowId,
+            agentEmail: details.agentEmail,
+            agentName: details.agentName,
+            subtableRowId: details.subtableRowId,
+          };
+        });
+
+        setRequests(processedData);
+      } catch (error) {
+        console.error("Failed to fetch requests:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRequests();
+  }, []);
+
+  const sendApprovalEmail = async (fromEmail, toEmail, payload) => {
+    if (!fromEmail || !toEmail) {
+      console.error("Both fromEmail and toEmail are required");
+      return;
+    }
+    try {
+      const response = await fetch("/server/getagent_sendmail/send_email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from_email: fromEmail,
+          to_email: toEmail,
+          ...payload,
+        }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Email send failed:", errorData);
+        return;
+      }
+      const data = await response.json();
+      console.log("Email sent successfully:", data);
+    } catch (error) {
+      console.error("Error sending approval email:", error);
+    }
+  };
+
+  const handleRowClick = (request) => {
+    setSelectedRequest(request);
+  };
+
+  const handleAssignedToChange = async (requestId, agentRowId) => {
+    const selectedAgent = agents.find((a) => a.row_id === agentRowId);
+    const selectedRequest = requests.find((req) => req.id === requestId);
+    if (!selectedAgent || !selectedRequest) return;
+
+    setLoadingRequestId(requestId);
+
+    const payload = {
+      ROWID: selectedRequest.subtableRowId,
+      tripType: selectedRequest.requestType,
+      id: selectedRequest.id,
+      requestedBy: selectedRequest.requestedBy,
+      tripNumber: selectedRequest.tripNumber,
+      itinerary: selectedRequest.itinerary,
+      startDate: selectedRequest.startDate,
+      apiStatus: selectedRequest.apiStatus,
+      status: selectedRequest.status,
+      assignedTo: selectedAgent.row_id,
+      agentRowId: selectedAgent.row_id,
+      agentEmail: selectedAgent.email,
+      agentName: selectedAgent.first_name,
     };
 
-    if (loading) {
-        // ⭐ MODIFIED: Loading message
-        return <h5>Loading Train Requests...</h5>;
+    try {
+      await sendApprovalEmail(savedEmail, selectedAgent.email, payload);
+
+      setRequests((prev) =>
+        prev.map((req) =>
+          req.id === requestId
+            ? {
+                ...req,
+                assignedTo: `${selectedAgent.first_name} (${selectedAgent.email})`,
+                agentRowId: selectedAgent.row_id,
+                agentEmail: selectedAgent.email,
+                agentName: selectedAgent.first_name,
+              }
+            : req
+        )
+      );
+    } catch (error) {
+      console.error("Error during agent assignment:", error);
+    } finally {
+      setLoadingRequestId(null);
     }
+  };
 
-    if (requests.length === 0) {
-        // ⭐ MODIFIED: No requests message
-        return <h5>No pending **Train** requests found.</h5>; 
-    }
-
-    return (
-        <div className="all-requests-container">
-            {/* ⭐ MODIFIED: Heading */}
-            <h3>Train Requests </h3>
-            <table className="requests-table">
-                <thead>
-                    <tr>
-                        <th>Request Type</th>
-                        <th>Requested By</th>
-                        <th>Trip #</th>
-                        <th>Itinerary</th>
-                        <th>Start Date</th>
-                        <th>Assigned To</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {requests.map((item) => {
-                        const mode = getModeAvatar(item.requestType);
-                        return (
-                            <tr key={item.id}>
-                                <td className="request-type-cell" title={`Mode: ${mode.name}`}>
-                                    {/* <span className={`mode-avatar mode-avatar-${item.requestType.toLowerCase()}`}>
-                                        {mode.avatar}
-                                    </span> */}
-                                    <span className="mode-name">
-                                        {mode.name}
-                                    </span>
-                                    <span className="option-available-text">
-                                        option available
-                                    </span>
-                                </td>
-                                
-                                <td>{item.requestedBy}</td>
-                                <td>{item.tripNumber}</td>
-                                <td>{item.itinerary}</td>
-                                <td>{item.startDate}</td>
-
-                                {/* Assigned To Dropdown (Unchanged) */}
-                                <td>
-                                    <select 
-                                        value={item.assignedTo} 
-                                        onChange={(e) => handleDropdownChange(item.id, 'assignedTo', e.target.value)}
-                                        className="assigned-to-select"
-                                    >
-                                        {ASSIGNED_TO_OPTIONS.map(option => (
-                                            <option key={option} value={option}>{option}</option>
-                                        ))}
-                                    </select>
-                                </td>
-
-                                {/* Status Dropdown (Unchanged) */}
-                                <td>
-                                    <select 
-                                        value={item.status} 
-                                        onChange={(e) => handleDropdownChange(item.id, 'status', e.target.value)}
-                                        className={`status-select status-${item.status.toLowerCase().replace(' ', '-')}`}
-                                    >
-                                        <option value="Open">Open</option>
-                                        <option disabled>––––––––</option> 
-
-                                        {AVAILABLE_ACTION_STATUSES
-                                            .filter(option => option !== item.status) 
-                                            .map(option => (
-                                                <option key={option} value={option}>{option}</option>
-                                            ))}
-                                    </select>
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-        </div>
+  const handleDropdownChange = (requestId, field, value) => {
+    setRequests((prevRequests) =>
+      prevRequests.map((req) =>
+        req.id === requestId ? { ...req, [field]: value } : req
+      )
     );
+    console.log(`Updated Request ID ${requestId} - ${field}: ${value}`);
+  };
+
+  if (loading) return <h5>Loading Train Requests...</h5>;
+  if (requests.length === 0) return <h5>No pending Train requests found.</h5>;
+
+  return (
+    <div className="all-requests-container">
+      <h3>Train Requests 🚆</h3>
+      <table className="requests-table">
+        <thead>
+          <tr>
+            <th>Request Type</th>
+            <th>Requested By</th>
+            <th>Trip #</th>
+            <th>Itinerary</th>
+            <th>Start Date</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {requests.map((item) => {
+            const mode = getModeAvatar(item.requestType);
+            return (
+              <tr
+                key={item.id}
+                onClick={() => handleRowClick(item)}
+                style={{ cursor: "pointer" }}
+              >
+                <td title={`Mode: ${mode.name}`}>
+                  <span className="mode-name">{mode.name}</span>
+                  <span className="option-available-text">option available</span>
+                </td>
+                <td>{item.requestedBy}</td>
+                <td>{item.tripNumber}</td>
+                <td>{item.itinerary}</td>
+                <td>{item.startDate}</td>
+                <td>
+                  {loadingRequestId === item.id ? (
+                    <span className="loading-text">Sending...</span>
+                  ) : (
+                    <select
+                      value={item.agentRowId || ""}
+                      onChange={(e) => handleAssignedToChange(item.id, e.target.value)}
+                      className="assigned-to-select"
+                      disabled={loadingRequestId === item.id}
+                    >
+                      <option value="">Unassigned</option>
+                      {agents.map((agent) => (
+                        <option key={agent.row_id} value={agent.row_id}>
+                          {agent.first_name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </td>
+                <td>
+                  <select
+                    value={item.status}
+                    onChange={(e) => handleDropdownChange(item.id, "status", e.target.value)}
+                    className={`status-select status-${item.status.toLowerCase().replace(" ", "-")}`}
+                  >
+                    <option value="Open">Open</option>
+                    <option disabled>––––––––</option>
+                    {AVAILABLE_ACTION_STATUSES.filter((o) => o !== item.status).map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      {selectedRequest && (
+        <OptionForm request={selectedRequest} onClose={() => setSelectedRequest(null)} />
+      )}
+    </div>
+  );
 };
 
 export default TrainDesk;

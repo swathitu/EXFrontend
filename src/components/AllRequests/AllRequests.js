@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./AllRequests.css";
+import OptionForm from "../OptionForm/OptionForm";
 
 const AVAILABLE_ACTION_STATUSES = ["Cancel", "On Hold"];
 
@@ -25,8 +26,8 @@ const getItineraryDetails = (associatedData) => {
     const hotel = associatedData.HotelData[0];
     return {
       mode: "Hotel",
-      itinerary: hotel.HOTEL_CITY,
-      startDate: hotel.HOTEL_CHECKIN_DATE,
+      itinerary: `${hotel.HOTEL_DEP_CITY} - ${hotel.HOTEL_ARR_CITY}`,
+      startDate: hotel.HOTEL_DEP_DATE,
       subtableRowId: hotel.ROWID,
     };
   }
@@ -75,6 +76,7 @@ const AllRequests = () => {
   const [loading, setLoading] = useState(true);
   const [loadingRequestId, setLoadingRequestId] = useState(null);
   const [savedEmail, setSavedEmail] = useState(null);
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
   useEffect(() => {
     const emailFromStorage = localStorage.getItem("userEmail");
@@ -181,6 +183,11 @@ const AllRequests = () => {
     }
   };
 
+  const handleRowClick = (request) => {
+    console.log("Row clicked:", request);
+    setSelectedRequest(request);
+  };
+
   const handleAssignedToChange = async (requestId, agentRowId) => {
     const selectedAgent = agents.find((a) => a.row_id === agentRowId);
     const selectedRequest = requests.find((req) => req.id === requestId);
@@ -249,7 +256,10 @@ const AllRequests = () => {
           {requests.map((item) => {
             const mode = getModeAvatar(item.requestType);
             return (
-              <tr key={item.id}>
+              <tr key={item.id}
+                onClick={() => handleRowClick(item)}
+                style={{ cursor: "pointer" }}
+              >
                 <td title={`Mode: ${mode.name}`}>
                   <span className="mode-name">{mode.name}</span>
                   <span className="option-available-text">option available</span>
@@ -265,23 +275,29 @@ const AllRequests = () => {
                     <select
                       value={item.agentRowId || ""}
                       onChange={(e) => handleAssignedToChange(item.id, e.target.value)}
-                      className="assigned-to-select"
+                      onClick={e => e.stopPropagation()}  // Stop row click here
+                      className="assigned-to-select1"
                       disabled={loadingRequestId === item.id}
                     >
-                      <option value="">Unassigned</option>
+                      <option value=""> Unassigned</option>
                       {agents.map((agent) => (
                         <option key={agent.row_id} value={agent.row_id}>
-                          {agent.first_name} 
+                          {agent.first_name}
                         </option>
                       ))}
                     </select>
                   )}
                 </td>
+
                 <td>
                   <select
                     value={item.status}
+                    onClick={e => e.stopPropagation()}  // Also stop row click here
                     onChange={(e) => {
-                      // Handle status change if needed
+                      // Add inline status update logic here if needed
+                      // Example: update locally or send API request
+                      // For now, you can console.log or add a handler
+                      console.log(`Status changed for request ${item.id}:`, e.target.value);
                     }}
                     className={`status-select status-${item.status.toLowerCase().replace(" ", "-")}`}
                   >
@@ -294,11 +310,18 @@ const AllRequests = () => {
                     ))}
                   </select>
                 </td>
+
               </tr>
             );
           })}
         </tbody>
       </table>
+      {selectedRequest && (
+        <OptionForm
+          request={selectedRequest}
+          onClose={() => setSelectedRequest(null)}
+        />
+      )}
     </div>
   );
 };

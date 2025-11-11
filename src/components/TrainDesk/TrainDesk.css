@@ -121,19 +121,20 @@
     background-position: right 8px center;
     background-size: 10px;
     padding-right: 25px;
+    border:none;
 }
 
 .status-select {
-    font-weight: bold;
+    font-weight: normal;
     min-width: 100px;
 }
 
-.status-select.status-open {
+/* .status-select.status-open {
     color: #28a745; 
     border-color: #28a745;
-}
+} */
 
-.status-select.status-on-hold {
+/* .status-select.status-on-hold {
     color: #ffc107; 
     border-color: #ffc107;
 }
@@ -141,4 +142,4 @@
 .status-select.status-cancel {
     color: #dc3545; 
     border-color: #dc3545;
-}
+} */
