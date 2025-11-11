@@ -7,6 +7,7 @@
     box-sizing: border-box;
     width: 100%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin:20px;
 }
 
 .all-requests-container h3 {
@@ -104,7 +105,7 @@
 }
 
 /* --- Dropdown Styles (Unchanged) --- */
-.assigned-to-select {
+.assigned-to-select1 {
   padding: 6px 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -119,6 +120,7 @@
   background-position: right 8px center;
   background-size: 10px;
   padding-right: 25px;
+  border:none;
 
   width: 100px;   /* Limit max width */
   white-space: nowrap; /* Prevent dropdown content wrapping */
@@ -132,7 +134,7 @@
   min-width: 100px;
 }
 
-.status-select.status-open {
+/* .status-select.status-open {
     color: #28a745; 
     border-color: #28a745;
 }
@@ -145,7 +147,7 @@
 .status-select.status-cancel {
     color: #dc3545; 
     border-color: #dc3545;
-}
+} */
 .loading-text {
   color: #007bff;
   font-style: italic;
