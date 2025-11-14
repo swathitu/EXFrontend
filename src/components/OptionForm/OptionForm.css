@@ -1,0 +1,316 @@
+.flight-request-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #fff;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+}
+
+.header1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.h3 {
+    font-size: 14px;
+    border: none;
+    margin-bottom: 5px;
+}
+
+.h3-head {
+    gap: 0px;
+}
+
+.p3 {
+    margin-bottom: 0px;
+}
+
+.option-p {
+    margin-top: 1px;
+    color: #2d3f73;
+    font-size: 12px;
+}
+
+.header-actions button {
+    margin-left: 10px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-icon {
+    background: transparent;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.status.open {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.main-content1 {
+    display: flex;
+    flex: 1;
+    gap: 24px;
+    width: 100%;
+}
+
+/* Left Section Style */
+.left-section {
+    flex: 4 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Grouped sections container for vertical stacking */
+.grouped-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 70%;
+}
+
+/* User info & tabs remain as existing styles */
+
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.user1 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.assigned label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.assigned select {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+/* Tabs */
+.tabs {
+    margin-bottom: 20px;
+}
+
+.tabs button {
+    margin-right: 10px;
+    padding: 10px 16px;
+    border: none;
+    background: #e2e6ea;
+    cursor: pointer;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.tabs button.active {
+    background: #007bff;
+    color: #fff;
+}
+
+/* Flight Card: horizontal layout for all request types */
+.flight-card {
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    /* horizontal layout */
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    /* spacing between sections */
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+/* For Car requests: */
+.left-section-extra-info {
+    flex-basis: 180px;
+    /* fixed width for info column */
+    display: flex;
+    font-size: 14px;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.middle-section-pickup-dropoff {
+    display: flex;
+    gap: 14px;
+}
+
+.middle-section-pickup-dropoff p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.middle-section-route {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.mid1 {
+    display: flex;
+    gap: 4px;
+    flex-direction: column;
+}
+
+.right-section-action {
+    flex-basis: 150px;
+    /* fixed width for button area */
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+}
+
+/* Typical for other request types */
+.left-side {
+    flex-basis: 120px;
+    /* date section */
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.middle-sided {
+    flex: 1;
+    /* city route with arrow is flexible */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.middle-sided h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #444;
+}
+
+.arrow {
+    font-size: 18px;
+    color: #777;
+    user-select: none;
+}
+
+.option-buttons {
+    position: relative;
+}
+
+.add-option-toggle {
+    background-color: #007bff;
+    border: none;
+    padding: 8px 12px;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Dropdown menu for the options buttons */
+.add-option-menu {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 150px;
+    z-index: 1000;
+}
+
+.add-option-menu button {
+    padding: 10px 15px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: none;
+    font-size: 14px;
+    cursor: pointer;
+    color: #333;
+}
+
+.add-option-menu button:hover {
+    background-color: #f0f0f0;
+}
+
+/* Comments Section */
+.comments p {
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 15px;
+    color: #333;
+}
+
+/* Sidebar */
+.sidebar2 {
+    flex: 1;
+    border-left: 1px solid #ccc;
+    padding-left: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar1 p {
+    margin: 6px 0;
+    font-size: 14px;
+    color: #444;
+}
+
+.traveler-details {
+    margin-top: 20px;
+    color: #d9534f;
+    font-weight: 600;
+}

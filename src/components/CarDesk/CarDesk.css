@@ -128,7 +128,7 @@
     min-width: 100px;
 }
 
-.status-select.status-open {
+/* .status-select.status-open {
     color: #28a745; 
     border-color: #28a745;
 }
@@ -141,4 +141,4 @@
 .status-select.status-cancel {
     color: #dc3545; 
     border-color: #dc3545;
-}
+} */
