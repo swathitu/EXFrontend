@@ -36,6 +36,7 @@ import CarDesk from "./components/CarDesk/CarDesk";
 import FlightDesk from "./components/FlightDesk/FlightDesk";
 import HotelDesk from "./components/HotelDesk/HotelDesk";
 import TrainDesk from "./components/TrainDesk/TrainDesk"
+import Trips from "./components/Trips/Trips";
 
 
 // ---------------------------------------------
@@ -259,22 +260,16 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isTripsApproverPage = location.pathname === "/trips-approver";
-  const isTripDetailView = location.pathname.startsWith("/expenseDataView/");
   const isTripData = location.pathname.startsWith("/trip-data");
   const isApproverDataView = location.pathname.startsWith(
     "/approver-trip-data"
   );
 
-const needsFullPageLayout = isTripData || isApproverDataView || isTripDetailView || isTripsApproverPage;
-const noScrollMain = isTripData || isTripDetailView || isTripsApproverPage;
-
   const contentCardClassNames = [
     "content-card",
-    // This applies your role-based class (e.g., for themes)
-    currentRole === ROLES.ADMIN ? "content-card-admin" : "content-card-ta",
-    // This *also* applies the layout class when needed
-    needsFullPageLayout ? "content-card--full-page" : ""
+    isTripData ? "tdv-full-bleed" : "",
+    currentRole === ROLES.ADMIN ? "content-card-admin" : "content-card-ta"
+    // Add other roles here if needed
   ].join(" ").trim();
 
   const handleAddFromSidebar = (key) => {
@@ -300,6 +295,7 @@ const noScrollMain = isTripData || isTripDetailView || isTripsApproverPage;
     else if (key === "carDesk") navigate("/traveldesk/carDesk");
     else if (key === "busDesk") navigate("/traveldesk/busDesk");
     else if (key === "trainDesk") navigate("/traveldesk/trainDesk");
+    else if (key === 'trips') navigate("/trips")
 
   };
 
@@ -329,7 +325,7 @@ const noScrollMain = isTripData || isTripDetailView || isTripsApproverPage;
 
       
 
-     <main className={`main ${noScrollMain ? "main--no-scroll" : ""}`}>
+      <main className={`main ${isApproverDataView ? "main--no-scroll" : ""}`}>
         <div className={contentCardClassNames}>
        
           <Routes>
@@ -367,6 +363,18 @@ const noScrollMain = isTripData || isTripDetailView || isTripsApproverPage;
                   <Trip />
                 </RequireRole>
               }
+            />
+
+            <Route 
+            path='/trips'
+            element={
+              <RequireRole
+              allow={[ ROLES.ADMIN]}
+                  currentRole={currentRole}
+              >
+                <Trips/>
+              </RequireRole>
+            }
             />
 
             {/* My approvals: approver only */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaCalendarAlt, FaEllipsisH, FaMapMarkerAlt, FaUser, FaCar } from "react-icons/fa";
 import "./TripOverView.css"
 
 
@@ -98,10 +99,27 @@ const transformApiData = (rawTripData) => {
                         date: segmentData.FLIGHT_DEP_DATE || 'Date N/A',
                         from: getCityData(segmentData.FLIGHT_DEP_CITY),
                         to: getCityData(segmentData.FLIGHT_ARR_CITY),
-                        comments: `Departure: ${segmentData.FLIGHT_DEP_TIME || 'N/A'}`,
+
+                        // Flight-specific fields matching your mapFlights keys
+                        depDate: segmentData.FLIGHT_DEP_DATE || 'N/A',
+                        depTime: segmentData.FLIGHT_DEP_TIME || '',
+                        depCity: segmentData.FLIGHT_DEP_CITY || 'N/A',
+                        depAirport: segmentData.DEP_AIRPORT_NAME || 'Airport',
+                        depCode: segmentData.DEP_CITY_CODE || (segmentData.FLIGHT_DEP_CITY ? segmentData.FLIGHT_DEP_CITY.substring(0, 3).toUpperCase() : ''),
+
+                        arrCity: segmentData.FLIGHT_ARRV_CITY || 'N/A',
+                        arrAirport: segmentData.ARR_AIRPORT_NAME || 'Airport',
+                        arrCode: segmentData.ARR_CITY_CODE || (segmentData.FLIGHT_ARRV_CITY ? segmentData.FLIGHT_ARRV_CITY.substring(0, 3).toUpperCase() : ''),
+
+                        seatPref: segmentData.SEAT_PREF || '',
+                        mealPref: segmentData.MEAL_PREF || '',
+                        description: segmentData.DESCRIPTION || '',
+
+                        comments: `Departure: ${segmentData.FLIGHT_DEP_TIME || 'N/A'}`,  // keep as summary if needed
                     });
                 }
                 break;
+
 
             case 'hotel':
                 if (segmentData.HOTEL_ARR_CITY) {
@@ -113,6 +131,8 @@ const transformApiData = (rawTripData) => {
                         from: getCityData(segmentData.HOTEL_ARR_CITY),
                         to: getCityData(segmentData.HOTEL_ARR_CITY),
                         comments: 'Hotel stay segment',
+                        checkInTime: segmentData.HOTEL_DEP_TIME,
+                        checkOutTime: segmentData.HOTEL_ARR_TIME,
                     });
                 }
                 break;
@@ -124,7 +144,10 @@ const transformApiData = (rawTripData) => {
                         date: segmentData.CAR_DEP_DATE || 'Date N/A',
                         from: getCityData(segmentData.CAR_DEP_CITY),
                         to: getCityData(segmentData.CAR_ARR_CITY),
+                        carType: segmentData.CAR_TYPE,
                         comments: 'Car rental segment details',
+                        carDepTime: segmentData.CAR_DEP_TIME,
+                        carArrTime: segmentData.CAR_ARR_TIME,
                     });
                 }
                 break;
@@ -163,7 +186,7 @@ const transformApiData = (rawTripData) => {
 
     return {
         // Main trip fields are directly under rawTrip
-        tripId: rawTrip.ROWID || 'N/A', // Assuming ROWID is the trip ID in this payload
+        tripId: rawTrip.TRIP_NUMBER || 'N/A', // Assuming ROWID is the trip ID in this payload
         status: rawTrip.STATUS || 'Draft',
         tripName: rawTrip.TRIP_NAME || 'Unnamed Trip',
         duration: calculatedDuration,
@@ -235,6 +258,9 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('Flight');
+    const [associatedData, setAssociatedData] = useState({});
+
+
 
     //  NEW STATE: Tracks the index of the segment whose menu is open.
     const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
@@ -266,11 +292,10 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
 
                 // 🛑 CHANGE 5: Check 'result.data' directly, which is the single trip object.
                 if (result && result.data) {
-                    // ✅ CHANGE 6: Pass the single trip object to the transformation function
                     const transformedData = transformApiData(result.data);
                     setTripData(transformedData);
+                    setAssociatedData(result.data.associatedData || {});  // Store full associatedData here
 
-                    // Set default active tab to the first travel mode found
                     if (transformedData.bookingStatus.length > 0) {
                         const firstMode = transformedData.bookingStatus[0].charAt(0).toUpperCase() + transformedData.bookingStatus[0].slice(1);
                         setActiveTab(firstMode);
@@ -292,16 +317,22 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
 
     }, [extractedTripId]);
 
-    // ... handleTabClick and rendering logic remains unchanged ...
-    const handleTabClick = (tab) => {
-        setActiveTab(tab);
-    };
+
 
     const data = tripData || {};
     const segmentsFiltered = data.segments ? data.segments.filter(s => s.type === activeTab) : [];
 
     // Check if the selected tab is present in the trip's actual travel modes
     const isTabActive = data.bookingStatus?.includes(activeTab.toLowerCase());
+
+    const modeToOptionsMap = {
+        flight: "Flight_Trip_Options",
+        hotel: "Hotel_Trip_Options",
+        car: "Car_Trip_Options",
+        bus: "Bus_Trip_Options",
+        train: "Train_Trip_Options"
+    };
+
 
     // --- NEW: Render Loader/Error in Center ---
     const renderLoaderOrError = () => (
@@ -356,6 +387,215 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         </div>
     );
 
+    const FlightCard = ({ flight, hasOptions }) => {
+        if (!flight) return null;
+        const seatPref = flight.seatPref || '';
+        const mealPref = flight.mealPref || '';
+        const hasPrefs = seatPref || mealPref;
+
+        return (
+            <div className="flight-card1">
+                {/* Top Preferences */}
+                {hasPrefs && (
+                    <div className="preferences">
+                        <span>Preferences:</span>
+                        {seatPref && <span className="pref-item">Seat: {seatPref}</span>}
+                        {mealPref && <span className="pref-item">Meal: {mealPref}</span>}
+                    </div>
+                )}
+
+                {/* Status Section */}
+                <div className="status-section">
+                    <span className="status-badge">
+                        {hasOptions ? "Select the options" : "Waiting for Options"}
+                    </span>
+                    <span className="travel-agent">Travel Agent: Yet to be assigned</span>
+                </div>
+
+                {/* Flight Details */}
+                <div className="flight-details">
+                    {/* Left */}
+                    <div className="flight-date">
+                        <FaCalendarAlt className="icon" />
+                        <div>
+                            <div className="date">{flight.depDate}</div>
+                            <div className="preferred-time">Preferred Time: {flight.depTime}</div>
+                        </div>
+                    </div>
+
+                    {/* Center */}
+                    <div className="flight-route">
+                        <div className="from">
+                            <div className="city">{flight.depCity} - {flight.depCode}</div>
+                            <div className="subtext">{flight.depAirport}</div>
+                        </div>
+                        <div className="arrow">→</div>
+                        <div className="to">
+                            <div className="city">{flight.arrCity} - {flight.arrCode}</div>
+                            <div className="subtext">{flight.arrAirport}</div>
+                        </div>
+                    </div>
+
+                    {/* Right */}
+                    <div className="menu-icon">
+                        <FaEllipsisH />
+                        {hasOptions && (
+                            <button className="view-options-btn" onClick={() => {/* handle view options click */ }}>
+                                View Option
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+
+    const HotelCard = ({ hotel }) => {
+        if (!hotel) return null;
+
+        return (
+            <div className="hotel-card">
+                {/* Status Section */}
+                <div className="status-section">
+                    <span className="status-badge">Waiting for Options</span>
+                    <span className="travel-agent">Travel Agent: Yet to be assigned</span>
+                </div>
+
+                {/* Booking Details */}
+                <div className="booking-details">
+                    {/* Left */}
+                    <div className="hotel-name">
+                        <FaMapMarkerAlt className="icon" />
+                        <span>{hotel.name}</span>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="divider"></div>
+
+                    {/* Center */}
+                    <div className="check-info">
+                        <div className="check-in">
+                            <span className="label">Check-in</span>
+                            <span className="date">{hotel.checkIn},{hotel.checkInTime}</span>
+                        </div>
+                        <span className="separator">-</span>
+                        <div className="check-out">
+                            <span className="label">Check-out</span>
+                            <span className="date">{hotel.checkOut},{hotel.checkOutTime}</span>
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="divider"></div>
+
+                    {/* Right */}
+                    <div className="menu-icon">
+                        <FaEllipsisH />
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const CarCard = ({ car }) => {
+        if (!car) return null;
+
+        return (
+            <div className="car-card">
+                {/* Status Section */}
+                <div className="status-section">
+                    <span className="status-badge">Waiting for Options</span>
+                    <span className="travel-agent">Travel Agent: Yet to be assigned</span>
+                </div>
+
+                {/* Booking Details */}
+                <div className="booking-details">
+                    {/* Left */}
+                    <div className="car-info">
+                        <div className="car-type">
+                            <FaCar className="icon" />
+                            <span>Car Type: {car.type}</span>
+                        </div>
+                        <div className="driver-info">
+                            <FaUser className="icon" />
+                            <span>Driver: {car.driver}</span>
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="divider"></div>
+
+                    {/* Center */}
+                    <div className="pickup-dropoff">
+                        <div className="pickup">
+                            <span className="label">Pick-Up</span>
+                            <span className="date">{car.pickUpDate},{car.pickUpTime}</span>
+                            <span className="location">{car.pickUpLocation}</span>
+                        </div>
+                        <span className="arrow">→</span>
+                        <div className="dropoff">
+                            <span className="label">Drop-Off</span>
+                            <span className="date">{car.dropOffDate},{car.dropOffTime}</span>
+                            <span className="location">{car.dropOffLocation}</span>
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="divider"></div>
+
+                    {/* Right */}
+                    <div className="menu-icon">
+                        <FaEllipsisH />
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const TransferCard = ({ transfer }) => {
+        return (
+            <div className="transfer-card">
+                <div className="status-section">
+                    <span className="status-badge">Waiting for Options</span>
+                    <span className="travel-agent">Travel Agent: Yet to be assigned</span>
+                </div>
+
+                <div className="booking-details">
+                    <div className="transfer-date">
+                        <FaCalendarAlt className="icon" />
+                        <span>{transfer.date}</span>
+                    </div>
+
+                    <div className="divider"></div>
+
+                    <div className="transfer-route">
+                        <div className="departure">
+                            <span className="label">Departure</span>
+                            <span className="location">{transfer.departure}</span>
+                        </div>
+                        <span className="arrow">→</span>
+                        <div className="arrival">
+                            <span className="label">Arrival</span>
+                            <span className="location">{transfer.arrival}</span>
+                        </div>
+                    </div>
+
+                    <div className="divider"></div>
+
+                    <div className="menu-icon">
+                        <FaEllipsisH />
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const handleTabClick = (tab) => {
+        setActiveTab(tab);
+        setOpenDropdownIndex(null);
+    };
+
     if (loading || error || !tripData) {
         // This is the correct gate. It stops rendering the main view 
         // when loading, or when an error occurs, or if data is null/empty.
@@ -400,7 +640,6 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
 
 
 
-                            <button className="dropdown">...</button>
                             <button onClick={onBack} className="close-btn">
                                 &#x2715;
                             </button>
@@ -435,10 +674,9 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
 
                     {/* Content Section */}
                     <div className="content-section">
-                        <div className="status-message-box">
-                            {data.statusMessage}
-                            <div className="agent-info">Travel Agent: {data.travelAgent}</div>
-                        </div>
+
+
+
 
                         {segmentsFiltered.length === 0 && isTabActive && (
                             <div className="empty-segment-box">
@@ -446,65 +684,69 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                             </div>
                         )}
 
-                        {!isTabActive && (
+                        {segmentsFiltered.length === 0 && isTabActive && (
                             <div className="empty-segment-box">
-                                This trip does not include **{activeTab}** segments.
+                                No detailed data found for the <b>{activeTab}</b> segment, but the mode is included in the trip request.
                             </div>
                         )}
 
-                        {segmentsFiltered.length > 0 && segmentsFiltered.map((segment, index) => {
-                            return (
-                                <div key={index} className="travel-info-card">
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                                        <div className="date-info">
-                                            {getIcon(segment.type)} <span>{segment.type.toUpperCase()}</span>  {segment.date}
-                                        </div>
-                                    </div>
+                        {!isTabActive && (
+                            <div className="empty-segment-box">
+                                This trip does not include <b>{activeTab}</b> segments.
+                            </div>
+                        )}
 
-                                    <div className="route-details">
-                                        <div className="cities">
-                                            <div className="code">{segment.from.cityCode}</div>
-                                            <div className="name">{segment.from.cityName}</div>
-                                        </div>
-                                        <div className="arrow">&#x27A4;</div>
-                                        <div className="cities">
-                                            <div className="code">{segment.to.cityCode}</div>
-                                            <div className="name">{segment.to.cityName}</div>
-                                        </div>
+                        {isTabActive && segmentsFiltered.length > 0 && (
+                            <>
+                                {activeTab === 'Flight' ? (
+                                    // Replace this line with your new logic
+                                    segmentsFiltered.map((flightSeg, idx) => {
+                                        const flightOptions = associatedData?.Flight_Trip_Options || [];
+                                        return <FlightCard key={idx} flight={flightSeg} hasOptions={flightOptions.length > 0} />;
+                                    })
+                                ) : activeTab === 'Hotel' ? (
+                                    // Similarly for other modes, add hasOptions as needed
+                                    segmentsFiltered.map((hotelSeg, idx) => {
+                                        const hotelOptions = associatedData?.Hotel_Trip_Options || [];
+                                        const hotel = {
+                                            name: hotelSeg.from?.cityName || 'Hotel Name',
+                                            checkIn: hotelSeg.date?.split(' To ')[0] || 'Check-in Date',
+                                            checkOut: hotelSeg.date?.split(' To ')[1] || 'Check-out Date',
+                                            checkInTime: hotelSeg.checkInTime,
+                                            checkOutTime: hotelSeg.checkOutTime
+                                        };
+                                        return <HotelCard key={idx} hotel={hotel} hasOptions={hotelOptions.length > 0} />;
+                                    })
+                                ) : activeTab === 'Car' ? (
+                                    segmentsFiltered.map((carSeg, idx) => {
+                                        const carOptions = associatedData?.Car_Trip_Options || [];
+                                        const car = {
+                                            type: carSeg.carType || 'N/A',
+                                            driver: carSeg.driverNeeded || 'No',
+                                            pickUpDate: carSeg.date || 'PickUp Date',
+                                            pickUpLocation: carSeg.from?.cityName || 'PickUp Location',
+                                            dropOffDate: carSeg.date || 'DropOff Date',
+                                            dropOffLocation: carSeg.to?.cityName || 'DropOff Location',
+                                            pickUpTime: carSeg.carDepTime,
+                                            dropOffTime: carSeg.carArrTime,
+                                        };
+                                        return <CarCard key={idx} car={car} hasOptions={carOptions.length > 0} />;
+                                    })
+                                ) : (
+                                    segmentsFiltered.map((segment, idx) => {
+                                        const transferOptions = associatedData?.Bus_Trip_Options || []; // Or relevant options per mode
+                                        const transfer = {
+                                            date: segment.date || 'Date N/A',
+                                            departure: segment.from?.cityName || 'Unknown',
+                                            arrival: segment.to?.cityName || 'Unknown',
+                                        };
+                                        return <TransferCard key={idx} transfer={transfer} hasOptions={transferOptions.length > 0} />;
+                                    })
+                                )}
+                            </>
+                        )}
 
-                                        {/* 👇 CORRECTED DROPDOWN BLOCK */}
-                                        <div className="dropdown-container">
-                                            <button
-                                                className="more-options-btn"
-                                                // Use the index from the map function
-                                                onClick={() => toggleDropdown(index)}
-                                            >
-                                                <i className="fas fa-ellipsis-h"></i>
-                                            </button>
 
-                                            {/* Conditionally render the menu using the state */}
-                                            {openDropdownIndex === index && (
-                                                <div className="dropdown-menu">
-                                                    <button
-                                                        className="dropdown-item"
-                                                        onClick={() => {
-                                                            console.log(`Action: Reschedule/Cancel for segment ${index}`);
-                                                            // Close the menu after clicking
-                                                            setOpenDropdownIndex(null);
-                                                        }}
-                                                    >
-                                                        Reschedule/Cancel
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                        {/* 👆 END OF CORRECTED DROPDOWN BLOCK */}
-
-                                    </div>
-                                    <div className="notes-section">Notes: {segment.comments || 'N/A'}</div>
-                                </div>
-                            );
-                        })}
                     </div>
                 </div>
 

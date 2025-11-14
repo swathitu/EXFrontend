@@ -1,0 +1,124 @@
+.all-requests-container {
+  margin: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.all-requests-container h3 {
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.requests-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+.requests-table thead th {
+  background-color: #f0f0f0;
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 2px solid #ccc;
+  user-select: none;
+}
+
+.requests-table tbody tr {
+  border-bottom: 1px solid #ddd;
+  transition: background-color 0.2s ease;
+}
+
+.requests-table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.requests-table tbody tr td {
+  padding: 10px 8px;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #444;
+}
+
+.col-trip-no {
+  width: 8%;
+}
+
+.col-trip-details {
+  width: 40%;
+}
+
+.trip-details-top strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: gray;
+}
+
+.trip-details-sub {
+  color: #666;
+  font-size: 0.85rem;
+  white-space: normal;
+}
+
+.col-destination {
+  width: 15%;
+  color: #444;
+}
+
+.col-status {
+  width: 12%;
+  font-weight: 700;
+  text-transform: capitalize;
+  padding: 6px 10px;
+  border-radius: 4px;
+  color: gray;
+}
+
+
+
+.col-approver {
+  width: 15%;
+  color: #333;
+}
+
+.col-booking-status {
+  width: 10%;
+  text-align: center;
+}
+
+.booking-status-stack {
+  display: inline-flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+.booking-status-pill {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #eee;
+  color: #555;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  cursor: default;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.booking-status-pill:hover {
+  background-color: #ddd;
+  color: #222;
+}
+
+.fas.fa-plane,
+.fas.fa-hotel,
+.fas.fa-car,
+.fas.fa-bus,
+.fas.fa-train {
+  font-size: 16px;
+}

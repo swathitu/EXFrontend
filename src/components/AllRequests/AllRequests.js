@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./AllRequests.css";
 import OptionForm from "../OptionForm/OptionForm";
 
-const AVAILABLE_ACTION_STATUSES = ["Cancel", "On Hold"];
+const AVAILABLE_ACTION_STATUSES = ["Closed", "On Hold", "Open"];
 
 const getModeAvatar = (mode) => {
   switch (mode.toLowerCase()) {
@@ -70,6 +70,44 @@ const getItineraryDetails = (associatedData) => {
   return { mode: "N/A", itinerary: "N/A", startDate: "N/A", subtableRowId: null };
 };
 
+const StatusReasonModal = ({ open, onClose, status, onSubmit }) => {
+  const [reason, setReason] = useState("");
+
+  useEffect(() => {
+    if (open) setReason(""); // reset input each open
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h3>Reason for changing status</h3>
+        <p>Provide a brief description for changing status to <b>{status}</b>:</p>
+        <textarea
+          autoFocus
+          rows={4}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Enter reason..."
+          style={{ width: "100%" }}
+        />
+        <div className="modal-actions">
+          <button onClick={onClose}>Cancel</button>
+          <button
+            disabled={!reason.trim()}
+            onClick={() => {
+              if (reason.trim()) onSubmit(reason);
+            }}
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const AllRequests = () => {
   const [requests, setRequests] = useState([]);
   const [agents, setAgents] = useState([]);
@@ -77,6 +115,12 @@ const AllRequests = () => {
   const [loadingRequestId, setLoadingRequestId] = useState(null);
   const [savedEmail, setSavedEmail] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [loadingStatusRequestId, setLoadingStatusRequestId] = useState(null);
+  const [statusModal, setStatusModal] = useState({
+    open: false,
+    request: null,
+    newStatus: "",
+  });
 
   useEffect(() => {
     const emailFromStorage = localStorage.getItem("userEmail");
@@ -112,6 +156,26 @@ const AllRequests = () => {
         const processed = rawData.map((trip) => {
           const details = getItineraryDetails(trip.associatedData);
 
+          let subtableStatus = "Open";
+          let requestNo = "N/A";
+
+          if (details.mode && trip.associatedData[details.mode + "Data"]) {
+            const subtableArray = trip.associatedData[details.mode + "Data"];
+            if (subtableArray.length > 0) {
+              const firstEntry = subtableArray[0];
+              if (firstEntry.STATUS && firstEntry.STATUS.trim() !== "") {
+                subtableStatus = firstEntry.STATUS;
+              }
+              // Extract Request_No if it exists
+              if (firstEntry.Request_No || firstEntry.REQUEST_NO || firstEntry.REQUEST_NO === 0) {
+                requestNo =
+                  firstEntry.Request_No ||
+                  firstEntry.REQUEST_NO ||
+                  firstEntry.REQUEST_NO.toString();
+              }
+            }
+          }
+
           const subtableKeys = ["HotelData", "FlightData", "CarData", "TrainData", "BusData"];
           let agentInfo = null;
           for (const key of subtableKeys) {
@@ -133,17 +197,20 @@ const AllRequests = () => {
             subtableRowId: details.subtableRowId,
             requestType: details.mode,
             requestedBy: trip.SUBMITTER_NAME,
+            submitterEmail: trip.SUBMITTER_EMAIL,
             tripNumber: trip.TRIP_NUMBER || "N/A",
+            requestNo: requestNo, // Add requestNo here
             itinerary: details.itinerary,
             startDate: details.startDate,
             apiStatus: trip.STATUS,
-            status: "Open",
+            status: subtableStatus,
             assignedTo: agentInfo ? `${agentInfo.agentName} (${agentInfo.agentEmail})` : "Unassigned",
             agentRowId: agentInfo?.agentRowId || null,
             agentEmail: agentInfo?.agentEmail || null,
             agentName: agentInfo?.agentName || null,
           };
         });
+
         setRequests(processed);
       } catch (err) {
         console.error("Failed to fetch requests:", err);
@@ -234,6 +301,59 @@ const AllRequests = () => {
     }
   };
 
+
+
+  const handleStatusChange = async (item, newStatus) => {
+    if (newStatus === "On Hold") {
+      // Open the modal and wait for reason
+      setStatusModal({ open: true, request: item, newStatus });
+      return;
+    }
+    // For "Cancel" or other direct actions, could customize per your workflow
+    const reason = ""; // or provide an input in modal for cancel, too
+    await handleStatusUpdate(item, newStatus, reason);
+  };
+
+  // Actually send to API and update UI
+  const handleStatusUpdate = async (item, newStatus, reason) => {
+    setLoadingStatusRequestId(item.id);
+
+    const payload = {
+      row_id: item.subtableRowId,
+      request_type: item.requestType,
+      new_status: newStatus,
+      reason: reason,
+      from_email: savedEmail,       // logged-in user email
+      to_email: item.submitterEmail // submitter email for current request
+    };
+
+    try {
+      const response = await fetch("/server/change_mode_status/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || "Error updating status");
+
+      setRequests((prev) =>
+        prev.map((req) =>
+          req.id === item.id
+            ? { ...req, status: newStatus }
+            : req
+        )
+      );
+
+    } catch (error) {
+      alert(`Failed to update status: ${error.message || "Unknown error"}`);
+    } finally {
+      setLoadingStatusRequestId(null);
+      setStatusModal({ open: false, request: null, newStatus: "" }); // Close modal if open
+    }
+  };
+
   if (loading) return <h5>Loading Requests...</h5>;
   if (!requests.length) return <h5>No pending requests found.</h5>;
 
@@ -243,6 +363,7 @@ const AllRequests = () => {
       <table className="requests-table">
         <thead>
           <tr>
+            <th>Request No</th>
             <th>Request Type</th>
             <th>Requested By</th>
             <th>Trip #</th>
@@ -260,6 +381,7 @@ const AllRequests = () => {
                 onClick={() => handleRowClick(item)}
                 style={{ cursor: "pointer" }}
               >
+                <td>{item.requestNo || "N/A"}</td>
                 <td title={`Mode: ${mode.name}`}>
                   <span className="mode-name">{mode.name}</span>
                   <span className="option-available-text">option available</span>
@@ -290,32 +412,48 @@ const AllRequests = () => {
                 </td>
 
                 <td>
-                  <select
-                    value={item.status}
-                    onClick={e => e.stopPropagation()}  // Also stop row click here
-                    onChange={(e) => {
-                      // Add inline status update logic here if needed
-                      // Example: update locally or send API request
-                      // For now, you can console.log or add a handler
-                      console.log(`Status changed for request ${item.id}:`, e.target.value);
-                    }}
-                    className={`status-select status-${item.status.toLowerCase().replace(" ", "-")}`}
-                  >
-                    <option value="Open">Open</option>
-                    <option disabled>––––––––</option>
-                    {AVAILABLE_ACTION_STATUSES.filter((o) => o !== item.status).map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                  {loadingStatusRequestId === item.id ? (
+                    <span className="loading-text">Updating...</span>
+                  ) : (
+                    <select
+                      value={item.status}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => {
+                        const newStatus = e.target.value;
+                        if (newStatus === item.status) return;
+                        handleStatusChange(item, newStatus);
+                      }}
+                      className={`status-select status-${item.status.toLowerCase().replace(" ", "-")}`}
+                      disabled={loadingStatusRequestId === item.id}
+                    >
+                      {/* Always include the current status */}
+                      <option value={item.status}>{item.status}</option>
+
+                      <option disabled>––––––––</option>
+
+                      {/* Add all other available statuses except current one */}
+                      {AVAILABLE_ACTION_STATUSES.filter((o) => o !== item.status).map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </td>
+
 
               </tr>
             );
           })}
         </tbody>
       </table>
+      {/* Modal for status reason */}
+      <StatusReasonModal
+        open={statusModal.open}
+        status={statusModal.newStatus}
+        onClose={() => setStatusModal({ open: false, request: null, newStatus: "" })}
+        onSubmit={(reason) => handleStatusUpdate(statusModal.request, statusModal.newStatus, reason)}
+      />
       {selectedRequest && (
         <OptionForm
           request={selectedRequest}

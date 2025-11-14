@@ -20,7 +20,8 @@ const MENU_ALL = [
 
   { key: "home", label: "Home", icon: "home" },
 
-  { key: "trip", label: "Trip", icon: "trip", hasPlus: true },              // admin + submitter
+  { key: "trip", label: "Trip", icon: "trip", hasPlus: false },
+  { key: 'trips', label: 'Trips', icon: 'trips', hasPlus: false } ,         // admin + submitter
 
   { key: "my-approvals", label: "My approvals", icon: "approvals" },        // approver only
 
@@ -239,60 +240,20 @@ const Icon = ({ name }) => {
         </svg>
       );
 
-    case "plane": // Icon for "Flights" - Improved for clearer airplane shape
-      return (
-        <svg {...common}>
-          <path d="M14 10l-4 4-2-2l4-4 2 2z" />
-          <path d="M20 5l-2 2" />
-          <path d="M4 19l2-2" />
-          <path d="M22 2l-6 6M2 22l6-6" />
-          <path d="M10 14l-4 4 2 2 4-4-2-2z" />
-        </svg>
-      );
+    case "bus":
+      return <i className="fas fa-bus" aria-hidden="true" style={{ fontSize: "18px" }}></i>;
 
-    case "hotel": // Icon for "Hotels" - Uses a more standard building/bed shape
-      return (
-        <svg {...common}>
-          <path d="M20 20V8h-6V4h-4v4H4v12" />
-          <rect x="4" y="14" width="4" height="4" rx="1" />
-          <rect x="16" y="14" width="4" height="4" rx="1" />
-          <path d="M4 20h16" />
-        </svg>
-      );
+    case "car":
+      return <i className="fas fa-car" aria-hidden="true" style={{ fontSize: "18px" }}></i>;
 
-    case "car": // Icon for "Car Rentals" - Uses a simpler side-view car shape
-      return (
-        <svg {...common}>
-          <path d="M10 20l4 0" />
-          <path d="M17 17H7l-3-5h16l-3 5z" />
-          <circle cx="7" cy="17" r="2" />
-          <circle cx="17" cy="17" r="2" />
-          <path d="M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4" />
-        </svg>
-      );
+    case "train":
+      return <i className="fas fa-train" aria-hidden="true" style={{ fontSize: "18px" }}></i>;
 
-    case "bus": // Icon for "Buses" - Simple front-view bus
-      return (
-        <svg {...common}>
-          <rect x="4" y="6" width="16" height="12" rx="2" />
-          <path d="M6 18V6" />
-          <path d="M18 18V6" />
-          <path d="M4 13h16" />
-          <circle cx="9" cy="18" r="1.5" />
-          <circle cx="15" cy="18" r="1.5" />
-        </svg>
-      );
+    case "plane":
+      return <i className="fas fa-plane" aria-hidden="true" style={{ fontSize: "18px" }}></i>;
 
-    case "train": // Icon for "Trains" - More detailed train/locomotive
-      return (
-        <svg {...common}>
-          <path d="M8 20l-4-4V6h16v10l-4 4H8z" />
-          <path d="M4 14h16" />
-          <circle cx="8" cy="17" r="2" />
-          <circle cx="16" cy="17" r="2" />
-          <path d="M10 10h4" />
-        </svg>
-      );
+    case "hotel":
+      return <i className="fas fa-hotel" aria-hidden="true" style={{ fontSize: "18px" }}></i>;
 
 
 
@@ -422,7 +383,7 @@ export default function Sidebar({
 
   if (role === "admin") {
     roleMenu = MENU_ALL.filter((m) =>
-      ["home", "trip", "masters", "expenseDataView", "travelDesk"].includes(m.key)
+      ["home", "trip", "masters", "expenseDataView", "travelDesk", 'trips'].includes(m.key)
     );
   } else if (role === "admin1") {
     roleMenu = MENU_ALL.filter((m) =>

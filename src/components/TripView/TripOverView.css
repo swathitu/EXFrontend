@@ -84,8 +84,8 @@
         background-color: #fef2f2; /* red-50 */
     }
     .trip-info h1 {
-        font-size: 20px;
-        font-weight: 700;
+        font-size: 18px;
+        font-weight: 500;
         margin-bottom: 0.25rem;
     }
     .trip-info .details {
@@ -138,7 +138,6 @@
     }
 
     .content-section {
-        background-color: #f9fafb; /* gray-50 */
         padding: 1rem;
         border-radius: 0.5rem;
         flex-grow: 1;
@@ -414,4 +413,401 @@
     display: flex;
     align-items: center;
     gap: 15px; /* Adds space between city blocks and the button */
+}
+
+.flight-card1 {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  margin: 5px;
+}
+
+.preferences {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.pref-item {
+  margin-left: 8px;
+}
+
+.status-section {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.status-badge {
+  background: #fff8e1;
+  color: #8a6d3b;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-right: 12px;
+}
+
+.travel-agent {
+  font-size: 13px;
+  color: #666;
+}
+
+.flight-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.flight-date {
+  display: flex;
+  align-items: center;
+}
+
+.flight-date .icon {
+  margin-right: 8px;
+  color: #555;
+}
+
+.date {
+  font-weight: bold;
+}
+
+.preferred-time {
+  /* color: #e67e22; */
+  font-size: 12px;
+}
+
+.flight-route {
+  text-align: center;
+  display: flex;
+}
+
+.city {
+  font-size: 12px;
+}
+
+.subtext {
+  font-size: 12px;
+  color: #777;
+}
+
+.arrow {
+  font-size: 18px;
+  margin: 0 12px;
+}
+
+.preferences-link {
+  display: block;
+  color: #007bff;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.menu-icon {
+  cursor: pointer;
+}
+
+.hotel-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Status Section */
+.status-section {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.status-badge {
+  background: #fff8e1;
+  color: #8a6d3b;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-right: 12px;
+  font-weight: 500;
+}
+
+.travel-agent {
+  color: #666;
+}
+
+/* Booking Details */
+.booking-details {
+  display: grid;
+  grid-template-columns: auto 1px auto 1px auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.divider {
+  width: 1px;
+  background-color: #f0f0f0;
+  height: 40px;
+}
+
+/* Left Section */
+.hotel-name {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.hotel-name .icon {
+  margin-right: 8px;
+  color: #555;
+}
+
+/* Center Section */
+.check-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.label {
+  font-size: 12px;
+  color: #777;
+  display: block;
+}
+
+.date {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.separator {
+  font-size: 16px;
+  color: #999;
+}
+
+/* Right Section */
+.menu-icon {
+  display: flex;
+  justify-content: flex-end;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.car-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  background: #fff;
+  width: 100%;
+  margin: 7px;
+  box-sizing: border-box;
+}
+
+/* Status Section */
+.status-section {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.status-badge {
+  background: #fff8e1;
+  color: #8a6d3b;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-right: 12px;
+  font-weight: 500;
+}
+
+.travel-agent {
+  color: #666;
+}
+
+/* Booking Details */
+.booking-details {
+  display: grid;
+  grid-template-columns: auto 1px auto 1px auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.divider {
+  width: 1px;
+  background-color: #f0f0f0;
+  height: 40px;
+}
+
+/* Left Section */
+.car-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.car-type, .driver-info {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.icon {
+  margin-right: 8px;
+  color: #555;
+}
+
+/* Center Section */
+.pickup-dropoff {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.label {
+  font-size: 12px;
+  color: #777;
+  display: block;
+}
+
+.date {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.location {
+  font-size: 12px;
+  color: #777;
+}
+
+.arrow {
+  font-size: 18px;
+  color: #999;
+}
+
+/* Right Section */
+.menu-icon {
+  display: flex;
+  justify-content: flex-end;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.pickup,
+.dropoff{
+    display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.transfer-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  background: #fff;
+  width: 100%;
+  margin: 7px;
+  box-sizing: border-box;
+}
+
+/* Status Section */
+.status-section {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.status-badge {
+  background: #fff8e1;
+  color: #8a6d3b;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-right: 12px;
+  font-weight: 500;
+}
+
+.travel-agent {
+  color: #666;
+}
+
+/* Booking Details */
+.booking-details {
+  display: grid;
+  grid-template-columns: auto 1px auto 1px auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.divider {
+  width: 1px;
+  background-color: #f0f0f0;
+  height: 40px;
+}
+
+/* Left Section */
+.transfer-date {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.transfer-date .icon {
+  margin-right: 8px;
+  color: #555;
+}
+
+/* Center Section */
+.transfer-route {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.label {
+  font-size: 12px;
+  color: #777;
+  display: block;
+}
+
+.location {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.arrow {
+  font-size: 18px;
+  color: #999;
+}
+
+/* Right Section */
+.menu-icon {
+  display: flex;
+  justify-content: flex-end;
+  cursor: pointer;
+  font-size: 18px;
 }
