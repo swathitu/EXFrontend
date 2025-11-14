@@ -162,6 +162,7 @@
 }
 
 
+
 .details-nav-tab {
   display: flex;
   border-bottom: 1px solid #e5e8f1;
@@ -222,6 +223,20 @@
   font-size: 14px;
 }
 
+/* Three Dots Button */
+.btn-more-options {
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+.btn-more-options:hover {
+    background-color: #f9fafb;
+}
 
 .sidebar-field-value {
   color: #67748e;
