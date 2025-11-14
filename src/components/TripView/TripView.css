@@ -262,3 +262,36 @@ body {
   background-color: #e0f7fa; /* Light cyan */
   color: #00796b; /* Teal text */
 }
+.full-page-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  z-index: 9999;
+  /* Keep flex for centering */
+}
+
+/* Spinner styles */
+.loader {
+  border: 6px solid #f3f3f3; /* Light gray background */
+  border-top: 6px solid #007bff; /* Blue spinner color */
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+}
+
+/* Spin animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+

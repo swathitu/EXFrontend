@@ -55,7 +55,7 @@ const calculateTripDuration = (allSegments) => {
     const startDateStr = formatDate(startDate);
     const endDateStr = formatDate(endDate);
 
-    return `${durationDays} day(s) (${startDateStr} - ${endDateStr})`;
+    return `${durationDays} day(s) (${startDateStr} To ${endDateStr})`;
 };
 
 
@@ -109,7 +109,7 @@ const transformApiData = (rawTripData) => {
                     const checkOutDate = segmentData.HOTEL_DEP_DATE || 'Date N/A';
                     segments.push({
                         type: 'Hotel',
-                        date: `${checkInDate} - ${checkOutDate}`,
+                        date: `${checkInDate} To ${checkOutDate}`,
                         from: getCityData(segmentData.HOTEL_ARR_CITY),
                         to: getCityData(segmentData.HOTEL_ARR_CITY),
                         comments: 'Hotel stay segment',
@@ -226,8 +226,10 @@ const getIcon = (type) => {
 /**
  * TripOverView Component
  */
-const TripOverView = ({ trip, onBack = () => console.log('Back clicked') }) => {
-    const extractedTripId = trip?.id; // Assumes trip object passed to component has an 'id' property
+
+const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
+
+    const extractedTripId = trip?.id || trip?.tripId;
 
     const [tripData, setTripData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -303,30 +305,54 @@ const TripOverView = ({ trip, onBack = () => console.log('Back clicked') }) => {
 
     // --- NEW: Render Loader/Error in Center ---
     const renderLoaderOrError = () => (
-        <div className="loader-container">
-            <div className="loader-box">
-                {/* Show only loading when loading is true */}
-                {loading && (
-                    <div className="loading-text">
-                        <i className="fas fa-spinner fa-spin mr-2"></i> Loading details
-                    </div>
-                )}
-
-                {/* Show error only when loading is false and error is present */}
-                {!loading && error && (
-                    <div className="error-text">
-                        <i className="fas fa-exclamation-triangle mr-2"></i> {error}
-                    </div>
-                )}
-
-                {/* Show "Back to List" button in both error and loading states for navigation */}
-                <button
-                    onClick={onBack}
-                    className="back-button"
-                >
-                    &larr; Back to List
-                </button>
+        <div className="loader-container" style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "300px",
+            flexDirection: "column",
+            gap: "12px",
+        }}>
+            <div className="spinner" style={{
+                border: "6px solid #f3f3f3",
+                borderTop: "6px solid #3498db", // blue color spinner
+                borderRadius: "50%",
+                width: "48px",
+                height: "48px",
+                animation: "spin 1.2s linear infinite",
+            }} />
+            <div style={{ fontWeight: "600", fontSize: "16px", color: "#555" }}>
+                Loading trip details...
             </div>
+
+            {!loading && error && (
+                <div style={{ marginTop: 12, color: "red" }}>
+                    <i className="fas fa-exclamation-triangle" style={{ marginRight: 6 }}></i>
+                    {error}
+                </div>
+            )}
+
+            <button onClick={onBack} className="back-button" style={{
+                marginTop: "20px",
+                backgroundColor: "#3498db",
+                color: "white",
+                padding: "8px 16px",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: "600",
+            }}>
+                &larr; Back to List
+            </button>
+
+            <style>
+                {`
+        @keyframes spin {
+          0% { transform: rotate(0deg);}
+          100% { transform: rotate(360deg);}
+        }
+      `}
+            </style>
         </div>
     );
 
@@ -357,7 +383,23 @@ const TripOverView = ({ trip, onBack = () => console.log('Back clicked') }) => {
                             <span className={`status-badge ${data.status}`}>{data.status}</span>
                         </div>
                         <div className="header1-actions flex">
-                            <button className="hidden sm:inline-block">Update</button>
+                            <button
+                                onClick={() => {
+                                    const tripId = trip?.id || trip?.tripId;
+                                    if (onOpenForm) {
+                                        onOpenForm(tripId); // pass tripId to parent
+                                    } else {
+                                        console.warn('onOpenForm not provided');
+                                    }
+                                }}
+                            >
+                                Update
+                            </button>
+
+
+
+
+
                             <button className="dropdown">...</button>
                             <button onClick={onBack} className="close-btn">
                                 &#x2715;
@@ -415,7 +457,7 @@ const TripOverView = ({ trip, onBack = () => console.log('Back clicked') }) => {
                                 <div key={index} className="travel-info-card">
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                                         <div className="date-info">
-                                            {getIcon(segment.type)} <span>{segment.type.toUpperCase()}</span> - {segment.date}
+                                            {getIcon(segment.type)} <span>{segment.type.toUpperCase()}</span>  {segment.date}
                                         </div>
                                     </div>
 

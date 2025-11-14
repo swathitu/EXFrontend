@@ -7,28 +7,20 @@ import BusForm from "../BusForm/BusForm";
 import TrainForm from "../TrainForm/TrainForm";
 
 // Reusable Input Component
-const LabeledInput = ({
-  label,
-  type,
-  name,
-  value,
-  onChange,
-  placeholder,
-  required = false,
-  className = "",
-}) => (
+const LabeledInput = ({ label, type, name, value, onChange, placeholder, required, className }) => (
   <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
     <input
       type={type}
       name={name}
-      value={value}
+      value={value ?? ""}
       onChange={onChange}
       placeholder={placeholder}
       required={required}
     />
   </div>
 );
+
 
 // Reusable Dropdown Component
 const LabeledDropdown = ({
@@ -112,7 +104,8 @@ const ManagerPopup = ({ manager, onClose, onConfirm }) => (
 );
 
 // --- Main Form Component (RequestForm) ---
-const RequestForms = ({ onFormClose }) => {
+const RequestForms = ({ onFormClose, tripId }) => {
+  const [formData, setFormData] = useState(null);
   const [tripName, setTripName] = useState("");
   const [businessPurpose, setBusinessPurpose] = useState("");
   const [travelType, setTravelType] = useState("domestic");
@@ -133,6 +126,27 @@ const RequestForms = ({ onFormClose }) => {
   const [managerData, setManagerData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const initialFlightDataLoaded = React.useRef(false);
+  const initialHotelDataLoaded = React.useRef(false);
+  const initialCarDataLoaded = React.useRef(false);
+  const initialBusDataLoaded = React.useRef(false);
+  const initialTrainDataLoaded = React.useRef(false);
+  const [isFlightReadOnly, setIsFlightReadOnly] = useState(false);
+  const [isHotelReadOnly, setIsHotelReadOnly] = useState(false);
+  const [isCarReadOnly, setIsCarReadOnly] = useState(false);
+  const [isBusReadOnly, setIsBusReadOnly] = useState(false);
+  const [isTrainReadOnly, setIsTrainReadOnly] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [isDropdownLoading, setIsDropdownLoading] = useState(false);
+  const [savedEmail, setSavedEmail] = useState(null);
+
+
+  useEffect(() => {
+    const emailFromStorage = localStorage.getItem("userEmail");
+    setSavedEmail(emailFromStorage);
+    console.log("Saved Email from localStorage:", emailFromStorage);
+  }, []);
+
   // New state for the popup
   const [showPopup, setShowPopup] = useState(false);
   const [apiData, setApiData] = useState({
@@ -143,9 +157,137 @@ const RequestForms = ({ onFormClose }) => {
     branches: [],
   });
 
+
+
+  const mapApiDataToFormState = (data) => {
+    return {
+      tripName: data.TRIP_NAME || "",
+      businessPurpose: data.BUSINESS_PURPOSE || "",
+      travelType: data.TRAVEL_TYPE || "domestic",
+      activity: data.CF_ACTIVITY || "",
+      donor: data.CF_DONOR || "",
+      conditionArea: data.CF_CONDITION_AREA || "",
+      location: data.CF_LOCATION || "",
+      branch: data.CF_BRANCH || "",
+      destinationCountry: data.DESTINATION_COUNTRY || "",
+      visaRequired: data.VISA_REQUIRED || "no",
+      activeTravelModes: Array.isArray(data.modesSummary)
+        ? data.modesSummary.map((m) => m.toLowerCase())
+        : [],
+      flightFormData: data.associatedData?.FlightData || [],
+      hotelFormData: data.associatedData?.HotelData || [],
+      carFormData: data.associatedData?.CarData || [],
+      busFormData: data.associatedData?.BusData || [],
+      trainFormData: data.associatedData?.TrainData || [],
+      status: data.STATUS || "",
+    };
+  };
+
+  useEffect(() => {
+    if (!tripId) return;
+
+    const fetchTripData = async () => {
+      try {
+        setIsLoadingData(true);
+        await new Promise(r => setTimeout(r, 2000));
+        const response = await fetch(`/server/get_tripNumberData?trip_id=${tripId}`);
+        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+
+        const result = await response.json();
+        if (result && result.data) {
+          const mapped = mapApiDataToFormState(result.data);
+          console.log("Mapped form data:", mapped);
+          setFormData(mapped);  // Save mapped form data
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoadingData(false);
+
+      }
+    };
+
+    fetchTripData();
+  }, [tripId]);
+
+  // 3. Sync state values when formData and apiData options both are ready
+  useEffect(() => {
+    if (formData && apiData.donors.length > 0) {
+      setTripName(formData.tripName);
+      setBusinessPurpose(formData.businessPurpose);
+      setTravelType(formData.travelType);
+      setActivity(formData.activity);
+
+      // Set dropdown-selected states only if options contain the values
+      if (apiData.donors.find(opt => opt.value === formData.donor)) setDonor(formData.donor);
+      if (apiData.branches.find(opt => opt.value === formData.branch)) setBranch(formData.branch);
+      if (apiData.locations.find(opt => opt.value === formData.location)) setLocation(formData.location);
+
+      setConditionArea(formData.conditionArea);
+      setDestinationCountry(formData.destinationCountry);
+      setVisaRequired(formData.visaRequired);
+      setActiveTravelModes(formData.activeTravelModes);
+
+      if (!initialFlightDataLoaded.current) {
+        setFlightFormData(formData.flightFormData);
+        initialFlightDataLoaded.current = true;
+      }
+
+      if (!initialHotelDataLoaded.current) {
+        setHotelFormData(formData.hotelFormData);
+        initialHotelDataLoaded.current = true;
+      }
+
+      if (!initialCarDataLoaded.current) {
+        setCarFormData(formData.carFormData);
+        initialCarDataLoaded.current = true;
+      }
+
+      if (!initialBusDataLoaded.current) {
+        setBusFormData(formData.busFormData);
+        initialBusDataLoaded.current = true;
+      }
+
+      if (!initialTrainDataLoaded.current) {
+        setTrainFormData(formData.trainFormData);
+        initialTrainDataLoaded.current = true;
+      }
+
+      if (formData) {
+        const readOnly = formData.status === "Submitted" || formData.status === "Approved";
+        setIsFlightReadOnly(readOnly);
+      }
+
+      if (formData) {
+        const readOnly = formData.status === "Submitted" || formData.status === "Approved";
+        setIsHotelReadOnly(readOnly);
+      }
+
+      if (formData) {
+        const readOnly = formData.status === "Submitted" || formData.status === "Approved";
+        setIsCarReadOnly(readOnly);
+      }
+
+      if (formData) {
+        const readOnly = formData.status === "Submitted" || formData.status === "Approved";
+        setIsBusReadOnly(readOnly);
+      }
+
+      if (formData) {
+        const readOnly = formData.status === "Submitted" || formData.status === "Approved";
+        setIsTrainReadOnly(readOnly);
+      }
+
+
+    }
+  }, [formData, apiData]);
+
+
+
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
+        setIsLoadingData(true); // show loading before API call
         const response = await fetch("/server/insertData/");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -154,11 +296,9 @@ const RequestForms = ({ onFormClose }) => {
 
         const customDataArray = result.data.map(item => item.customData);
 
-        // Helper to format data and prepend a default placeholder
         const formatAndPrepend = (dataArray, label) => {
-          const uniqueValues = [...new Set(dataArray)].filter(val => val); // Filter out potential null/empty strings
+          const uniqueValues = [...new Set(dataArray)].filter(val => val);
           const options = uniqueValues.map(val => ({ value: val, label: val }));
-          // Prepend the placeholder option
           return [{ value: "", label: `Select ${label}` }, ...options];
         };
 
@@ -166,7 +306,7 @@ const RequestForms = ({ onFormClose }) => {
         const donorsArray = customDataArray.map(item => item.Donor);
         const conditionAreasArray = customDataArray.map(item => item.conditionArea);
         const locationsArray = customDataArray.map(item => item.Location);
-        const branchesArray = customDataArray.map(item => item.Branch); // Keep track of this one
+        const branchesArray = customDataArray.map(item => item.Branch);
 
         setApiData({
           activities: formatAndPrepend(activitiesArray, "Activity"),
@@ -176,21 +316,25 @@ const RequestForms = ({ onFormClose }) => {
           branches: formatAndPrepend(branchesArray, "Branch"),
         });
 
-        // FIX: Also, ensure the initial state is set to an empty string for all
-        // to match the default placeholder's value: ""
+        // Clear form dropdown states (optional)
         setActivity("");
         setDonor("");
         setConditionArea("");
         setLocation("");
-        setBranch(""); // Set all to "" to be consistent
+        setBranch("");
 
       } catch (error) {
         console.error("Error fetching dropdown data:", error);
+      } finally {
+        setIsLoadingData(false); // hide loading after API call
       }
     };
 
     fetchDropdownData();
   }, []);
+
+
+
 
   const handleModeToggle = (mode) => {
     setActiveTravelModes((prevModes) =>
@@ -200,6 +344,20 @@ const RequestForms = ({ onFormClose }) => {
     );
   };
 
+  const handleDraftSubmit = (e) => {
+    e.preventDefault();
+    const payload = buildNewPayload("Draft");
+    sendPayload(payload);
+    if (onFormClose) onFormClose();
+  };
+
+  const handleCancel = (e) => {
+    e.preventDefault();
+    if (onFormClose) onFormClose();
+  };
+
+  // Handler for final submit — decides between new or update by presence of tripId
+  // Centralized submit function
   const handleSubmit = async (
     status,
     ApproverId = null,
@@ -209,75 +367,143 @@ const RequestForms = ({ onFormClose }) => {
     SubmitterName = null,
     SubmitterEmail = null
   ) => {
-    console.log(`Form Submitted with status: ${status}`);
-    const payload = {
-      tripName,
-      businessPurpose,
-      travelType,
-      activity,
-      donor,
-      conditionArea,
-      location,
-      branch,
-      status,
-      ...(travelType === "international" && {
-        destinationCountry,
-        visaRequired,
-      }),
+    let payload;
+    if (tripId) {
+      payload = buildUpdatePayload(
+        status,
+        ApproverId,
+        ApproverName,
+        ApproverEmail,
+        SubmitterId,
+        SubmitterName,
+        SubmitterEmail
+      );
+    } else {
+      payload = buildNewPayload(
+        status,
+        ApproverId,
+        ApproverName,
+        ApproverEmail,
+        SubmitterId,
+        SubmitterName,
+        SubmitterEmail
+      );
+    }
+    await sendPayload(payload);
+  };
 
-      activeTravelModes,
-      flightData: activeTravelModes.includes("flight") ? flightFormData : null,
-      hotelData: activeTravelModes.includes("hotel") ? hotelFormData : null,
-      carData: activeTravelModes.includes("car") ? carFormData : null,
-      busData: activeTravelModes.includes("bus") ? busFormData : null,
-      trainData: activeTravelModes.includes("train") ? trainFormData : null,
 
-      // Conditional inclusion of Approver details
-      ...(ApproverId && { ApproverId }),
-      ...(ApproverName && { ApproverName }),
-      ...(ApproverEmail && { ApproverEmail }),
+  // Handler for explicit update button
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    await handleSubmit("Updated");
+    setIsLoading(false);
+    if (onFormClose) onFormClose();
+  };
 
-      // Conditional inclusion of Submitter details
-      ...(SubmitterId && { SubmitterId }),
-      ...(SubmitterName && { SubmitterName }),
-      ...(SubmitterEmail && { SubmitterEmail }),
-    };
+  const filterNewData = (dataArray) =>
+    Array.isArray(dataArray) ? dataArray.filter(item => item.isNew === true) : [];
 
-    console.log("Payload to be sent:", payload);
+  // Build payload for new submissions (send full data)
+  const buildNewPayload = (
+    status,
+    ApproverId = null,
+    ApproverName = null,
+    ApproverEmail = null,
+    SubmitterId = null,
+    SubmitterName = null,
+    SubmitterEmail = null
+  ) => ({
+    tripName,
+    businessPurpose,
+    travelType,
+    activity,
+    donor,
+    conditionArea,
+    location,
+    branch,
+    status,
+    ...(travelType === "international" && { destinationCountry, visaRequired }),
 
+    activeTravelModes,
+    flightData: activeTravelModes.includes("flight") ? flightFormData : null,
+    hotelData: activeTravelModes.includes("hotel") ? hotelFormData : null,
+    carData: activeTravelModes.includes("car") ? carFormData : null,
+    busData: activeTravelModes.includes("bus") ? busFormData : null,
+    trainData: activeTravelModes.includes("train") ? trainFormData : null,
+
+    ...(ApproverId && { ApproverId }),
+    ...(ApproverName && { ApproverName }),
+    ...(ApproverEmail && { ApproverEmail }),
+
+    ...(SubmitterId && { SubmitterId }),
+    ...(SubmitterName && { SubmitterName }),
+    ...(SubmitterEmail && { SubmitterEmail }),
+  });
+
+  // Build payload for updates (tripId included, only new travel mode data)
+  const buildUpdatePayload = (
+    status,
+    ApproverId = null,
+    ApproverName = null,
+    ApproverEmail = null,
+    SubmitterId = null,
+    SubmitterName = null,
+    SubmitterEmail = null
+  ) => ({
+    tripId,
+    tripName,
+    businessPurpose,
+    travelType,
+    activity,
+    donor,
+    conditionArea,
+    location,
+    branch,
+    status,
+    ...(travelType === "international" && { destinationCountry, visaRequired }),
+
+    activeTravelModes,
+    flightData: activeTravelModes.includes("flight") ? filterNewData(flightFormData) : null,
+    hotelData: activeTravelModes.includes("hotel") ? filterNewData(hotelFormData) : null,
+    carData: activeTravelModes.includes("car") ? filterNewData(carFormData) : null,
+    busData: activeTravelModes.includes("bus") ? filterNewData(busFormData) : null,
+    trainData: activeTravelModes.includes("train") ? filterNewData(trainFormData) : null,
+
+    ...(ApproverId && { ApproverId }),
+    ...(ApproverName && { ApproverName }),
+    ...(ApproverEmail && { ApproverEmail }),
+
+    ...(SubmitterId && { SubmitterId }),
+    ...(SubmitterName && { SubmitterName }),
+    ...(SubmitterEmail && { SubmitterEmail }),
+  });
+
+  // Function to send payload to backend
+  const sendPayload = async (payload) => {
+    setIsLoading(true);
+    setStatusMessage("");
     try {
       const response = await fetch("/server/userForm/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const result = await response.json();
-      console.log("Success:", result);
       setStatusMessage("Data submitted successfully! Please close the form. ✅");
-
-      if (onFormClose) {
-        onFormClose();
-      }
+      if (onFormClose) onFormClose();
     } catch (error) {
       console.error("Error:", error);
-
+      setStatusMessage("Failed to submit data. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
-  const handleDraftSubmit = (e) => {
-    e.preventDefault();
-    handleSubmit("Draft");
-  };
-
-  const userEmail = "srikanth.thanniru@gurujana.com"
+  // Your existing handleFinalSubmit with approver/submitter API calls integrated
+  // const userEmail = "srikanth.thanniru@gurujana.com"; // your user email
 
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
@@ -286,7 +512,6 @@ const RequestForms = ({ onFormClose }) => {
     setUserData(null);
     setManagerData(null);
 
-    // Check if any travel mode is selected
     if (activeTravelModes.length === 0) {
       setStatusMessage("Please select at least one travel mode.");
       setIsLoading(false);
@@ -294,59 +519,89 @@ const RequestForms = ({ onFormClose }) => {
     }
 
     try {
-      // Step 1: Call the new API to check user access and get manager ID
+      // Step 1: Check user access and get submitter data
       const checkAccessResponse = await fetch("/server/find_userDetails/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: userEmail, action: 'check_access' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: savedEmail, action: "check_access" }),
       });
-
       const checkAccessResult = await checkAccessResponse.json();
 
-      if (!checkAccessResponse.ok || checkAccessResult.status !== 'success') {
-        setStatusMessage(checkAccessResult.message || 'An unknown error occurred during access check.');
+      if (!checkAccessResponse.ok || checkAccessResult.status !== "success") {
+        setStatusMessage(checkAccessResult.message || "An unknown error occurred during access check.");
         setIsLoading(false);
         return;
       }
 
-      // Store the entire data object (submitter details)
       const submitterData = checkAccessResult.data;
       setUserData(submitterData);
-
       const { role, reporting_manager_id } = submitterData;
 
-      // Step 2: If the user is a 'user' and has a reporting_manager_id, get manager details and show popup
-      if (role === 'submitter' && reporting_manager_id) {
+      if (role === "admin") {
+        // Admin acts as both submitter and approver
+        const adminId = submitterData.row_id;
+        const adminName = submitterData.first_name;
+        const adminEmail = submitterData.email;
+
+        setStatusMessage("Admin submission: acting as both submitter and approver.");
+        let payload;
+        if (tripId) {
+          payload = buildUpdatePayload(
+            "Submitted",
+            adminId,   // ApproverId
+            adminName, // ApproverName
+            adminEmail,// ApproverEmail
+            adminId,   // SubmitterId
+            adminName, // SubmitterName
+            adminEmail // SubmitterEmail
+          );
+        } else {
+          payload = buildNewPayload(
+            "Submitted",
+            adminId,
+            adminName,
+            adminEmail,
+            adminId,
+            adminName,
+            adminEmail
+          );
+        }
+        await sendPayload(payload);
+        setIsLoading(false);
+      }
+      else if (role === "submitter" && reporting_manager_id) {
+        // Existing submitter + manager flow
         const getManagerResponse = await fetch("/server/find_userDetails/", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ action: 'get_manager', reporting_manager_id }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "get_manager", reporting_manager_id }),
         });
-
         const getManagerResult = await getManagerResponse.json();
-        console.log("Manager Result:", getManagerResult)
 
-        if (getManagerResponse.ok && getManagerResult.status === 'success') {
-          // Store the full manager result object
+        if (getManagerResponse.ok && getManagerResult.status === "success") {
           setManagerData(getManagerResult);
-          // Show the popup with manager details
           setShowPopup(true);
-          setIsLoading(false)
+          setIsLoading(false);
         } else {
-          setStatusMessage(getManagerResult.message || 'Could not retrieve manager details.');
+          setStatusMessage(getManagerResult.message || "Could not retrieve manager details.");
           setIsLoading(false);
         }
-      } else {
-        setStatusMessage('User details retrieved successfully. Submitting form...');
-        // Proceed with main form submission if no manager is needed
+      }
+      else {
+        // Submitter without manager or other roles: direct submit
+        setStatusMessage("User details retrieved successfully. Submitting form...");
         const sId = submitterData.row_id;
         const sName = submitterData.first_name;
         const sEmail = submitterData.email;
-        handleSubmit("Submitted", null, null, null, sId, sName, sEmail); // Pass null for approver details
+
+        let payload;
+        if (tripId) {
+          payload = buildUpdatePayload("Submitted", null, null, null, sId, sName, sEmail);
+        } else {
+          payload = buildNewPayload("Submitted", null, null, null, sId, sName, sEmail);
+        }
+        await sendPayload(payload);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("API call failed:", error);
@@ -354,6 +609,7 @@ const RequestForms = ({ onFormClose }) => {
       setIsLoading(false);
     }
   };
+
   // New handler for confirming submission from the popup
 
   const triggerMail = async (submitterEmail, approverEmail) => {
@@ -415,6 +671,8 @@ const RequestForms = ({ onFormClose }) => {
       );
 
       triggerMail(submitterEmail, approverEmail);
+      if (onFormClose) onFormClose();   // Close AFTER submission via popup confirm
+      setIsLoading(false);
 
     } else {
       setStatusMessage("Manager or Submitter data is incomplete. Submission cancelled.");
@@ -434,164 +692,209 @@ const RequestForms = ({ onFormClose }) => {
 
   return (
     <div className="form-container">
-      <form>
-        <section className="common-details">
-          <h2>Add Trip Details</h2>
-          <LabeledInput
-            label="Trip Name*"
-            type="text"
-            name="tripName"
-            value={tripName}
-            onChange={(e) => setTripName(e.target.value)}
-            placeholder="e.g., Business Trip to London"
-            required
-          />
-          <LabeledInput
-            label="Business Purpose*"
-            type="text"
-            name="businessPurpose"
-            value={businessPurpose}
-            onChange={(e) => setBusinessPurpose(e.target.value)}
-            placeholder="Business Purpose"
-            required
-          />
-
-          <LabeledRadioGroup
-            label="Travel Type"
-            name="travelType"
-            options={travelTypeOptions}
-            value={travelType}
-            onChange={(e) => setTravelType(e.target.value)}
-          />
-
-          {travelType === "international" && (
-            <React.Fragment>
-              <LabeledDropdown
-                label="Destination Country"
-                name="destinationCountry"
-                value={destinationCountry}
-                onChange={(e) => setDestinationCountry(e.target.value)}
-                options={countriesOptions}
-                required={true}
-              />
-              <LabeledRadioGroup
-                label="Is Visa required?"
-                name="visaRequired"
-                options={[
-                  { value: "yes", label: "Yes" },
-                  { value: "no", label: "No" },
-                ]}
-                value={visaRequired}
-                onChange={(e) => setVisaRequired(e.target.value)}
-              />
-            </React.Fragment>
-          )}
-
-          <div className="form-row">
-            <LabeledDropdown
-              label="Activity"
-              name="activity"
-              value={activity}
-              onChange={(e) => setActivity(e.target.value)}
-              options={apiData.activities}
-              placeholder="Select Activity"
-              required
-            />
-            <LabeledDropdown
-              label="Donor"
-              name="donor"
-              value={donor}
-              onChange={(e) => setDonor(e.target.value)}
-              options={apiData.donors}
-              required
-            />
-          </div>
-
-          <div className="form-row">
-            <LabeledDropdown
-              label="Condition Area"
-              name="conditionArea"
-              value={conditionArea}
-              onChange={(e) => setConditionArea(e.target.value)}
-              options={apiData.conditionAreas}
-              required
-            />
-            <LabeledDropdown
-              label="Location"
-              name="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              options={apiData.locations}
-              required
-            />
-          </div>
-
-          <div className="form-row">
-            <LabeledDropdown1
-              label="Branch"
-              name="branch"
-              value={branch}
-              onChange={(e) => setBranch(e.target.value)}
-              options={apiData.branches}
-              className="half-width"
-              required
-            />
-          </div>
-        </section>
-
-        <section className="mode-selection">
-          <h2>Select Travel Modes</h2>
-          <div className="checkbox-group">
-            {["flight", "hotel", "car", "bus", "train"].map((mode) => (
-              <label key={mode}>
-                <input
-                  type="checkbox"
-                  checked={activeTravelModes.includes(mode)}
-                  onChange={() => handleModeToggle(mode)}
-                />{" "}
-                {mode.charAt(0).toUpperCase() + mode.slice(1)}
-              </label>
-            ))}
-          </div>
-        </section>
-
-        {activeTravelModes.includes("flight") && (
-          <FlightForm onDataChange={setFlightFormData} />
-        )}
-        {activeTravelModes.includes("hotel") && (
-          <HotelForm onDataChange={setHotelFormData} />
-        )}
-        {activeTravelModes.includes("car") && (
-          <CarForm onDataChange={setCarFormData} />
-        )}
-        {activeTravelModes.includes("bus") && (
-          <BusForm onDataChange={setBusFormData} />
-        )}
-        {activeTravelModes.includes("train") && (
-          <TrainForm onDataChange={setTrainFormData} />
-        )}
-
-        {statusMessage && <div className="status-message">{statusMessage}</div>}
-
-        <div className="button-group">
-          <button
-            type="button"
-            onClick={handleDraftSubmit}
-            className="submit-btn"
-          >
-            Save as Draft
-          </button>
-          <button
-            type="button"
-            onClick={handleFinalSubmit}
-            className="submit-btn"
-            disabled={isLoading}
-          >
-            {isLoading ? "Loading..." : "Save and Submit"}
-          </button>
+      {isLoadingData ? (
+        <div className="loading-overlay">
+          <p>Loading trip data...</p>
         </div>
-      </form>
+      ) : (
+        <form>
+          <section className="common-details">
+            <h2>Add Trip Details</h2>
+            <LabeledInput
+              label="Trip Name*"
+              type="text"
+              name="tripName"
+              value={tripName || ""}
+              onChange={(e) => setTripName(e.target.value)}
+              placeholder="e.g., Business Trip to London"
+              required
+            />
+            <LabeledInput
+              label="Business Purpose*"
+              type="text"
+              name="businessPurpose"
+              value={businessPurpose}
+              onChange={(e) => setBusinessPurpose(e.target.value)}
+              placeholder="Business Purpose"
+              required
+            />
+            <LabeledRadioGroup
+              label="Travel Type"
+              name="travelType"
+              options={travelTypeOptions}
+              value={travelType}
+              onChange={(e) => setTravelType(e.target.value)}
+            />
+            {travelType === "international" && (
+              <>
+                <LabeledDropdown
+                  label="Destination Country"
+                  name="destinationCountry"
+                  value={destinationCountry}
+                  onChange={(e) => setDestinationCountry(e.target.value)}
+                  options={countriesOptions}
+                  required={true}
+                />
+                <LabeledRadioGroup
+                  label="Is Visa required?"
+                  name="visaRequired"
+                  options={[
+                    { value: "yes", label: "Yes" },
+                    { value: "no", label: "No" },
+                  ]}
+                  value={visaRequired}
+                  onChange={(e) => setVisaRequired(e.target.value)}
+                />
+              </>
+            )}
+            <div className="form-row">
+              <LabeledDropdown
+                label="Activity"
+                name="activity"
+                value={activity}
+                onChange={(e) => setActivity(e.target.value)}
+                options={apiData.activities}
+                placeholder="Select Activity"
+                required
+              />
+              <LabeledDropdown
+                label="Donor"
+                name="donor"
+                value={donor}
+                onChange={(e) => setDonor(e.target.value)}
+                options={apiData.donors}
+                required
+              />
+            </div>
+            <div className="form-row">
+              <LabeledDropdown
+                label="Condition Area"
+                name="conditionArea"
+                value={conditionArea}
+                onChange={(e) => setConditionArea(e.target.value)}
+                options={apiData.conditionAreas}
+                required
+              />
+              <LabeledDropdown
+                label="Location"
+                name="location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                options={apiData.locations}
+                required
+              />
+            </div>
+            <div className="form-row">
+              <LabeledDropdown1
+                label="Branch"
+                name="branch"
+                value={branch}
+                onChange={(e) => setBranch(e.target.value)}
+                options={apiData.branches}
+                className="half-width"
+                required
+              />
+            </div>
+          </section>
+          <section className="mode-selection">
+            <h2>Select Travel Modes</h2>
+            <div className="checkbox-group">
+              {["flight", "hotel", "car", "bus", "train"].map((mode) => (
+                <label key={mode}>
+                  <input
+                    type="checkbox"
+                    checked={activeTravelModes.includes(mode)}
+                    onChange={() => handleModeToggle(mode)}
+                  />
+                  {" "}
+                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                </label>
+              ))}
+            </div>
+          </section>
+          {activeTravelModes.includes("flight") && (
+            <FlightForm flightData={flightFormData} onDataChange={setFlightFormData} isReadOnly={isFlightReadOnly} />
+          )}
+          {activeTravelModes.includes("hotel") && (
+            <HotelForm hotelData={hotelFormData} onDataChange={setHotelFormData} isReadOnly={isHotelReadOnly} />
+          )}
+          {activeTravelModes.includes("car") && (
+            <CarForm carData={carFormData} onDataChange={setCarFormData} isReadOnly={isCarReadOnly} />
+          )}
+          {activeTravelModes.includes("bus") && (
+            <BusForm busData={busFormData} onDataChange={setBusFormData} isReadOnly={isBusReadOnly} />
+          )}
+          {activeTravelModes.includes("train") && (
+            <TrainForm trainData={trainFormData} onDataChange={setTrainFormData} isReadOnly={isTrainReadOnly} />
+          )}
+          {statusMessage && <div className="status-message">{statusMessage}</div>}
+          <div className="button-group">
+            {formData && formData.status === "Draft" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleDraftSubmit}
+                  className="submit-btn"
+                  disabled={isLoading}
+                >
+                  Save as Draft
+                </button>
+                <button
+                  type="button"
+                  onClick={handleFinalSubmit}
+                  className="submit-btn"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Loading..." : "Save and Submit"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="submit-btn"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : formData ? (
+              <button
+                type="button"
+                onClick={handleUpdate}
+                className="submit-btn"
+                disabled={isLoading}
+              >
+                {isLoading ? "Updating..." : "Update"}
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleDraftSubmit}
+                  className="submit-btn"
+                  disabled={isLoading}
+                >
+                  Save as Draft
+                </button>
+                <button
+                  type="button"
+                  onClick={handleFinalSubmit}
+                  className="submit-btn"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Loading..." : "Save and Submit"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="submit-btn"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
 
+        </form>
+      )}
       {showPopup && managerData && (
         <ManagerPopup
           manager={managerData.data}
@@ -600,6 +903,7 @@ const RequestForms = ({ onFormClose }) => {
         />
       )}
     </div>
+
   );
 };
 

@@ -18,87 +18,238 @@
 
 /* ... (Helper classes, Header styles are unchanged) ... */
 
-.font-small { font-size: 13px; }
+.font-small {
+  font-size: 13px;
+}
 
-.font-xs { font-size: 12px; }
+.font-xs {
+  font-size: 12px;
+}
 
-.text-muted { color: #6c757d; }
+.text-muted {
+  color: #6c757d;
+}
 
-.ze-detail-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; border-bottom: 1px solid #e5e8f1; }
+.heading {
+  font-weight: 600; /* or bold */
+}
 
-.ze-header-left, .ze-header-right { display: flex; align-items: center; gap: 12px; }
 
-.ze-detail-header .trip-id { font-weight: 600; font-size: 16px; }
+.ze-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  border-bottom: 1px solid #e5e8f1;
+}
 
-.ze-detail-header .status-badge { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
+.ze-header-left,
+.ze-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-.badge-awaiting { background-color: #fff4e4; color: #d26b00; }
+.ze-detail-header .trip-id {
+  font-weight: 600;
+  font-size: 16px;
+}
 
-.icon, .icon-sm, .icon-xs, .icon-hover { height: 1em; width: 1em; vertical-align: middle; fill: currentColor; }
+.ze-detail-header .status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
 
-.icon { font-size: 20px; }
+.badge-awaiting {
+  background-color: #fff4e4;
+  color: #d26b00;
+}
 
-.icon-sm { font-size: 18px; }
+.status-pill1 {
+  display: flex;
+  align-items: center;
+  /* vertical center */
+  font-size: 11px;
+  /* or your needed font size */
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  height: 24px;
+  /* fix height matching line height */
+  text-transform: uppercase;
+}
 
-.icon-xs { font-size: 14px; }
+.icon,
+.icon-sm,
+.icon-xs,
+.icon-hover {
+  height: 1em;
+  width: 1em;
+  vertical-align: middle;
+  fill: currentColor;
+}
 
-.icon-hover { font-size: 22px; color: #6c757d; }
+.icon {
+  font-size: 20px;
+}
 
-.btn-icon { background: none; border: none; cursor: pointer; }
+.icon-sm {
+  font-size: 18px;
+}
 
-.icon-hover:hover { color: #333; }
+.icon-xs {
+  font-size: 14px;
+}
 
-.ze-detail-content { padding: 16px 24px; }
+.icon-hover {
+  font-size: 22px;
+  color: #6c757d;
+}
 
-.trip-summary { margin-bottom: 24px; }
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
 
-.report-title { font-size: 24px; font-weight: 300; margin-bottom: 8px; }
- 
+.icon-hover:hover {
+  color: #333;
+}
+
+.ze-detail-content {
+  padding: 16px 24px;
+}
+
+.trip-summary {
+  margin-bottom: 24px;
+  padding: 13px;
+}
+
+.report-title {
+  font-size: 24px;
+  font-weight: 300;
+  margin-bottom: 8px;
+}
+
 /* --- Tabs and Itinerary Styles --- */
 
-.details-nav-tab { display: flex; border-bottom: 1px solid #e5e8f1; margin-bottom: 16px; }
+.details-nav-tab {
+  display: flex;
+  border-bottom: 1px solid #e5e8f1;
+  margin-bottom: 16px;
+}
 
-.details-nav-tab .nav-item { border: none; background: none; padding: 12px 16px; font-size: 14px; font-weight: 600; color: #6c757d; cursor: pointer; border-bottom: 3px solid transparent; display: flex; align-items: center; gap: 8px; margin-bottom: -1px; }
+.details-nav-tab .nav-item {
+  border: none;
+  background: none;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6c757d;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: -1px;
+}
 
-.details-nav-tab .nav-item.active { color: #0d6efd; border-bottom-color: #0d6efd; }
+.details-nav-tab .nav-item.active {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+}
 
-.itinerary-item { display: flex; border: 1px solid #e5e8f1; border-radius: 6px; padding: 16px; margin-bottom: 16px; align-items: center; }
+.itinerary-item {
+  display: flex;
+  border: 1px solid #e5e8f1;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+  align-items: center;
+}
 
-.itinerary-date { width: 140px; font-weight: 500; display: flex; align-items: center; gap: 8px; color: #555; flex-shrink: 0; }
+.itinerary-date {
+  width: 140px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+  flex-shrink: 0;
+}
 
-.itinerary-leg { display: flex; align-items: center; width: 100%; }
+.itinerary-leg {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
 
-.itinerary-leg .location { flex: 1; }
+.itinerary-leg .location {
+  flex: 1;
+}
 
-.itinerary-leg .location:first-child { text-align: right; }
+.itinerary-leg .location:first-child {
+  text-align: right;
+}
 
-.itinerary-leg .arrow { padding: 0 24px; color: #6c757d; }
- 
+.itinerary-leg .arrow {
+  padding: 0 24px;
+  color: #6c757d;
+}
+
 /* --- Hotel and Car Specific Styles --- */
 
-.hotel-item .itinerary-leg { justify-content: flex-start; gap: 24px; }
+.hotel-item .itinerary-leg {
+  justify-content: flex-start;
+  gap: 24px;
+}
 
-.car-item .itinerary-leg { justify-content: flex-start; gap: 24px; }
+.car-item .itinerary-leg {
+  justify-content: flex-start;
+  gap: 24px;
+}
 
-.car-item .itinerary-date { align-items: flex-start; flex-direction: column; gap: 4px; font-weight: normal; }
+.car-item .itinerary-date {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: normal;
+}
 
-.date-block { flex: 1; }
- 
+.date-block {
+  flex: 1;
+}
+
 /* --- NEW: Style for Edit Icon --- */
 
 .item-actions {
 
-  margin-left: auto; /* This pushes the icon to the far right */
+  margin-left: auto;
+  /* This pushes the icon to the far right */
 
-  padding-left: 16px; /* Adds space between the content and the icon */
+  padding-left: 16px;
+  /* Adds space between the content and the icon */
 
 }
- 
+
 /* Add to TripDetailView.css */
 
-.badge-pending   { background-color: #fff4e4; color: #d26b00; } /* amber */
+.badge-pending {
+  background-color: #fff4e4;
+  color: #d26b00;
+}
 
-.badge-completed { background-color: #dcfce7; color: #166534; } /* green */
+/* amber */
+
+.badge-completed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+/* green */
 
 /* ---------- Loading State ---------- */
 .ze-loading-container {
@@ -106,14 +257,18 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 60vh; /* Ensures vertical centering */
+  min-height: 60vh;
+  /* Ensures vertical centering */
   gap: 1rem;
-  color: #6c757d; /* text-muted */
+  color: #6c757d;
+  /* text-muted */
 }
 
 .ze-loader {
-  border: 5px solid #e5e8f1; /* Light border */
-  border-top: 5px solid #0d6efd; /* Active blue */
+  border: 5px solid #e5e8f1;
+  /* Light border */
+  border-top: 5px solid #0d6efd;
+  /* Active blue */
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -121,8 +276,13 @@
 }
 
 @keyframes ze-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* === NEW STYLES FOR FLIGHT VIEW === */
@@ -131,23 +291,64 @@
 .flight-item-wrapper {
   position: relative;
   margin-bottom: 16px;
+  border-bottom: 2px dotted rgb(211, 208, 208);
+
+}
+
+.hotel-item-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 2px dotted rgb(211, 208, 208);
+
+}
+
+.train-item-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 2px dotted rgb(211, 208, 208);
+
+}
+
+.bus-item-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 2px dotted rgb(211, 208, 208);
+
+}
+
+.car-item-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 2px dotted rgb(211, 208, 208);
+
 }
 
 /* Conditionally shown details (Meal, Seat, etc.) */
 .flight-extra-details {
   position: absolute;
   top: 10px;
-  right: 50px; /* Space for edit icon */
+  right: 50px;
+  /* Space for edit icon */
   font-size: 11px;
   color: #6c757d;
   display: flex;
   gap: 12px;
-  z-index: 1; /* Ensure it's above the item box */
+  z-index: 1;
+  /* Ensure it's above the item box */
 }
 
 /* Adjust flight item for the new layout */
 .flight-item {
-  align-items: flex-start; /* Align columns to the top */
+  align-items: flex-start;
+  /* Align columns to the top */
 }
 
 /* General column styling for flight details */
@@ -156,9 +357,11 @@
   flex-direction: column;
   gap: 2px;
 }
+
 .flight-item.has-extra-details {
   padding-top: 32px;
 }
+
 .itinerary-col.text-center {
   align-items: center;
   margin: 0 24px;
@@ -172,16 +375,19 @@
 
 /* Column for Amount and Edit Icon */
 .amount-actions-col {
-  margin-left: auto; /* Push to the far right */
+  margin-left: auto;
+  /* Push to the far right */
   text-align: right;
-  align-items: flex-end; /* Align content to the bottom right */
+  align-items: flex-end;
+  /* Align content to the bottom right */
   flex-direction: row;
   align-items: center;
   gap: 16px;
 }
 
 .amount-actions-col .amount {
-  white-space: nowrap; /* Prevent amount from wrapping */
+  white-space: nowrap;
+  /* Prevent amount from wrapping */
 }
 
 /* Remove default margin that pushes edit icon away */
@@ -191,7 +397,8 @@
 }
 
 .edit-action {
-  align-self: center; /* Center icon vertically in its container */
+  align-self: center;
+  /* Center icon vertically in its container */
 }
 
 /* === FINAL STYLES FOR HOTEL VIEW === */
@@ -224,15 +431,19 @@
 
 /* NEW: Styles for the hyphen separator */
 .hotel-date-separator {
-  align-self: center; /* Vertically centers the hyphen */
+  align-self: center;
+  /* Vertically centers the hyphen */
   color: #6c757d;
-  padding: 0 24px; /* Controls space around the hyphen */
+  padding: 0 24px;
+  /* Controls space around the hyphen */
 }
 
 /* This pushes ONLY the edit icon to the far right */
 .hotel-item .item-actions {
   margin-left: auto;
   padding-left: 16px;
+  display: flex;
+
 }
 
 /* Fallback to hide the old layout structure */
@@ -252,7 +463,8 @@
 .car-info-col.car-type {
   display: flex;
   align-items: center;
-  gap: 8px; /* Space between icon and text */
+  gap: 8px;
+  /* Space between icon and text */
   min-width: 150px;
 }
 
@@ -271,6 +483,9 @@
 .car-item .item-actions {
   margin-left: auto;
   padding-left: 16px;
+
+  display: flex;
+
 }
 
 /* Fallback to hide old layout structures */
@@ -313,6 +528,8 @@
 .bus-item .item-actions {
   margin-left: auto;
   padding-left: 16px;
+  display: flex;
+
 }
 
 /* Fallback to hide old layout structures */
@@ -355,10 +572,94 @@
 .train-item .item-actions {
   margin-left: auto;
   padding-left: 16px;
+  display: flex;
+
 }
 
 /* Fallback to hide old layout structures */
 .train-item .itinerary-leg,
 .train-item .itinerary-date {
   display: none;
+}
+
+.flight-item-toprow,
+.hotel-item-toprow,
+.car-item-toprow,
+.bus-item-toprow,
+.train-item-toprow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  padding: 5px;
+}
+
+
+.mode-tag--reschedule-cancel {
+  background: #fbf8d7;
+  color: #9c9219;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  margin-right: 8px;
+}
+
+.line-tag {
+  min-width: 150px; /* fixes left side width so all lines align vertical */
+}
+
+.flight-extra-details {
+  min-width: 200px; /* fixes right side width */
+  text-align: right;
+}
+
+.flight-extra-details span,
+.line-tag span {
+  margin-left: 0.75rem;
+  margin-right: 0.75rem;
+}
+
+.cancel-reschedule-reason {
+  font-size: 13px;
+  color: #58627f;
+  max-width: 250px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+
+
+
+
+.extra-amount {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.first-row .report-title {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.custom-items-right {
+  display: flex;
+  gap: 16px;
+  flex-wrap: nowrap;
+}
+
+.duration-left {
+  flex-shrink: 0;
 }

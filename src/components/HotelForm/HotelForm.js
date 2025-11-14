@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./HotelForm.css";
 
 // Reusable Input Component
@@ -11,6 +11,7 @@ const LabeledInput = ({
   placeholder,
   required = false,
   className = "",
+  disabled = false,
 }) => (
   <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
@@ -21,6 +22,7 @@ const LabeledInput = ({
       onChange={onChange}
       placeholder={placeholder}
       required={required}
+      disabled={disabled}
     />
   </div>
 );
@@ -33,10 +35,11 @@ const LabeledDropdown = ({
   onChange,
   options,
   className = "",
+  disabled = false,
 }) => (
   <div className={`form-group1 ${className}`}>
     {label && <label>{label}</label>}
-    <select name={name} value={value} onChange={onChange}>
+    <select name={name} value={value} onChange={onChange} disabled={disabled}>
       {options.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}
@@ -46,7 +49,46 @@ const LabeledDropdown = ({
   </div>
 );
 
-const HotelForm = ({ onDataChange }) => {
+const HotelForm = ({ onDataChange, hotelData, isReadOnly = false }) => {
+  const mapApiHotelDataToSegments = (hotels) => {
+    if (!Array.isArray(hotels) || hotels.length === 0) {
+      return [
+        {
+          isNew: true,
+          location: "",
+          checkInDate: "",
+          checkInTime: "",
+          checkOutDate: "",
+          checkOutTime: "",
+          description: "",
+        },
+      ];
+    }
+    return hotels.map((hotel) => ({
+      isNew: false,
+      location: hotel.HOTEL_DEP_CITY || hotel.HOTEL_ARR_CITY || "",
+      checkInDate: hotel.HOTEL_DEP_DATE || "",
+      checkInTime: hotel.HOTEL_DEP_TIME || "",
+      checkOutDate: hotel.HOTEL_ARR_DATE || "",
+      checkOutTime: hotel.HOTEL_ARR_TIME || "",
+      description: hotel.DESCRIPTION || "",
+    }));
+  };
+
+  const initialized = useRef(false);
+
+  const [hotelSegments, setHotelSegments] = useState(() => {
+    return mapApiHotelDataToSegments(hotelData || []);
+  });
+
+  useEffect(() => {
+    if (hotelData && !initialized.current) {
+      const mapped = mapApiHotelDataToSegments(hotelData);
+      setHotelSegments(mapped);
+      initialized.current = true;
+    }
+  }, [hotelData]);
+
   const cityOptions = [
     { value: "", label: "Select City" },
     { value: "NYC", label: "New York" },
@@ -56,18 +98,22 @@ const HotelForm = ({ onDataChange }) => {
     { value: "TYO", label: "Tokyo" },
   ];
 
-  const [hotelSegments, setHotelSegments] = useState([
-    {
-      location: "",
-      checkInDate: "",
-      checkInTime: "",
-      checkOutDate: "",
-      checkOutTime: "",
-      description: "",
-    },
-  ]);
+  const isNewSegment = (segment) => {
+    return (
+      !segment.location &&
+      !segment.checkInDate &&
+      !segment.checkInTime &&
+      !segment.checkOutDate &&
+      !segment.checkOutTime &&
+      !segment.description
+    );
+  };
 
   const handleSegmentChange = (e, index) => {
+    if (isReadOnly && !hotelSegments[index].isNew) {
+      // Prevent editing existing segment when read-only
+      return;
+    }
     const { name, value } = e.target;
     const newSegments = [...hotelSegments];
     newSegments[index][name] = value;
@@ -76,20 +122,24 @@ const HotelForm = ({ onDataChange }) => {
   };
 
   const handleAddSegment = () => {
-    setHotelSegments([
-      ...hotelSegments,
-      {
-        location: "",
-        checkInDate: "",
-        checkInTime: "",
-        checkOutDate: "",
-        checkOutTime: "",
-        description: "",
-      },
-    ]);
+    const newSegment = {
+      isNew: true,
+      location: "",
+      checkInDate: "",
+      checkInTime: "",
+      checkOutDate: "",
+      checkOutTime: "",
+      description: "",
+    };
+    setHotelSegments([...hotelSegments, newSegment]);
+    onDataChange([...hotelSegments, newSegment]);
   };
 
   const handleRemoveSegment = (index) => {
+    if (isReadOnly && !hotelSegments[index].isNew) {
+      // Prevent removal of existing segment when read-only
+      return;
+    }
     const newSegments = hotelSegments.filter((_, i) => i !== index);
     setHotelSegments(newSegments);
     onDataChange(newSegments);
@@ -98,81 +148,91 @@ const HotelForm = ({ onDataChange }) => {
   return (
     <section className="travel-mode-section">
       <h3>Hotel Details 🏨</h3>
-      {hotelSegments.map((segment, index) => (
-        <React.Fragment key={index}>
-          <div className="hotel-segment-row">
-            <LabeledDropdown
-              label="Location*" 
-              name="location"
-              value={segment.location}
-              onChange={(e) => handleSegmentChange(e, index)}
-              options={cityOptions}
-              required={true}
-              className="city-select"
-            />
-            <div className="datetime-group">
-              <LabeledInput
-               label="Check-In*"
-                type="date"
-                name="checkInDate"
-                value={segment.checkInDate}
+      {hotelSegments.map((segment, index) => {
+        const disabled = isReadOnly && !segment.isNew;
+
+        return (
+          <React.Fragment key={index}>
+            <div className="hotel-segment-row">
+              <LabeledDropdown
+                label="Location*"
+                name="location"
+                value={segment.location}
                 onChange={(e) => handleSegmentChange(e, index)}
-                placeholder="eg: 31 Jan 2025"
+                options={cityOptions}
                 required={true}
-                className="date-input"
+                className="city-select"
+                disabled={disabled}
               />
+              <div className="datetime-group">
+                <LabeledInput
+                  label="Check-In*"
+                  type="date"
+                  name="checkInDate"
+                  value={segment.checkInDate}
+                  onChange={(e) => handleSegmentChange(e, index)}
+                  placeholder="eg: 31 Jan 2025"
+                  required={true}
+                  className="date-input"
+                  disabled={disabled}
+                />
+                <LabeledInput
+                  label="In-time*"
+                  type="time"
+                  name="checkInTime"
+                  value={segment.checkInTime}
+                  onChange={(e) => handleSegmentChange(e, index)}
+                  placeholder="HH:MM"
+                  className="time-input"
+                  disabled={disabled}
+                />
+              </div>
+              <div className="datetime-group">
+                <LabeledInput
+                  label="Check-Out*"
+                  type="date"
+                  name="checkOutDate"
+                  value={segment.checkOutDate}
+                  onChange={(e) => handleSegmentChange(e, index)}
+                  placeholder="eg: 31 Jan 2025"
+                  required={true}
+                  className="date-input"
+                  disabled={disabled}
+                />
+                <LabeledInput
+                  label="Out-time*"
+                  type="time"
+                  name="checkOutTime"
+                  value={segment.checkOutTime}
+                  onChange={(e) => handleSegmentChange(e, index)}
+                  placeholder="HH:MM"
+                  className="time-input"
+                  disabled={disabled}
+                />
+              </div>
               <LabeledInput
-                label="In-time*"
-                type="time"
-                name="checkInTime"
-                value={segment.checkInTime}
+                label="Description"
+                type="text"
+                name="description"
+                value={segment.description}
                 onChange={(e) => handleSegmentChange(e, index)}
-                placeholder="HH:MM"
-                className="time-input"
+                placeholder="Description"
+                className="description-input"
+                disabled={disabled}
               />
+              {hotelSegments.length > 1 && !disabled && (
+                <button
+                  type="button"
+                  className="delete-row-btn"
+                  onClick={() => handleRemoveSegment(index)}
+                >
+                  🗑️
+                </button>
+              )}
             </div>
-            <div className="datetime-group">
-              <LabeledInput
-              label="Check-Out*"
-                type="date"
-                name="checkOutDate"
-                value={segment.checkOutDate}
-                onChange={(e) => handleSegmentChange(e, index)}
-                placeholder="eg: 31 Jan 2025"
-                required={true}
-                className="date-input"
-              />
-              <LabeledInput
-              label="Out-time*"
-                type="time"
-                name="checkOutTime"
-                value={segment.checkOutTime}
-                onChange={(e) => handleSegmentChange(e, index)}
-                placeholder="HH:MM"
-                className="time-input"
-              />
-            </div>
-            <LabeledInput
-              label="Description"
-              type="text"
-              name="description"
-              value={segment.description}
-              onChange={(e) => handleSegmentChange(e, index)}
-              placeholder="Description"
-              className="description-input"
-            />
-            {hotelSegments.length > 1 && (
-              <button
-                type="button"
-                className="delete-row-btn"
-                onClick={() => handleRemoveSegment(index)}
-              >
-                🗑️
-              </button>
-            )}
-          </div>
-        </React.Fragment>
-      ))}
+          </React.Fragment>
+        );
+      })}
 
       <div className="add-hotel-btn-container">
         <button

@@ -2,21 +2,30 @@ import React, { useState, useEffect, useMemo } from "react";
 import "./TripView.css";
 import TripOverView from "./TripOverView";
 
+// SVG Icons for booking modes
+
+
+// Map mode strings to icon components
+const modeIcons = {
+  plane: <i className="fas fa-plane"></i>,
+  hotel: <i className="fas fa-hotel"></i>,
+  car: <i className="fas fa-car"></i>,
+  bus: <i className="fas fa-bus"></i>,
+  train: <i className="fas fa-train"></i>,
+};
+
 // Helper function to extract the destination from the new data structure
 const getDestination = (trip) => {
-  // Check the associatedData for any arrival city
   const associatedData = trip.associatedData || {};
 
-  // Define an array of keys to check for arrival city in order of preference
   const arrCityKeys = [
     "FLIGHT_ARR_CITY",
     "TRAIN_ARR_CITY",
     "BUS_ARR_CITY",
     "CAR_ARR_CITY",
-    "HOTEL_CITY", // Assuming hotel city can be a destination
+    "HOTEL_CITY",
   ];
 
-  // Function to find the first non-null/non-empty arrival city
   const findArrCity = (dataArray) => {
     if (!Array.isArray(dataArray)) return null;
     for (const item of dataArray) {
@@ -29,7 +38,6 @@ const getDestination = (trip) => {
     return null;
   };
 
-  // Check all associated data arrays
   const carDest = findArrCity(associatedData.CarData);
   if (carDest) return carDest;
 
@@ -45,7 +53,6 @@ const getDestination = (trip) => {
   const hotelDest = findArrCity(associatedData.HotelData);
   if (hotelDest) return hotelDest;
 
-  // Fallback to the top-level DESTINATION_COUNTRY if no segment data is found
   return trip.DESTINATION_COUNTRY || "N/A";
 };
 
@@ -54,72 +61,64 @@ const extractDates = (item, prefix) => {
   const dates = [];
   const depDateKey = `${prefix}_DEP_DATE`;
   const arrDateKey = `${prefix}_ARR_DATE`;
-  const checkInKey = `${prefix}_CHECK_IN_DATE`; // For Hotel
-  const checkOutKey = `${prefix}_CHECK_OUT_DATE`; // For Hotel
+  const checkInKey = `${prefix}_CHECK_IN_DATE`;
+  const checkOutKey = `${prefix}_CHECK_OUT_DATE`;
 
-  // Check departure/check-in date
   if (item[depDateKey] && item[depDateKey] !== "null") {
     dates.push(item[depDateKey]);
   } else if (item[checkInKey] && item[checkInKey] !== "null") {
     dates.push(item[checkInKey]);
   }
 
-  // Check arrival/check-out date
   if (item[arrDateKey] && item[arrDateKey] !== "null") {
     dates.push(item[arrDateKey]);
   } else if (item[checkOutKey] && item[checkOutKey] !== "null") {
     dates.push(item[checkOutKey]);
   }
 
-  // Filter out duplicates and ensure we only have valid date strings (YYYY-MM-DD format)
-  return [
-    ...new Set(
-      dates.filter((date) => date && date.match(/^\d{4}-\d{2}-\d{2}$/))
-    ),
-  ];
+  return [...new Set(dates.filter((date) => date && date.match(/^\d{4}-\d{2}-\d{2}$/)))];
 };
 
-
-const TripView = () => {
+const TripView = ({ onSelectTrip, onOpenForm, onOpenDetail, onCloseDetail }) => {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTrip, setSelectedTrip] = useState(null);
-  // *** MODIFICATION 4: New state for the active tab ***
-  const [activeTab, setActiveTab] = useState("all"); 
+  const [activeTab, setActiveTab] = useState("all");
 
-  // Define the tabs for easy rendering and mapping
-  // 'submitter' is a placeholder for a status that might be represented by user context later, 
-  // but for now, we'll keep it as a tab option. We'll show all non-Rejected/Draft/Approved trips under it for simplicity.
   const tabs = [
     { name: "All", key: "all" },
-    { name: "Submitted", key: "submitted" }, // Changed 'submitter' to 'submitted' for clarity on status
-    { name: "Rejected", key: "rejected" },
     { name: "Draft", key: "draft" },
+    { name: "Submitted", key: "submitted" },
     { name: "Approved", key: "approved" },
+    { name: "Rejected", key: "rejected" },
   ];
 
-
-  // Main data fetching logic
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // *** MODIFICATION 1: Change API endpoint ***
         const response = await fetch("/server/get_newTripData/");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const apiData = await response.json();
+        let rawTrips = apiData.data || [];
 
-        // The new API structure returns an array of trip objects, each containing its segments.
-        const rawTrips = apiData.data || [];
+        // Add sorting by CREATEDTIME descending (latest first)
+        const parseDate = (dateString) => {
+          if (!dateString) return new Date(0);
+          const fixedString = dateString.replace(/:(\d{3})$/, '.$1');
+          return new Date(fixedString);
+        };
 
-        // STEP 1: Process each top-level trip item
+        rawTrips.sort((a, b) => {
+          const dateA = parseDate(a.CREATEDTIME);
+          const dateB = parseDate(b.CREATEDTIME);
+          return dateB - dateA;
+        });
+
         const finalGroupedData = rawTrips.map((item) => {
-          // *** MODIFICATION 2: Use ROWID as Trip ID ***
           const tripId = item.ROWID;
-
-          // Helper object to map data keys to their prefixes
           const segmentDataMap = {
             CarData: "CAR",
             FlightData: "FLIGHT",
@@ -129,34 +128,25 @@ const TripView = () => {
           };
 
           const allDates = [];
-          const bookingStatus = new Set(); // Use a Set to collect unique modes
+          const bookingStatus = new Set();
 
-          // Iterate through all associated data types (segments)
           Object.keys(segmentDataMap).forEach((dataKey) => {
             const prefix = segmentDataMap[dataKey];
             const segments = item.associatedData?.[dataKey] || [];
 
             segments.forEach((segment) => {
-              // Collect dates from the segment
               allDates.push(...extractDates(segment, prefix));
 
-              // Add travel mode to booking status based on the key
-              const normalizedMode = prefix.toLowerCase(); // e.g., 'car', 'flight'
-              // Normalize to the intended names: plane, bus, car, train, hotel
+              const normalizedMode = prefix.toLowerCase();
               let displayMode;
-              if (normalizedMode === 'flight') displayMode = 'plane';
-              else displayMode = normalizedMode;
-              
+              displayMode = normalizedMode === "flight" ? "plane" : normalizedMode;
               bookingStatus.add(displayMode);
             });
           });
 
-          // Process Dates
-          const uniqueDates = [...new Set(allDates)].sort(); // Deduplicate and sort dates
-
+          const uniqueDates = [...new Set(allDates)].sort();
           let tripDatesString = "N/A";
           if (uniqueDates.length > 0) {
-            // Earliest date is the first element, latest date is the last element
             const startDate = uniqueDates[0];
             const endDate = uniqueDates[uniqueDates.length - 1];
             tripDatesString = `${startDate} - ${endDate}`;
@@ -165,12 +155,12 @@ const TripView = () => {
           return {
             id: tripId,
             tripName: item.TRIP_NAME,
-            // Calculated tripDates using the earliest dep and latest arr date
+            tripNumber: item.TRIP_NUMBER,
             tripDates: tripDatesString,
             destination: getDestination(item),
-            status: item.STATUS, // *** MODIFICATION 3: Status key is now 'STATUS' ***
+            status: item.STATUS,
             approver: item.APPROVER_NAME,
-            bookingStatus: [...bookingStatus], // Convert Set back to Array
+            bookingStatus: [...bookingStatus],
           };
         });
 
@@ -185,16 +175,12 @@ const TripView = () => {
     fetchData();
   }, []);
 
-  // *** MODIFICATION 5: Filter trips based on the activeTab using useMemo ***
   const filteredTrips = useMemo(() => {
     if (activeTab === "all") {
       return trips;
     }
+    const targetStatus = activeTab.toUpperCase();
 
-    // Standardize the status names to lowercase for comparison
-    const targetStatus = activeTab.toUpperCase(); 
-
-    // Handle the 'submitted' tab which captures trips that are not Draft, Approved, or Rejected
     if (activeTab === "submitted") {
       return trips.filter((trip) => {
         const status = trip.status?.toUpperCase();
@@ -202,24 +188,20 @@ const TripView = () => {
       });
     }
 
-    return trips.filter(
-      (trip) => trip.status?.toUpperCase() === targetStatus
-    );
+    return trips.filter((trip) => trip.status?.toUpperCase() === targetStatus);
   }, [trips, activeTab]);
 
-
-  // Handler for row clicks
   const handleRowClick = (trip) => {
-    console.log('Selected Trip Data:', trip); 
+    console.log("Selected Trip Data:", trip);
     setSelectedTrip(trip);
-    
+    if (onSelectTrip) onSelectTrip(trip);
+    if (onOpenDetail) onOpenDetail();
   };
 
-  // Handler for "Back" button in the detailed view
   const handleBackToList = () => {
     setSelectedTrip(null);
+    if (onCloseDetail) onCloseDetail();
   };
-
 
   const getStatusClass = (status) => {
     switch (status?.toUpperCase()) {
@@ -228,7 +210,7 @@ const TripView = () => {
       case "DRAFT":
         return "status-draft";
       case "REJECTED":
-        return "status-rejected"; // Added rejected status style
+        return "status-rejected";
       default:
         return "status-default";
     }
@@ -243,16 +225,22 @@ const TripView = () => {
     return parts[0][0]?.toUpperCase() || "-";
   };
 
-
-  if (selectedTrip) {
-    return <TripOverView trip={selectedTrip} onBack={handleBackToList} />;
+  if (loading) {
+    return (
+      <div className="full-page-loading">
+        <div className="loader"></div>
+        <span style={{ marginLeft: 12 }}>Loading...</span>
+      </div>
+    );
   }
 
+  if (selectedTrip) {
+    return <TripOverView trip={selectedTrip} onOpenForm={onOpenForm} onBack={handleBackToList} />;
+  }
 
   return (
     <>
       <div className="trip-view-container">
-        {/* *** MODIFICATION 6: Add the Tabs component *** */}
         <div className="trip-tabs">
           {tabs.map((tab) => (
             <button
@@ -264,7 +252,6 @@ const TripView = () => {
             </button>
           ))}
         </div>
-        {/* --- */}
         <div className="table-wrapper">
           <div className="table-responsive">
             <table className="trip-table">
@@ -276,45 +263,34 @@ const TripView = () => {
                   <th>STATUS</th>
                   <th>APPROVER</th>
                   <th>BOOKING STATUS</th>
-                  {/* <th className="action-column">
-                    ACTION
-                  </th> */}
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="7" className="loading-row">
-                      Loading...
+                    <td colSpan="6" style={{ textAlign: "center", padding: "2rem" }}>
+                      <div className="loader" style={{ display: "inline-block", marginRight: 10 }}></div>
+                      <span>Loading trip data...</span>
                     </td>
                   </tr>
                 ) : filteredTrips.length > 0 ? (
-                  // *** MODIFICATION 7: Render filteredTrips instead of trips ***
                   filteredTrips.map((trip) => (
                     <tr key={trip.id} onClick={() => handleRowClick(trip)}>
-                      
                       <td className="trip-id">{trip.id}</td>
                       <td className="trip-details">
                         <div className="details-group">
                           <span className="trip-name">{trip.tripName}</span>
+                          <span className="trip-number">({trip.tripNumber})</span>
                           <span className="trip-dates">{trip.tripDates}</span>
                         </div>
                       </td>
                       <td>{trip.destination}</td>
                       <td>
-                        <span
-                          className={`status-tag ${getStatusClass(
-                            trip.status
-                          )}`}
-                        >
-                          {trip.status}
-                        </span>
+                        <span className={`status-tag ${getStatusClass(trip.status)}`}>{trip.status}</span>
                       </td>
                       <td>
                         <div className="approver-info">
-                          <div className="approver-avatar">
-                            {getInitials(trip.approver)}
-                          </div>
+                          <div className="approver-avatar">{getInitials(trip.approver)}</div>
                           {trip.approver}
                         </div>
                       </td>
@@ -322,21 +298,16 @@ const TripView = () => {
                         <div className="booking-status-icons">
                           {trip.bookingStatus.map((item, index) => (
                             <div key={index} className="booking-icon-wrapper">
-                              {item}
+                              {modeIcons[item] || item}
                             </div>
                           ))}
                         </div>
                       </td>
-                      {/* <td className="action-column">
-                        <button className="action-button">
-                          ...
-                        </button>
-                      </td> */}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="loading-row">
+                    <td colSpan="6" className="loading-row">
                       No trips found for the status: {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}.
                     </td>
                   </tr>

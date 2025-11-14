@@ -14,21 +14,21 @@ const InfoIcon = () => (
     <path d="M388.5 5.9h-265C58.6 5.9 5.9 58.6 5.9 123.5v265c0 64.8 52.8 117.6 117.6 117.6h265c64.8 0 117.6-52.8 117.6-117.6v-265c0-64.9-52.7-117.6-117.6-117.6zM298 264.3l-9.7 5.1c-1.6.9-2.7 2.6-2.7 4.4v27.1c0 16.8-13.9 30.5-30.8 30-16.3-.4-29.2-14.3-29.2-30.6v-30.2c0-21.9 12-41.9 31.4-52.1l13-6.9c10.2-5.4 16.6-15.9 16.6-27.5 0-16.8-14.2-31-31.1-31-16.8 0-30.9 14.1-31.1 30.9-.1 16.6-13.4 30.2-30 30.2-16.5 0-30-13.3-30-29.8-.1-50.3 40.8-91.2 91.1-91.2 50.2 0 91 40.8 91.1 91 .1 33.9-18.6 64.8-48.6 80.6z" />
   </svg>
 );
-const FlightIcon = () => (<svg viewBox="0 0 512 512" className="icon"><path d="m483.1 205.6-114-64.2v-26.8c0-41.3-22.5-79.2-58.7-99-33.7-18.4-74-18.5-107.7-.2l-.4.2c-36.5 19.7-59.1 57.7-59.1 99.2v26.4L28.9 205.6C10.6 215.9-.8 235.4-.8 256.5v45.2c0 11.6 9.4 21 21 21h122.9V466l-31.1 2.2c-11.6.8-20.3 10.8-19.5 22.4s10.8 20.3 22.4 19.5l141.2-9.9 140.6 9.9c.5 0 1 .1 1.5.1 10.9 0 20.1-8.5 20.9-19.5.8-11.6-7.9-21.6-19.5-22.4l-30.5-2.1V322.6h122.7c11.6 0 21-9.4 21-21v-45.2c0-21-11.4-40.5-29.7-50.8z"/></svg>);
-const HotelIcon = () => (<svg viewBox="0 0 512 512" className="icon"><path d="m463 201.7-94.3-54V64.8c0-17.3-7.8-33.4-21.5-44.1-13.6-10.7-31.1-14.4-48-10.3l-227 56.1c-40.6 10.1-69 46.4-69 88.3v257.4c0 50.2 40.8 91 91 91H417.8c50.2 0 91-40.8 91-91V280.6c0-32.5-17.5-62.8-45.8-78.9z"/></svg>);
-const CarIcon = () => (<svg viewBox="0 0 512 512" className="icon"><path d="m462.4 206.4-16.1-147C443.2 31 419.2 9.5 390.6 9.5H305c-3.7-5.9-10.3-9.8-17.8-9.8h-62.4c-7.5 0-14.1 3.9-17.8 9.8h-85.7c-28.6 0-52.5 21.4-55.7 49.9l-16.1 147c-26.2 16.7-43.7 46-43.7 79.4v134c0 30.9 25.1 56 56 56h25.6v15.7c0 11.6 9.4 21 21 21s21-9.4 21-21v-15.7h253v15.7c0 11.6 9.4 21 21 21s21-9.4 21-21v-15.7H450c30.9 0 56-25.1 56-56v-134c.1-33.4-17.3-62.7-43.6-79.4z"/></svg>);
-const BusIcon  = () => (<svg viewBox="0 0 640 512" className="icon"><path d="M80 64C35.8 64 0 99.8 0 144v224c0 17.7 14.3 32 32 32h32c0 35.3 28.7 64 64 64s64-28.7 64-64h256c0 35.3 28.7 64 64 64s64-28.7 64-64h32c17.7 0 32-14.3 32-32V144c0-44.2-35.8-80-80-80H80zM64 144c0-8.8 7.2-16 16-16h480c8.8 0 16 7.2 16 16v128H64z"/></svg>);
-const TrainIcon = () => (<svg viewBox="0 0 448 512" className="icon"><path d="M96 0C60.7 0 32 28.7 32 64V288c0 35.3 28.7 64 64 64l-32 32v32H160l32-32h64l32 32H384V384l-32-32c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H96zM96 64H352V208H96zM128 416l-32 32 32 32h32l32-32-32-32H128zM320 416H288l-32 32 32 32h32l32-32-32-32z"/></svg>);
-const ArrowIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm"><path d="M415.2 230.1l-85.3-51-74.3-44.4c-23.2-13.9-54.4 1-54.4 25.9V221h-84.9c-19.3 0-35 15.7-35 35s15.7 35 35 35h84.9v60.3c0 25 31.2 39.8 54.4 25.9l74.3-44.4 85.3-51c20.6-12.2 20.6-39.4 0-51.7z"/></svg>);
-const EditIcon  = () => (<svg viewBox="0 0 24 24" className="icon-sm"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>);
-const LocationIcon = () => (<svg viewBox="0 0 384 512" className="icon"><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>);
+const FlightIcon = () => (<svg viewBox="0 0 512 512" className="icon"><path d="m483.1 205.6-114-64.2v-26.8c0-41.3-22.5-79.2-58.7-99-33.7-18.4-74-18.5-107.7-.2l-.4.2c-36.5 19.7-59.1 57.7-59.1 99.2v26.4L28.9 205.6C10.6 215.9-.8 235.4-.8 256.5v45.2c0 11.6 9.4 21 21 21h122.9V466l-31.1 2.2c-11.6.8-20.3 10.8-19.5 22.4s10.8 20.3 22.4 19.5l141.2-9.9 140.6 9.9c.5 0 1 .1 1.5.1 10.9 0 20.1-8.5 20.9-19.5.8-11.6-7.9-21.6-19.5-22.4l-30.5-2.1V322.6h122.7c11.6 0 21-9.4 21-21v-45.2c0-21-11.4-40.5-29.7-50.8z" /></svg>);
+const HotelIcon = () => (<svg viewBox="0 0 512 512" className="icon"><path d="m463 201.7-94.3-54V64.8c0-17.3-7.8-33.4-21.5-44.1-13.6-10.7-31.1-14.4-48-10.3l-227 56.1c-40.6 10.1-69 46.4-69 88.3v257.4c0 50.2 40.8 91 91 91H417.8c50.2 0 91-40.8 91-91V280.6c0-32.5-17.5-62.8-45.8-78.9z" /></svg>);
+const CarIcon = () => (<svg viewBox="0 0 512 512" className="icon"><path d="m462.4 206.4-16.1-147C443.2 31 419.2 9.5 390.6 9.5H305c-3.7-5.9-10.3-9.8-17.8-9.8h-62.4c-7.5 0-14.1 3.9-17.8 9.8h-85.7c-28.6 0-52.5 21.4-55.7 49.9l-16.1 147c-26.2 16.7-43.7 46-43.7 79.4v134c0 30.9 25.1 56 56 56h25.6v15.7c0 11.6 9.4 21 21 21s21-9.4 21-21v-15.7h253v15.7c0 11.6 9.4 21 21 21s21-9.4 21-21v-15.7H450c30.9 0 56-25.1 56-56v-134c.1-33.4-17.3-62.7-43.6-79.4z" /></svg>);
+const BusIcon = () => (<svg viewBox="0 0 640 512" className="icon"><path d="M80 64C35.8 64 0 99.8 0 144v224c0 17.7 14.3 32 32 32h32c0 35.3 28.7 64 64 64s64-28.7 64-64h256c0 35.3 28.7 64 64 64s64-28.7 64-64h32c17.7 0 32-14.3 32-32V144c0-44.2-35.8-80-80-80H80zM64 144c0-8.8 7.2-16 16-16h480c8.8 0 16 7.2 16 16v128H64z" /></svg>);
+const TrainIcon = () => (<svg viewBox="0 0 448 512" className="icon"><path d="M96 0C60.7 0 32 28.7 32 64V288c0 35.3 28.7 64 64 64l-32 32v32H160l32-32h64l32 32H384V384l-32-32c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H96zM96 64H352V208H96zM128 416l-32 32 32 32h32l32-32-32-32H128zM320 416H288l-32 32 32 32h32l32-32-32-32z" /></svg>);
+const ArrowIcon = () => (<svg viewBox="0 0 512 512" className="icon-sm"><path d="M415.2 230.1l-85.3-51-74.3-44.4c-23.2-13.9-54.4 1-54.4 25.9V221h-84.9c-19.3 0-35 15.7-35 35s15.7 35 35 35h84.9v60.3c0 25 31.2 39.8 54.4 25.9l74.3-44.4 85.3-51c20.6-12.2 20.6-39.4 0-51.7z" /></svg>);
+const EditIcon = () => (<svg viewBox="0 0 24 24" className="icon-sm"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" /></svg>);
+const LocationIcon = () => (<svg viewBox="0 0 384 512" className="icon"><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z" /></svg>);
 /* ---------------- Tabs ---------------- */
 const ALL_TABS = [
   { key: "flight", label: "Flight", icon: <FlightIcon /> },
-  { key: "hotel",  label: "Hotel",  icon: <HotelIcon /> },
-  { key: "car",    label: "Car Rental", icon: <CarIcon /> },
-  { key: "bus",    label: "Bus",    icon: <BusIcon /> },
-  { key: "train",  label: "Train",  icon: <TrainIcon /> },
+  { key: "hotel", label: "Hotel", icon: <HotelIcon /> },
+  { key: "car", label: "Car Rental", icon: <CarIcon /> },
+  { key: "bus", label: "Bus", icon: <BusIcon /> },
+  { key: "train", label: "Train", icon: <TrainIcon /> },
 ];
 /* ---------------- Helpers: Duration Calculation ---------------- */
 const calculateDuration = (depDateStr, depTimeStr, arrDateStr, arrTimeStr) => {
@@ -64,123 +64,188 @@ const unwrap = (elem, innerKey) => {
   return elem; // already the record
 };
 
-/* --------- Mappers (include sub-record status) --------- */
+const parseDate = (dtStr) => {
+  // Replace last colon with dot for milliseconds
+  if (!dtStr) return new Date(0);
+  const lastColonIndex = dtStr.lastIndexOf(":");
+  if (lastColonIndex === -1) return new Date(dtStr);
+  return new Date(dtStr.substring(0, lastColonIndex) + "." + dtStr.substring(lastColonIndex + 1));
+};
+
+/* --------- Mappers (include sub-record status with cancellation_charge and refund) --------- */
 const mapFlights = (arr = []) =>
   arr.map((w) => unwrap(w, "flightDataZoho"))
-     .filter((f) => f && typeof f === "object")
-     .map((f) => {
-       const depCity = f.flight_dep_city || f.dep_city || "";
-       const arrCity = f.flight_arrv_city || f.arrv_city || "";
-       const depCode = (depCity || "").slice(0, 3).toUpperCase();
-       const arrCode = (arrCity || "").slice(0, 3).toUpperCase();
-       
-       const duration = calculateDuration(f.flight_dep_date, f.flight_dep_time, f.flight_arrv_date, f.flight_arrv_time);
+    .filter((f) => f && typeof f === "object")
+    .map((f) => {
+      const depCity = f.flight_dep_city || f.dep_city || "";
+      const arrCity = f.flight_arrv_city || f.arrv_city || "";
+      const depCode = (depCity || "").slice(0, 3).toUpperCase();
+      const arrCode = (arrCity || "").slice(0, 3).toUpperCase();
 
-       return {
-         subRowId: f.ROWID || f.rowid || f.RowId || "",
-         status: f.status, // used for allowEdit
-         dep: {
-           date: toDisplayDate(f.flight_dep_date || f.dep_date),
-           time: toTime(f.flight_dep_time || f.dep_time),
-           city: depCity,
-           code: depCode,
-           airport: f.flight_dep_airport || f.dep_airport || "",
-         },
-         arr: {
-           date: toDisplayDate(f.flight_arrv_date || f.arrv_date),
-           time: toTime(f.flight_arrv_time || f.arrv_time),
-           city: arrCity,
-           code: arrCode,
-           airport: f.flight_arrv_airport || f.arr_airport || "",
-         },
-         duration: duration,
-         amount: f.bcy_total_amount || 0,
-         meal: f.meal || "",
-         seat: f.seat || "",
-         flightClass: f.flight_class || f.flightClass || "",
-         nonStop: !!(f.non_stop || f.nonStop || f.direct_flight),
-       };
-     });
+      const duration = calculateDuration(f.flight_dep_date, f.flight_dep_time, f.flight_arrv_date, f.flight_arrv_time);
+
+      return {
+        subRowId: f.ROWID || f.rowid || f.RowId || "",
+        status: f.status, // used for allowEdit
+        dep: {
+          date: toDisplayDate(f.flight_dep_date || f.dep_date),
+          time: toTime(f.flight_dep_time || f.dep_time),
+          city: depCity,
+          code: depCode,
+          airport: f.flight_dep_airport || f.dep_airport || "",
+        },
+        arr: {
+          date: toDisplayDate(f.flight_arrv_date || f.arrv_date),
+          time: toTime(f.flight_arrv_time || f.arr_time),
+          city: arrCity,
+          code: arrCode,
+          airport: f.flight_arrv_airport || f.arr_airport || "",
+        },
+        duration: duration,
+        bcy_amount: f.bcy_total_amount || 0,
+        amount: f.Amount || 0,
+        meal: f.meal || "",
+        seat: f.seat || "",
+        flightClass: f.flight_class || f.flightClass || "",
+        nonStop: !!(f.non_stop || f.nonStop || f.direct_flight),
+        rescheduleOrCancel: f.reschedule_OR_Cancel,
+        refund_amount: f.refund_amount || 0,
+        cancellation_charge: f.cancellation_charge || 0,
+        cancel_or_reschedule_reason: f.cancel_or_reschedule_reason || "",
+        vendorName: f.vendorName || "",        // add these 4 fields
+        BillDate: f.BillDate || "",
+        BillNumber: f.BillNumber || "",
+        TypeOfBook: f.TypeOfBook || "",
+        MODIFIEDTIME: f.MODIFIEDTIME || "",
+        bookingId: f.BookingId || "",
+        bookingDate: f.BookingDate || "",
+        Notes: f.Notes || "",
+      };
+    });
 
 const mapHotels = (arr = []) =>
   arr.map((w) => unwrap(w, "hotelDataZoho"))
-     .filter((h) => h && typeof h === "object")
-     .map((h) => ({
-       subRowId: h.ROWID || h.rowid || h.RowId || "",
-       status: h.status,
-       
-       // --- New fields to match target UI ---
-       merchantName: h.hotel_name || h.merchant_name || "",
-       location: h.hotel_arrv_city || h.hotel_dep_city || "",
-       roomType: h.room_type || "None", // Add roomType, default to "None"
-       amount: h.bcy_total_amount || 0, // Add amount
+    .filter((h) => h && typeof h === "object")
+    .map((h) => ({
+      subRowId: h.ROWID || h.rowid || h.RowId || "",
+      status: h.status,
 
-       // --- SWAPPED as per your request ---
-       // Check-in now uses "dep_date"
-       checkIn:  { date: toDisplayDate(h.hotel_dep_date), time: h.hotel_dep_time || "" },
-       // Check-out now uses "arrv_date"
-       checkOut: { date: toDisplayDate(h.hotel_arrv_date), time: h.hotel_arrv_time || "" },
-     }));
+      merchantName: h.hotel_name || h.merchant_name || "",
+      location: h.hotel_arrv_city || h.hotel_dep_city || "",
+      roomType: h.room_type || "None",
+      bcy_amount: h.bcy_total_amount || 0,
+      amount: h.Amount || 0,
+      rescheduleOrCancel: h.reschedule_OR_Cancel,
+      refund_amount: h.refund_amount || 0,
+      cancellation_charge: h.cancellation_charge || 0,
+      cancel_or_reschedule_reason: h.cancel_or_reschedule_reason || "",
+      vendorName: h.vendorName || "",        // add these 4 fields
+      BillDate: h.BillDate || "",
+      BillNumber: h.BillNumber || "",
+      TypeOfBook: h.TypeOfBook || "",
+      MODIFIEDTIME: h.MODIFIEDTIME || "",
+      bookingId: h.BookingId || "",
+      bookingDate: h.BookingDate || "",
+      Notes: h.Notes || "",
+
+      checkIn: { date: toDisplayDate(h.hotel_dep_date), time: h.hotel_dep_time || "" },
+      checkOut: { date: toDisplayDate(h.hotel_arrv_date), time: h.hotel_arrv_time || "" },
+    }));
 
 const mapCars = (arr = []) =>
   arr.map((w) => unwrap(w, "carDataZoho"))
-     .filter((c) => c && typeof c === "object")
-     .map((c) => ({
-       subRowId: c.ROWID || c.rowid || c.RowId || "",
-       status: c.status,
-       carType: c.car_type || "",
-       pickUp:  { date: toDisplayDate(c.car_dep_date), time: toTime(c.car_dep_time), location: c.car_dep_city || "" },
-       dropOff: { date: toDisplayDate(c.car_arrv_date), time: toTime(c.car_arrv_time), location: c.car_arrv_city || "" },
-       amount: c.bcy_total_amount || 0, // <-- ✅ ADD THIS LINE
-     }));
-
-// Replace the entire mapBuses function with this:
+    .filter((c) => c && typeof c === "object")
+    .map((c) => ({
+      subRowId: c.ROWID || c.rowid || c.RowId || "",
+      status: c.status,
+      vendorName: c.vendorName || "",        // add these 4 fields
+      BillDate: c.BillDate || "",
+      BillNumber: c.BillNumber || "",
+      TypeOfBook: c.TypeOfBook || "",
+      carType: c.car_type || "",
+      pickUp: { date: toDisplayDate(c.car_dep_date), time: toTime(c.car_dep_time), location: c.car_dep_city || "" },
+      dropOff: { date: toDisplayDate(c.car_arrv_date), time: toTime(c.car_arrv_time), location: c.car_arrv_city || "" },
+      bcy_amount: c.bcy_total_amount || 0,
+      amount: c.Amount || 0,
+      rescheduleOrCancel: c.reschedule_OR_Cancel,
+      refund_amount: c.refund_amount || 0,
+      cancellation_charge: c.cancellation_charge || 0,
+      cancel_or_reschedule_reason: c.cancel_or_reschedule_reason || "",
+      MODIFIEDTIME: c.MODIFIEDTIME || "",
+      bookingId: c.BookingId || "",
+      bookingDate: c.BookingDate || "",
+      Notes: c.Notes || "",
+    }));
 
 const mapBuses = (arr = []) =>
   arr.map((w) => unwrap(w, "busDataZoho"))
-     .filter((b) => b && typeof b === "object")
-     .map((b) => {
-       
-       // ✅ COPIED THIS LOGIC FROM THE TRAIN MAPPER
-       const depDate = b.bus_dep_date || b.dep_date;
-       const arrDate = b.bus_arrv_date || b.arrv_date;
-       const depTime = b.bus_dep_time || b.dep_time || "";
-       const arrTime = b.bus_arrv_time || b.arrv_time || "";
-       const duration = calculateDuration(depDate, depTime, arrDate, arrTime);
+    .filter((b) => b && typeof b === "object")
+    .map((b) => {
+      const depDate = b.bus_dep_date || b.dep_date;
+      const arrDate = b.bus_arrv_date || b.arrv_date;
+      const depTime = b.bus_dep_time || b.dep_time || "";
+      const arrTime = b.bus_arrv_time || b.arrv_time || "";
+      const duration = calculateDuration(depDate, depTime, arrDate, arrTime);
 
-       return {
-         subRowId: b.ROWID || b.rowid || b.RowId || "",
-         status: b.status,
-         merchantName: b.merchant_name || b.bus_name || "",
-         amount: b.bcy_total_amount || 0,
-         from: { city: b.bus_dep_city || b.dep_city || "", date: toDisplayDate(depDate), time: depTime },
-         to: { city: b.bus_arrv_city || b.arrv_city || "", date: toDisplayDate(arrDate), time: arrTime },
-         duration: duration,
-       };
-     });
+      return {
+        subRowId: b.ROWID || b.rowid || b.RowId || "",
+        status: b.status,
+        merchantName: b.merchant_name || b.bus_name || "",
+        bcy_amount: b.bcy_total_amount || 0,
+        amount: b.Amount || 0,
+        from: { city: b.bus_dep_city || b.dep_city || "", date: toDisplayDate(depDate), time: depTime },
+        to: { city: b.bus_arrv_city || b.arrv_city || "", date: toDisplayDate(arrDate), time: arrTime },
+        duration: duration,
+        rescheduleOrCancel: b.reschedule_OR_Cancel,
+        refund_amount: b.refund_amount || 0,
+        cancellation_charge: b.cancellation_charge || 0,
+        cancel_or_reschedule_reason: b.cancel_or_reschedule_reason || "",
+        vendorName: b.vendorName || "",        // add these 4 fields
+        BillDate: b.BillDate || "",
+        BillNumber: b.BillNumber || "",
+        TypeOfBook: b.TypeOfBook || "",
+        MODIFIEDTIME: b.MODIFIEDTIME || "",
+        bookingId: b.BookingId || "",
+        bookingDate: b.BookingDate || "",
+        Notes: b.Notes || "",
+      };
+    });
 
-// REPLACE this function (around line 233)
 const mapTrains = (arr = []) =>
   arr.map((w) => unwrap(w, "trainDataZoho"))
-     .filter((t) => t && typeof t === "object")
-     .map((t) => {
-       const depDate = t.train_dep_date || t.dep_date;
-       const arrDate = t.train_arrv_date || t.arrv_date;
-       const depTime = t.train_dep_time || t.dep_time || "";
-       const arrTime = t.train_arrv_time || t.arrv_time || "";
+    .filter((t) => t && typeof t === "object")
+    .map((t) => {
+      const depDate = t.train_dep_date || t.dep_date;
+      const arrDate = t.train_arrv_date || t.arrv_date;
+      const depTime = t.train_dep_time || t.dep_time || "";
+      const arrTime = t.train_arrv_time || t.arrv_time || "";
 
-       const duration = calculateDuration(depDate, depTime, arrDate, arrTime);
+      const duration = calculateDuration(depDate, depTime, arrDate, arrTime);
 
-       return {
-         subRowId: t.ROWID || t.rowid || t.RowId || "",
-         status: t.status,
-         merchantName: t.merchant_name || t.train_name || "", // ✅ ADD THIS
-         amount: t.bcy_total_amount || 0, // ✅ ADD THIS
-         from: { city: t.train_dep_city || t.dep_city || "", date: toDisplayDate(depDate), time: depTime },
-         to: { city: t.train_arrv_city || t.arrv_city || "", date: toDisplayDate(arrDate), time: arrTime },
-         duration: duration,
-       };
-     });
+      return {
+        subRowId: t.ROWID || t.rowid || t.RowId || "",
+        status: t.status,
+        merchantName: t.merchant_name || t.train_name || "",
+        bcy_amount: t.bcy_total_amount || 0,
+        amount: t.Amount || 0,
+        from: { city: t.train_dep_city || t.dep_city || "", date: toDisplayDate(depDate), time: depTime },
+        to: { city: t.train_arrv_city || t.arrv_city || "", date: toDisplayDate(arrDate), time: arrTime },
+        duration: duration,
+        rescheduleOrCancel: t.reschedule_OR_Cancel,
+        refund_amount: t.refund_amount || 0,
+        cancellation_charge: t.cancellation_charge || 0,
+        cancel_or_reschedule_reason: t.cancel_or_reschedule_reason || "",
+        vendorName: t.vendorName || "",        // add these 4 fields
+        BillDate: t.BillDate || "",
+        BillNumber: t.BillNumber || "",
+        TypeOfBook: t.TypeOfBook || "",
+        MODIFIEDTIME: t.MODIFIEDTIME || "",
+        bookingId: t.BookingId || "",
+        bookingDate: t.BookingDate || "",
+        Notes: t.Notes || "",
+      };
+    });
+
 /* Trip duration from all modes (supports both shapes) */
 const deriveDuration = (a = {}) => {
   const dates = [];
@@ -190,10 +255,10 @@ const deriveDuration = (a = {}) => {
   fl.forEach((w) => { const f = unwrap(w, "flightDataZoho") || {}; push(f.flight_dep_date); push(f.flight_arrv_date); });
 
   const ho = getArr(a, "hotelDataZoho", "HotelDataZoho");
-  ho.forEach((w) => { const h = unwrap(w, "hotelDataZoho") || {}; push(h.hotel_dep_date);  push(h.hotel_arrv_date);  });
+  ho.forEach((w) => { const h = unwrap(w, "hotelDataZoho") || {}; push(h.hotel_dep_date); push(h.hotel_arrv_date); });
 
   const ca = getArr(a, "carDataZoho", "CarDataZoho");
-  ca.forEach((w) => { const c = unwrap(w, "carDataZoho") || {}; push(c.car_dep_date);    push(c.car_arrv_date);    });
+  ca.forEach((w) => { const c = unwrap(w, "carDataZoho") || {}; push(c.car_dep_date); push(c.car_arrv_date); });
 
   const bu = getArr(a, "busDataZoho", "BusDataZoho");
   bu.forEach((w) => { const b = unwrap(w, "busDataZoho") || {}; push(b.bus_dep_date || b.dep_date); push(b.bus_arrv_date || b.arrv_date); });
@@ -220,273 +285,622 @@ async function fetchDetailByRowId(rowid) {
 }
 
 /* ---------------- Subcomponents ---------------- */
-const FlightDetails = ({ bookings, onEdit, mainStatusLower }) =>
-  bookings.map((item, i) => {
+const formatCurrency = (bcy_amount) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(bcy_amount);
+
+const FlightDetails = ({ bookings, onEdit, mainStatusLower }) => {
+  const sortedBookings = bookings.slice()
+    .sort((a, b) => parseDate(b.MODIFIEDTIME) - parseDate(a.MODIFIEDTIME));
+
+  return sortedBookings.map((item, i) => {
+    console.log("notes", item.Notes);
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
-    const hasExtraDetails = item.meal || item.seat || item.flightClass;
-    
-    // Conditionally add a class if extra details exist for this specific item
-    const itemClassName = `itinerary-item flight-item ${hasExtraDetails ? 'has-extra-details' : ''}`;
+    const hasExtraDetails = Boolean(item.bookingId || item.bookingDate);
+    const itemClassName = `itinerary-item flight-item`;
+    const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
 
     return (
       <div className="flight-item-wrapper" key={`flt-${i}`}>
-        {/* This logic correctly checks EACH item in the loop */}
-        {hasExtraDetails && (
-          <div className="flight-extra-details">
-            {item.meal && <span>Meal: {item.meal}</span>}
-            {item.seat && <span>Seat: {item.seat}</span>}
-            {item.flightClass && <span>Flight Class: {item.flightClass}</span>}
+
+        {/* Always rendered top row with flex layout */}
+        <div className="flight-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+          {/* Left side: Reschedule/cancel tags or placeholder */}
+          <div className="line-tag" style={{ minWidth: "150px" }}>
+            {item.rescheduleOrCancel ? (
+              <>
+                <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
+                  {item.rescheduleOrCancel}
+                </span>
+                {item.cancel_or_reschedule_reason && (
+                  <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                    {item.cancel_or_reschedule_reason}
+                  </span>
+                )}
+              </>
+            ) : (
+              <span style={{ visibility: 'hidden' }}>Placeholder</span>
+            )}
           </div>
-        )}
-        
-        {/* The new className is used here */}
+
+          {/* Right side: Booking ID and Booking Date or placeholder */}
+          <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
+            {hasExtraDetails ? (
+              <>
+                <span>Booking ID: {item.bookingId}</span>
+                <span style={{ marginLeft: '10px' }}>Booking Date: {item.bookingDate}</span>
+              </>
+            ) : (
+              <span style={{ visibility: 'hidden' }}>Placeholder</span>
+            )}
+          </div>
+        </div>
+
+        {/* Main itinerary item container */}
         <div className={itemClassName}>
           {/* Departure Column */}
           <div className="itinerary-col">
-            <div>{item.dep.date}, {item.dep.time}</div>
+            <div>{item.dep.date}</div>
             <div className="font-large">{item.dep.city} - {item.dep.code}</div>
           </div>
-          
+
           {/* Middle Column */}
           <div className="itinerary-col text-center">
             <ArrowIcon />
-            <div className="font-xs text-muted">{item.duration}</div>
             <div className="font-xs text-muted">{item.nonStop ? "non-stop" : ""}</div>
           </div>
 
           {/* Arrival Column */}
           <div className="itinerary-col">
-            <div>{item.arr.date}, {item.arr.time}</div>
+            <div>{item.arr.date}</div>
             <div className="font-large">{item.arr.city} - {item.arr.code}</div>
           </div>
 
           {/* Amount & Actions Column */}
           <div className="itinerary-col amount-actions-col">
-            {allowEdit && (
-              <button className="btn-icon" onClick={() => onEdit(item.subRowId, "flight")} title="Edit flight">
-                <EditIcon />
-              </button>
-            )}
+            <button
+              className="btn-icon"
+              onClick={() => allowEdit && onEdit(item.subRowId, "flight")}
+              title="Edit flight"
+              disabled={!allowEdit}
+            >
+              <EditIcon />
+            </button>
             <div className="amount-display">
-              Amount: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
+              Amount: {formatCurrency(item.bcy_amount)}
             </div>
           </div>
         </div>
+
+        {item.Notes != null && item.Notes !== "" && (
+          <div className="flight-notes" style={{ padding: '8px 0px', color: '#555' }}>
+            <span className="heading">Notes:</span> {item.Notes}
+          </div>
+
+        )}
+
+
+
+        {/* Cancellation and refund amounts */}
+        <div className="extra-amount">
+          {isCancelled && (
+            <>
+              <div className="amount-display">
+                Cancellation Charge: {formatCurrency(item.cancellation_charge)}
+              </div>
+              <div className="amount-display">
+                Refund Amount: {formatCurrency(item.refund_amount)}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     );
   });
+};
 
-const HotelDetails = ({ bookings, onEdit, mainStatusLower }) =>
-  bookings.map((item, i) => {
+
+
+const HotelDetails = ({ bookings, onEdit, mainStatusLower }) => {
+  const sortedBookings = bookings.slice()
+    .sort((a, b) => parseDate(b.MODIFIEDTIME) - parseDate(a.MODIFIEDTIME));
+
+  return sortedBookings.map((item, i) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
+    const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
+    const hasExtraDetails = Boolean(item.bookingId || item.bookingDate);
+
     return (
-      <div className="itinerary-item hotel-item" key={`hot-${i}`}>
-        {/* UPDATED: Location column to show merchant, city, and room type */}
-        <div className="hotel-info-col hotel-location">
-          <LocationIcon />
-          {/* This div will stack the text */}
-          <div className="hotel-location-text">
-            <div className="hotel-merchant-name">{item.merchantName || item.location}</div>
-            {/* Only show city separately if merchant name exists */}
-            {item.merchantName && <div className="font-xs text-muted">{item.location}</div>}
-            <div className="font-xs text-muted">Room Type : {item.roomType}</div>
+      <div className="hotel-item-wrapper" key={`hot-${i}`}>
+        {/* Top row: reschedule/cancel tags on left, Booking info right */}
+        <div className="hotel-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {/* Left side */}
+          <div className="line-tag" style={{ minWidth: "150px" }}>
+            {item.rescheduleOrCancel ? (
+              <>
+                <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
+                  {item.rescheduleOrCancel}
+                </span>
+                {item.cancel_or_reschedule_reason && (
+                  <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                    {item.cancel_or_reschedule_reason}
+                  </span>
+                )}
+              </>
+            ) : (
+              <span style={{ visibility: 'hidden' }}>Placeholder</span>
+            )}
+          </div>
+
+          {/* Right side: Booking ID and Booking Date or placeholder */}
+          <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
+            {hasExtraDetails ? (
+              <>
+                <span>Booking ID: {item.bookingId}</span>
+                <span style={{ marginLeft: '10px' }}>Booking Date: {item.bookingDate}</span>
+              </>
+            ) : (
+              <span style={{ visibility: 'hidden' }}>Placeholder</span>
+            )}
           </div>
         </div>
 
-        <div className="hotel-info-col hotel-checkin">
-          <div className="font-xs text-muted">Check-in</div>
-          <div>{item.checkIn.date}</div>
-          {item.checkIn.time && <div className="font-xs">{item.checkIn.time}</div>}
-        </div>
+        {/* Main itinerary item container */}
+        <div className="itinerary-item hotel-item">
+          <div className="hotel-info-col hotel-location">
+            <LocationIcon />
+            <div className="hotel-location-text">
+              <div className="hotel-merchant-name">{item.merchantName || item.location}</div>
+              {item.merchantName && <div className="font-xs text-muted">{item.location}</div>}
+              <div className="font-xs text-muted">Room Type : {item.roomType}</div>
+            </div>
+          </div>
 
-        {/* New separator element */}
-        <div className="hotel-date-separator">-</div>
+          <div className="hotel-info-col hotel-checkin">
+            <div className="font-xs text-muted">Check-in</div>
+            <div>{item.checkIn.date}</div>
+          </div>
 
-        <div className="hotel-info-col hotel-checkout">
-          <div className="font-xs text-muted">Check-out</div>
-          <div>{item.checkOut.date}</div>
-          {item.checkOut.time && <div className="font-xs">{item.checkOut.time}</div>}
-        </div>
+          <div className="hotel-date-separator">-</div>
 
-        {/* UPDATED: Actions column to show amount below icon */}
-        <div className="item-actions hotel-actions">
-          {allowEdit && (
+          <div className="hotel-info-col hotel-checkout">
+            <div className="font-xs text-muted">Check-out</div>
+            <div>{item.checkOut.date}</div>
+          </div>
+
+          <div className="item-actions hotel-actions">
             <button className="btn-icon" onClick={() => onEdit(item.subRowId, "hotel")} title="Edit hotel">
               <EditIcon />
             </button>
-          )}
-          {/* New Amount Display */}
-          <div className="amount-display">
-            Amount: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
+            <div className="amount-display">
+              Amount: {formatCurrency(item.bcy_amount)}
+            </div>
           </div>
+        </div>
+
+        {/* Notes Section */}
+        {item.Notes != null && item.Notes !== "" && (
+          <div className="flight-notes" style={{ padding: '8px 0px', color: '#555' }}>
+            Notes: {item.Notes}
+          </div>
+        )}
+
+
+        {/* Cancellation and refund amounts */}
+        <div className="extra-amount">
+          {isCancelled && (
+            <>
+              <div className="amount-display">
+                Cancellation Charge: {formatCurrency(item.cancellation_charge)}
+              </div>
+              <div className="amount-display">
+                Refund Amount: {formatCurrency(item.refund_amount)}
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
   });
+};
 
-const CarDetails = ({ bookings, onEdit, mainStatusLower }) =>
-  bookings.map((item, i) => {
+
+const CarDetails = ({ bookings, onEdit, mainStatusLower }) => {
+  const sortedBookings = bookings.slice()
+    .sort((a, b) => parseDate(b.MODIFIEDTIME) - parseDate(a.MODIFIEDTIME));
+
+  return sortedBookings.map((item, i) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
+    const showTopRow = item.rescheduleOrCancel;
+    const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
+    const hasExtraDetails = Boolean(item.bookingId || item.bookingDate);
+
     return (
-      <div className="itinerary-item car-item" key={`car-${i}`}>
-        <div className="car-info-col car-type">
-          <CarIcon />
-          <div>
-            <div className="font-xs text-muted">Car Type</div>
-            <div>{item.carType}</div>
-          </div>
-        </div>
+      <div className="car-item-wrapper" key={`car-${i}`}>
+        {/* Top row: reschedule/cancel tags left, booking info right */}
+        {showTopRow || hasExtraDetails ? (
+          <div className="car-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="line-tag" style={{ minWidth: "150px" }}>
+              {item.rescheduleOrCancel ? (
+                <>
+                  <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
+                    {item.rescheduleOrCancel}
+                  </span>
+                  {item.cancel_or_reschedule_reason && (
+                    <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                      {item.cancel_or_reschedule_reason}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
+              )}
+            </div>
 
-        <div className="car-info-col car-pickup">
-          <div className="font-xs text-muted">Pick-Up</div>
-          <div>
-            {item.pickUp.date}
-            {item.pickUp.time && `, ${item.pickUp.time}`}
+            <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
+              {hasExtraDetails ? (
+                <>
+                  <span>Booking ID: {item.bookingId}</span>
+                  <span style={{ marginLeft: '10px' }}>Booking Date: {item.bookingDate}</span>
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
+              )}
+            </div>
           </div>
-          <div className="font-xs">{item.pickUp.location}</div>
-        </div>
-        
-        <div className="car-separator">
-          <ArrowIcon />
-        </div>
+        ) : null}
 
-        <div className="car-info-col car-dropoff">
-          <div className="font-xs text-muted">Drop-Off</div>
-          <div>
-            {item.dropOff.date}
-            {item.dropOff.time && `, ${item.dropOff.time}`}
+        {/* Main itinerary item container */}
+        <div className="itinerary-item car-item">
+          <div className="car-info-col car-type">
+            <CarIcon />
+            <div>
+              <div className="font-xs text-muted">Car Type</div>
+              <div>{item.carType}</div>
+            </div>
           </div>
-          <div className="font-xs">{item.dropOff.location}</div>
-        </div>
 
-        {/* ✅ MODIFIED SECTION TO ADD AMOUNT */}
-        <div className="item-actions">
-          {allowEdit && (
-            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "car")} title="Edit car">
+          <div className="car-info-col car-pickup">
+            <div className="font-xs text-muted">Pick-Up</div>
+            <div>{item.pickUp.date}</div>
+            <div className="font-xs">{item.pickUp.location}</div>
+          </div>
+
+          <div className="car-separator">
+            <ArrowIcon />
+          </div>
+
+          <div className="car-info-col car-dropoff">
+            <div className="font-xs text-muted">Drop-Off</div>
+            <div>{item.dropOff.date}</div>
+            <div className="font-xs">{item.dropOff.location}</div>
+          </div>
+
+          <div className="item-actions">
+            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "car")} title="Edit car" disabled={!allowEdit}>
               <EditIcon />
             </button>
-          )}
-          {/* ✅ ADDED AMOUNT DISPLAY */}
-          <div className="amount-display">
-            Amount: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
+            <div className="amount-display">
+              Amount: {formatCurrency(item.bcy_amount)}
+            </div>
           </div>
+        </div>
+
+        {/* Notes Section */}
+        {item.Notes != null && item.Notes !== "" && (
+          <div className="flight-notes" style={{ padding: '8px 0px', color: '#555' }}>
+            Notes: {item.Notes}
+          </div>
+        )}
+
+
+        {/* Cancellation and refund amounts */}
+        <div className="extra-amount">
+          {isCancelled && (
+            <>
+              <div className="amount-display">
+                Cancellation Charge: {formatCurrency(item.cancellation_charge)}
+              </div>
+              <div className="amount-display">
+                Refund Amount: {formatCurrency(item.refund_amount)}
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
   });
+};
 
-const BusDetails = ({ bookings, onEdit, mainStatusLower }) =>
-  bookings.map((item, i) => {
+
+const BusDetails = ({ bookings, onEdit, mainStatusLower }) => {
+  const sortedBookings = bookings.slice()
+    .sort((a, b) => parseDate(b.MODIFIEDTIME) - parseDate(a.MODIFIEDTIME));
+
+  return sortedBookings.map((item, i) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
+    const showTopRow = item.rescheduleOrCancel;
+    const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
+    const hasExtraDetails = Boolean(item.bookingId || item.bookingDate);
+
     return (
-      <div className="itinerary-item bus-item" key={`bus-${i}`}>
-        <div className="bus-info-col bus-label">
-          <BusIcon />
-          {/* ✅ Use merchantName, fallback to "Bus" */}
-          <span>{item.merchantName || "Bus"}</span>
-        </div>
+      <div className="bus-item-wrapper" key={`bus-${i}`}>
+        {/* Top row with reschedule/cancel tags and booking info */}
+        {showTopRow || hasExtraDetails ? (
+          <div className="bus-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="line-tag" style={{ minWidth: "150px" }}>
+              {item.rescheduleOrCancel ? (
+                <>
+                  <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
+                    {item.rescheduleOrCancel}
+                  </span>
+                  {item.cancel_or_reschedule_reason && (
+                    <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                      {item.cancel_or_reschedule_reason}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
+              )}
+            </div>
 
-        <div className="bus-info-col bus-departure">
-          <div className="font-xs text-muted">Departure</div>
-          <div>{item.from.date}{item.from.time ? `, ${item.from.time}` : ""}</div>
-          <div className="font-xs">{item.from.city}</div>
-        </div>
-        
-        <div className="bus-separator">
-          <ArrowIcon />
-          <div className="font-xs text-muted">{item.duration}</div>
-        </div>
+            <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
+              {hasExtraDetails ? (
+                <>
+                  <span>Booking ID: {item.bookingId}</span>
+                  <span style={{ marginLeft: '10px' }}>Booking Date: {item.bookingDate}</span>
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
+              )}
+            </div>
+          </div>
+        ) : null}
 
-        <div className="bus-info-col bus-arrival">
-          <div className="font-xs text-muted">Arrival</div>
-          <div>{item.to.date}{item.to.time ? `, ${item.to.time}` : ""}</div>
-          <div className="font-xs">{item.to.city}</div>
-        </div>
+        {/* Main itinerary item container */}
+        <div className="itinerary-item bus-item">
+          <div className="bus-info-col bus-label">
+            <BusIcon />
+            <span>{item.merchantName || "Bus"}</span>
+          </div>
 
-        {/* ✅ MODIFIED to match car/hotel format */}
-        <div className="item-actions">
-          {allowEdit && (
-            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "bus")} title="Edit bus">
+          <div className="bus-info-col bus-departure">
+            <div className="font-xs text-muted">Departure</div>
+            <div>{item.from.date}</div>
+            <div className="font-xs">{item.from.city}</div>
+          </div>
+
+          <div className="bus-separator">
+            <ArrowIcon />
+          </div>
+
+          <div className="bus-info-col bus-arrival">
+            <div className="font-xs text-muted">Arrival</div>
+            <div>{item.to.date}</div>
+            <div className="font-xs">{item.to.city}</div>
+          </div>
+
+          <div className="item-actions">
+            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "bus")} title="Edit bus" disabled={!allowEdit}>
               <EditIcon />
             </button>
-          )}
-          {/* ✅ ADDED Amount Display */}
-          <div className="amount-display">
-            Amount: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
+
+            <div className="amount-display">
+              Amount: {formatCurrency(item.bcy_amount)}
+            </div>
           </div>
+        </div>
+
+        {/* Notes Section */}
+        {item.Notes != null && item.Notes !== "" && (
+          <div className="flight-notes" style={{ padding: '8px 0px', color: '#555' }}>
+            Notes: {item.Notes}
+          </div>
+        )}
+
+
+        {/* Cancellation and refund amounts */}
+        <div className="extra-amount">
+          {isCancelled && (
+            <>
+              <div className="amount-display">
+                Cancellation Charge: {formatCurrency(item.cancellation_charge)}
+              </div>
+              <div className="amount-display">
+                Refund Amount: {formatCurrency(item.refund_amount)}
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
   });
+};
 
-// REPLACE this component (around line 504)
-const TrainDetails = ({ bookings, onEdit, mainStatusLower }) =>
-  bookings.map((item, i) => {
+
+const TrainDetails = ({ bookings, onEdit, mainStatusLower }) => {
+  const sortedBookings = bookings.slice()
+    .sort((a, b) => parseDate(b.MODIFIEDTIME) - parseDate(a.MODIFIEDTIME));
+
+  return sortedBookings.map((item, i) => {
     const allowEdit = mainStatusLower === "pending" && String(item.status || "").trim() !== "completed";
+    const showTopRow = item.rescheduleOrCancel;
+    const isCancelled = item.rescheduleOrCancel?.toLowerCase() === "cancelled";
+    const hasExtraDetails = Boolean(item.bookingId || item.bookingDate);
+
     return (
-      <div className="itinerary-item train-item" key={`train-${i}`}>
-        <div className="train-info-col train-label">
-          <TrainIcon />
-          {/* ✅ Use merchantName, fallback to "Train" */}
-          <span>{item.merchantName || "Train"}</span>
-        </div>
+      <div className="train-item-wrapper" key={`train-${i}`}>
+        {/* Top row tags left, booking info right */}
+        {showTopRow || hasExtraDetails ? (
+          <div className="train-item-toprow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ minWidth: "150px" }}>
+              {item.rescheduleOrCancel ? (
+                <>
+                  <span className="mode-tag mode-tag--reschedule-cancel" title={item.rescheduleOrCancel}>
+                    {item.rescheduleOrCancel}
+                  </span>
+                  {item.cancel_or_reschedule_reason && (
+                    <span className="cancel-reschedule-reason" title={item.cancel_or_reschedule_reason}>
+                      {item.cancel_or_reschedule_reason}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
+              )}
+            </div>
 
-        <div className="train-info-col train-departure">
-          <div className="font-xs text-muted">Departure</div>
-          <div>{item.from.date}{item.from.time ? `, ${item.from.time}` : ""}</div>
-          <div className="font-xs">{item.from.city}</div>
-        </div>
-        
-        <div className="train-separator">
-          <ArrowIcon />
-          <div className="font-xs text-muted">{item.duration}</div>
-        </div>
+            <div className="flight-extra-details" style={{ minWidth: "200px", textAlign: "right" }}>
+              {hasExtraDetails ? (
+                <>
+                  <span>Booking ID: {item.bookingId}</span>
+                  <span style={{ marginLeft: '10px' }}>Booking Date: {item.bookingDate}</span>
+                </>
+              ) : (
+                <span style={{ visibility: 'hidden' }}>Placeholder</span>
+              )}
+            </div>
+          </div>
+        ) : null}
 
-        <div className="train-info-col train-arrival">
-          <div className="font-xs text-muted">Arrival</div>
-          <div>{item.to.date}{item.to.time ? `, ${item.to.time}` : ""}</div>
-          <div className="font-xs">{item.to.city}</div>
-        </div>
+        {/* Main itinerary item container */}
+        <div className="itinerary-item train-item">
+          <div className="train-info-col train-label">
+            <TrainIcon />
+            <span>{item.merchantName || "Train"}</span>
+          </div>
 
-        {/* ✅ MODIFIED to match car/bus format */}
-        <div className="item-actions">
-          {allowEdit && (
-            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "train")} title="Edit train">
+          <div className="train-info-col train-departure">
+            <div className="font-xs text-muted">Departure</div>
+            <div>{item.from.date}</div>
+            <div className="font-xs">{item.from.city}</div>
+          </div>
+
+          <div className="train-separator">
+            <ArrowIcon />
+          </div>
+
+          <div className="train-info-col train-arrival">
+            <div className="font-xs text-muted">Arrival</div>
+            <div>{item.to.date}</div>
+            <div className="font-xs">{item.to.city}</div>
+          </div>
+
+          <div className="item-actions">
+            <button className="btn-icon" onClick={() => onEdit(item.subRowId, "train")} title="Edit train" disabled={!allowEdit}>
               <EditIcon />
             </button>
-          )}
-          {/* ✅ ADDED Amount Display */}
-          <div className="amount-display">
-            Amount: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
+
+            <div className="amount-display">
+              Amount: {formatCurrency(item.bcy_amount)}
+            </div>
           </div>
+        </div>
+
+        {/* Notes Section */}
+        {item.Notes != null && item.Notes !== "" && (
+          <div className="flight-notes" style={{ padding: '8px 0px', color: '#555' }}>
+            Notes: {item.Notes}
+          </div>
+        )}
+
+
+        {/* Cancellation and refund amounts */}
+        <div className="extra-amount">
+          {isCancelled && (
+            <>
+              <div className="amount-display">
+                Cancellation Charge: {formatCurrency(item.cancellation_charge)}
+              </div>
+              <div className="amount-display">
+                Refund Amount: {formatCurrency(item.refund_amount)}
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
   });
+};
+
 /* ---------------- Main Component ---------------- */
-export default function TripDetailView() {
+export default function TripDetailView({ tripId, onClose }) {
   const navigate = useNavigate();
-  const { rowid } = useParams();
+  // const { rowid } = useParams();
+  // const rowId = tripId;
+
+
 
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [trip, setTrip] = useState(null);
   const [activeTab, setActiveTab] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
   const [editCtx, setEditCtx] = useState({ subRowId: "", tripType: "" });
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const handleBack = () => navigate(-1);
-  const handleOpenForm = (subRowId, tripType) => {
-    setEditCtx({ subRowId, tripType });
-    setIsFormOpen(true);
+  const handleBack = () => {
+    if (onClose) onClose();
   };
+
+  const handleOpenForm = async (subRowId, tripType) => {
+    try {
+      // Fetch latest trip data by rowid from your API endpoint
+      const latestTripData = await fetchDetailByRowId(tripId);
+      const a = latestTripData.associatedData || latestTripData.AsspciatedData || {};
+
+      // Map bookings from latest data
+      const latestFlights = mapFlights(getArr(a, "flightDataZoho", "FlightDataZoho"));
+      const latestHotels = mapHotels(getArr(a, "hotelDataZoho", "HotelDataZoho"));
+      const latestCars = mapCars(getArr(a, "carDataZoho", "CarDataZoho"));
+      const latestBuses = mapBuses(getArr(a, "busDataZoho", "BusDataZoho"));
+      const latestTrains = mapTrains(getArr(a, "trainDataZoho", "TrainDataZoho"));
+
+      // Select booking for the clicked item from the latest data
+      let booking = null;
+      switch (tripType) {
+        case "flight":
+          booking = latestFlights.find(x => x.subRowId === subRowId);
+          break;
+        case "hotel":
+          booking = latestHotels.find(x => x.subRowId === subRowId);
+          break;
+        case "car":
+          booking = latestCars.find(x => x.subRowId === subRowId);
+          break;
+        case "bus":
+          booking = latestBuses.find(x => x.subRowId === subRowId);
+          break;
+        case "train":
+          booking = latestTrains.find(x => x.subRowId === subRowId);
+          break;
+        default:
+          booking = null;
+      }
+
+      setEditCtx({ subRowId, tripType });
+      setEditData({
+        ...booking,
+        amount: booking.amount,  // This will be the preferred Amount or fallback bcy_total_amount
+      });
+      console.log("Opening form with latest booking data:", booking);
+      setIsFormOpen(true);
+    } catch (error) {
+      console.error("Failed to fetch latest booking data:", error);
+    }
+  };
+
+
   const handleCloseForm = () => setIsFormOpen(false);
 
-    const handleUpdated = () => {                      // ✅ close + trigger refetch
+  const handleUpdated = () => {
     setIsFormOpen(false);
     setRefreshKey(k => k + 1);
   };
+
+
 
   useEffect(() => {
     let cancelled = false;
@@ -494,41 +908,50 @@ export default function TripDetailView() {
       try {
         setLoading(true);
         setErr("");
-        if (!rowid) throw new Error("No :rowid in route");
+        if (!tripId) throw new Error("No :rowid in route");
 
-        const rec = await fetchDetailByRowId(rowid);
+        const rec = await fetchDetailByRowId(tripId);
         if (!rec) throw new Error("Trip not found");
 
         const a = rec.associatedData || rec.AsspciatedData || {};
 
         const flights = mapFlights(getArr(a, "flightDataZoho", "FlightDataZoho"));
-        const hotels  = mapHotels(getArr(a, "hotelDataZoho",  "HotelDataZoho"));
-        const cars    = mapCars(getArr(a, "carDataZoho",    "CarDataZoho"));
-        const buses   = mapBuses(getArr(a, "busDataZoho",   "BusDataZoho"));
-        const trains  = mapTrains(getArr(a, "trainDataZoho", "TrainDataZoho"));
+        const hotels = mapHotels(getArr(a, "hotelDataZoho", "HotelDataZoho"));
+        const cars = mapCars(getArr(a, "carDataZoho", "CarDataZoho"));
+        const buses = mapBuses(getArr(a, "busDataZoho", "BusDataZoho"));
+        const trains = mapTrains(getArr(a, "trainDataZoho", "TrainDataZoho"));
 
         const durationText = deriveDuration(a);
 
-        // 👇 compute and store both label & lower
         const mainStatusLower = String(rec.status || rec.statusType || "").trim().toLowerCase();
         const mainStatusLabel = mainStatusLower === "completed" ? "Completed" : "Pending";
+        const exStatus = rec.EX_Status || rec.Ex_Status || rec.ex_status || "";
+        const activity = rec.Activity || "";
+        const branch = rec.Branch || "";
+        const conditionArea = rec.Condition_Areas || "";
+        const donor = rec.Donor || "";
+        const location = rec.Location || "";
 
-        // --- 🚀 MODIFIED ---
-        // Get the raw ID (for the URL) and the display ID (for show)
-        const rawTripId = rec.TripId || rec.ROWID || rowid;
+
+        const rawTripId = rec.TripId || rec.ROWID || tripId;
         const displayTripId = rec.tripNumber || rawTripId;
+        const tripName = rec.trip_name || "Trip";
 
         const detail = {
-          // id: rec.tripNumber || rec.TripId || rec.ROWID || rowid, // <-- OLD
-          id: displayTripId, // This is what's displayed (e.g., TRIP-00099)
-          rawId: rawTripId,  // This is for the URL (e.g., 1498659000017188347)
-          title: rec.Activity || "Trip",
+          id: displayTripId,
+          rawId: rawTripId,
+          title: tripName,
           duration: durationText,
           mainStatusLower,
           mainStatusLabel,
+          exStatus,
+          activity,
+          branch,
+          conditionArea,
+          donor,
+          location,
           bookings: { flight: flights, hotel: hotels, car: cars, bus: buses, train: trains },
         };
-        // --- 🚀 END MODIFICATION ---
 
         if (!cancelled) setTrip(detail);
       } catch (e) {
@@ -538,7 +961,7 @@ export default function TripDetailView() {
       }
     })();
     return () => { cancelled = true; };
- }, [rowid, refreshKey]);
+  }, [tripId, refreshKey]);
 
   const availableTabs = useMemo(() => {
     if (!trip) return [];
@@ -565,17 +988,16 @@ export default function TripDetailView() {
       <div className="ze-detail-view">
         <header className="ze-detail-header">
           <div className="ze-header-left">
-            {/* 🚀 MODIFIED: Make rowid clickable even on error */}
-            {rowid ? (
+            {tripId ? (
               <a
-                href={`https://expense.zoho.in/app/60024300150#/trips/${rowid}`}
+                href={`https://expense.zoho.in/app/60024300150#/trips/${tripId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="trip-id trip-link"
                 title="Open trip in Zoho Expense"
-                style={{ color: '#0d6efd', textDecoration: 'none' }} // Inline style fallback
+                style={{ color: '#0d6efd', textDecoration: 'none' }}
               >
-                {rowid}
+                {tripId}
               </a>
             ) : (
               <div className="trip-id">{"—"}</div>
@@ -589,11 +1011,11 @@ export default function TripDetailView() {
 
   if (!trip) return null;
 
-  // 🚀 ADDED: Style for the new link
   const linkStyle = `
     .trip-id.trip-link {
-      color: #0d6efd; /* Or your app's link color */
+      color: #0d6efd;
       text-decoration: none;
+      margin:auto;
     }
     .trip-id.trip-link:hover {
       text-decoration: underline;
@@ -603,14 +1025,12 @@ export default function TripDetailView() {
 
   return (
     <>
-      {/* 🚀 ADDED: Style tag to inject link styles */}
       <style>{linkStyle}</style>
 
       <div className="ze-detail-view">
         <header className="ze-detail-header">
           <div className="ze-header-left">
-            
-            {/* 🚀 REPLACED: div with <a> tag */}
+
             <a
               href={`https://expense.zoho.in/app/60024300150#/trips/${trip.rawId}`}
               target="_blank"
@@ -620,11 +1040,13 @@ export default function TripDetailView() {
             >
               {trip.id}
             </a>
-            
-            {/* 👇 STATUS PILL IN HEADER */}
-            <span className={`status-pill pill--${trip.mainStatusLower}`} style={{ marginLeft: 8 }}>
-              {trip.mainStatusLabel}
-            </span>
+
+            {trip.exStatus && trip.exStatus.trim() !== "" && (
+              <span className={`status-pill1 pill--${trip.mainStatusLower}`} >
+                {trip.exStatus}
+              </span>
+            )}
+
           </div>
           <div className="ze-header-right">
             <button className="btn btn-icon" onClick={handleBack}><CloseIcon /></button>
@@ -633,13 +1055,42 @@ export default function TripDetailView() {
 
         <div className="ze-detail-content">
           <section className="trip-summary">
-            <h1 className="report-title">{trip.title}</h1>
-            {trip.duration && (
-              <div className="text-muted font-small">
-                Duration <InfoIcon /> : {trip.duration}
+            {/* First row: Title left, 3 custom items right */}
+            <div className="row first-row">
+              <h1 className="report-title">{trip.title}</h1>
+              <div className="custom-items-right">
+                <span className="text-muted font-small">
+                  <span className="heading">Activity:</span> {trip.activity}
+                </span>
+                <span className="text-muted font-small">
+                  <span className="heading">Branch:</span> {trip.branch}
+                </span>
+                <span className="text-muted font-small">
+                  <span className="heading">Condition Area:</span> {trip.conditionArea}
+                </span>
               </div>
-            )}
+
+            </div>
+
+            {/* Second row: Duration left, 2 custom fields right */}
+            <div className="row second-row">
+              {trip.duration && (
+                <div className="duration-left">
+                  Duration <InfoIcon /> : {trip.duration}
+                </div>
+              )}
+              <div className="custom-items-right">
+                <span className="text-muted font-small">
+                  <span className="heading">Donor:</span> {trip.donor}
+                </span>
+                <span className="text-muted font-small">
+                  <span className="heading">Location:</span> {trip.location}
+                </span>
+              </div>
+
+            </div>
           </section>
+
 
           <section className="trip-itinerary">
             <div className="details-nav-tab">
@@ -701,8 +1152,10 @@ export default function TripDetailView() {
           tripType={editCtx.tripType}
           onClose={handleCloseForm}
           onSuccess={handleUpdated}
+          defaultValues={editData}
         />
       )}
+
     </>
   );
 }

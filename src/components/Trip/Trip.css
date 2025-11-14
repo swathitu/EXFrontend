@@ -7,11 +7,16 @@
     font-family: sans-serif;
     text-align: left;
 }
+.titleTrip{
+    font-size: 23px;
+
+}
 
 .trip-button{
     display: flex;
     justify-content: flex-end;
     margin-bottom: 10px;
+    margin-top: -40px;
 }
 
 .main-button {

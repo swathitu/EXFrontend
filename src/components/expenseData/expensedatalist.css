@@ -222,3 +222,32 @@ body {
   color: #ccc;
   cursor: not-allowed;
 }
+
+.status-pill {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  user-select: none;
+}
+
+/* Example existing status colors */
+.pill--pending {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+.pill--approved {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.pill--completed {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.pill--rejected {
+  background-color: #f8d7da;
+  color: #842029;
+}

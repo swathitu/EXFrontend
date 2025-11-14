@@ -1,0 +1,144 @@
+/* Container and Heading Styles */
+.all-requests-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: white; 
+    border-radius: 8px;
+    box-sizing: border-box;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.all-requests-container h3 {
+    color: #333;
+    border-bottom: 1px solid #ddd; 
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Table Styles - Professional and White */
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background-color: #ffffff; 
+    border: 1px solid #ddd; 
+    border-radius: 6px;
+    box-sizing: border-box;
+    overflow: hidden; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Table Header Styles (Light Gray) */
+.requests-table thead th {
+    background-color: #f2f2f2; /* Light Gray Header Background */
+    color: #333; 
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 500; 
+    border-bottom: 2px solid #ddd; 
+    border-left: none;
+    border-right: none;
+}
+
+/* Table Body Styles (Mostly White) */
+.requests-table tbody tr {
+    background-color: #ffffff;
+    border-bottom: 1px solid #eee; 
+}
+
+.requests-table tbody tr:hover {
+    background-color: #f5f5f5; 
+}
+
+.requests-table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    color: #444;
+    border: none; 
+    font-size: 15px;
+}
+
+/* --- CUSTOM STYLES FOR REQUEST TYPE (AVATAR + TEXT) --- */
+
+.request-type-cell {
+    /* Guarantees everything stays on one line */
+    display: flex; 
+    align-items: center;
+    gap: 8px; 
+    white-space: nowrap; 
+}
+
+.mode-avatar {
+    /* Styles for the two-letter mode avatar */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; /* Width for the circle/square */
+    height: 30px; /* Height for the circle/square */
+    border-radius: 5px; /* Square with soft corners (change to 50% for circle) */
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff; /* Default primary color */
+    flex-shrink: 0; /* Prevents avatar from shrinking */
+}
+
+/* Color Coding for Avatars (Optional, but recommended) */
+.mode-avatar-flight { background-color: #007bff; } /* Blue */
+.mode-avatar-car { background-color: #ffc107; color: #333; } /* Yellow */
+.mode-avatar-train { background-color: #28a745; } /* Green */
+.mode-avatar-bus { background-color: #dc3545; } /* Red */
+.mode-avatar-hotel { background-color: #6f42c1; } /* Purple (New) */
+
+.mode-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.option-available-text {
+    /* font-size: 12px;  */
+    color: #888; 
+    margin-left: 4px; /* Slight extra space after mode name */
+    white-space: nowrap; 
+}
+
+/* --- Dropdown Styles (Unchanged) --- */
+.assigned-to-select,
+.status-select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: white;
+    appearance: none; 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="292.4" height="292.4" viewBox="0 0 292.4 292.4"><path fill="#007bff" d="M287 75.4L146.2 216.2 5.4 75.4h281.6z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 10px;
+    padding-right: 25px;
+}
+
+.status-select {
+    font-weight: bold;
+    min-width: 100px;
+}
+
+.status-select.status-open {
+    color: #28a745; 
+    border-color: #28a745;
+}
+
+.status-select.status-on-hold {
+    color: #ffc107; 
+    border-color: #ffc107;
+}
+
+.status-select.status-cancel {
+    color: #dc3545; 
+    border-color: #dc3545;
+}
