@@ -13,7 +13,7 @@ const cityOptions = [
 const getCityCodeByName = (name) => {
   if (!name) return "";
   const found = cityOptions.find((c) => c.cityName === name);
-  return found ? found.cityCode : ""; 
+  return found ? found.cityCode : "";
 };
 
 const initialOption = () => ({
@@ -44,9 +44,14 @@ const BusOptionCard = ({ index, option, onChange, onRemove, currencyList }) => {
       <div className="option-header">
         <h4>Option {index + 1}</h4>
         {!option.optionId && (
-            <span className="delete-icon" onClick={() => onRemove(index)} role="button" aria-label="Remove option">
+          <span
+            className="delete-icon"
+            onClick={() => onRemove(index)}
+            role="button"
+            aria-label="Remove option"
+          >
             🗑
-            </span>
+          </span>
         )}
       </div>
 
@@ -63,14 +68,20 @@ const BusOptionCard = ({ index, option, onChange, onRemove, currencyList }) => {
 
         <div className="field">
           <label>Departure City *</label>
-          <select value={option.depCity} onChange={(e) => onChange(index, "depCity", e.target.value)}>
+          <select
+            value={option.depCity}
+            onChange={(e) => onChange(index, "depCity", e.target.value)}
+          >
             {renderCityOptions()}
           </select>
         </div>
 
         <div className="field">
           <label>Arrival City *</label>
-          <select value={option.arrCity} onChange={(e) => onChange(index, "arrCity", e.target.value)}>
+          <select
+            value={option.arrCity}
+            onChange={(e) => onChange(index, "arrCity", e.target.value)}
+          >
             {renderCityOptions()}
           </select>
         </div>
@@ -78,16 +89,32 @@ const BusOptionCard = ({ index, option, onChange, onRemove, currencyList }) => {
         <div className="field">
           <label>Departure Date & Time *</label>
           <div className="date-time">
-            <input type="date" value={option.depDate} onChange={(e) => onChange(index, "depDate", e.target.value)} />
-            <input type="time" value={option.depTime} onChange={(e) => onChange(index, "depTime", e.target.value)} />
+            <input
+              type="date"
+              value={option.depDate}
+              onChange={(e) => onChange(index, "depDate", e.target.value)}
+            />
+            <input
+              type="time"
+              value={option.depTime}
+              onChange={(e) => onChange(index, "depTime", e.target.value)}
+            />
           </div>
         </div>
 
         <div className="field">
           <label>Arrival Date & Time *</label>
           <div className="date-time">
-            <input type="date" value={option.arrDate} onChange={(e) => onChange(index, "arrDate", e.target.value)} />
-            <input type="time" value={option.arrTime} onChange={(e) => onChange(index, "arrTime", e.target.value)} />
+            <input
+              type="date"
+              value={option.arrDate}
+              onChange={(e) => onChange(index, "arrDate", e.target.value)}
+            />
+            <input
+              type="time"
+              value={option.arrTime}
+              onChange={(e) => onChange(index, "arrTime", e.target.value)}
+            />
           </div>
         </div>
       </div>
@@ -142,12 +169,12 @@ const BusOptionCard = ({ index, option, onChange, onRemove, currencyList }) => {
 
 const BusOptionForm = ({ bus, onClose, onSave }) => {
   const initialFromTrain = () => {
-    const origin = bus?.BUS_DEP_CITY || "";
-    const dest = bus?.BUS_ARR_CITY || "";
-    const depDate = bus?.BUS_DEP_DATE || "";
-    const depTime = bus?.BUS_DEP_TIME || "";
-    const arrDate = bus?.BUS_ARR_DATE || "";
-    const arrTime = bus?.BUS_ARR_TIME || "";
+    const origin = bus?.BUS_DEP_CITY || bus?.item?.BUS_DEP_CITY || "";
+    const dest = bus?.BUS_ARR_CITY || bus?.item?.BUS_ARR_CITY || "";
+    const depDate = bus?.BUS_DEP_DATE || bus?.item?.BUS_DEP_DATE || "";
+    const depTime = bus?.BUS_DEP_TIME || bus?.item?.BUS_DEP_TIME || "";
+    const arrDate = bus?.BUS_ARR_DATE || bus?.item?.BUS_ARR_DATE || "";
+    const arrTime = bus?.BUS_ARR_TIME || bus?.item?.BUS_ARR_TIME || "";
 
     return {
       carrierName: "",
@@ -169,45 +196,55 @@ const BusOptionForm = ({ bus, onClose, onSave }) => {
   const [options, setOptions] = useState([initialFromTrain()]);
 
   useEffect(() => {
-    const status = (bus?.Option_Status || "").toLowerCase();
-    const isEditMode = status.includes("added") || status.includes("option");
+    console.log("Bus prop in BusOptionForm:", bus);
 
-    if (isEditMode && bus?.rowId) {
+    // Support Option_Status on bus or bus.item
+    const optionStatus = (
+      bus?.Option_Status ||
+      bus?.item?.Option_Status ||
+      ""
+    ).toLowerCase();
+    console.log("Option_Status in Bus prop:", optionStatus);
+
+    const isEditMode = optionStatus.includes("added") || optionStatus.includes("option");
+
+    // Check rowId presence flexibly
+    const rowId = bus?.rowId || bus?.item?.rowId || bus?.ROWID || bus?.item?.ROWID;
+
+    if (isEditMode && rowId) {
       const fetchExistingOptions = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`/server/trip_options_forms?rowId=${bus.rowId}&requestType=bus`);
-            
-            if (!response.ok) throw new Error("Failed to fetch options");
-            
-            const result = await response.json();
-            
-            if (result.status === 'success' && result.data && result.data.length > 0) {
-                
-                // --- MAP DB COLUMNS TO UI STATE ---
-                const mappedOptions = result.data.map(dbItem => ({
-                    optionId: dbItem.ROWID,
-                    carrierName: dbItem.Merchant_Name,
-                    
-                    depCity: getCityCodeByName(dbItem.BUS_DEP_CITY), 
-                    arrCity: getCityCodeByName(dbItem.BUS_ARR_CITY),
-                    
-                    depDate: dbItem.BUS_DEP_DATE,
-                    depTime: dbItem.BUS_DEP_TIME,
-                    arrDate: dbItem.BUS_ARR_DATE,
-                    arrTime: dbItem.BUS_ARR_TIME,
-                    
-                    amount: dbItem.Amount,
-                    currency: dbItem.Currency_id,
-                    isRefundable: dbItem.Refund_Type === 'Refundable',
-                    notes: dbItem.Notes
-                }));
-                setOptions(mappedOptions);
-            }
+          const response = await fetch(
+            `/server/trip_options_forms?rowId=${rowId}&requestType=bus`
+          );
+
+          if (!response.ok) throw new Error("Failed to fetch options");
+
+          const result = await response.json();
+
+          if (result.status === "success" && result.data && result.data.length > 0) {
+            // --- MAP DB COLUMNS TO UI STATE ---
+            const mappedOptions = result.data.map((dbItem) => ({
+              optionId: dbItem.ROWID,
+              carrierName: dbItem.Merchant_Name,
+              depCity: getCityCodeByName(dbItem.BUS_DEP_CITY),
+              arrCity: getCityCodeByName(dbItem.BUS_ARR_CITY),
+              depDate: dbItem.BUS_DEP_DATE,
+              depTime: dbItem.BUS_DEP_TIME,
+              arrDate: dbItem.BUS_ARR_DATE,
+              arrTime: dbItem.BUS_ARR_TIME,
+              amount: dbItem.Amount,
+              currency: dbItem.Currency_id,
+              isRefundable: dbItem.Refund_Type === "Refundable",
+              notes: dbItem.Notes,
+            }));
+            setOptions(mappedOptions);
+          }
         } catch (error) {
-            console.error("Error loading existing options:", error);
+          console.error("Error loading existing options:", error);
         } finally {
-            setIsLoading(false);
+          setIsLoading(false);
         }
       };
       fetchExistingOptions();
@@ -243,19 +280,26 @@ const BusOptionForm = ({ bus, onClose, onSave }) => {
   };
 
   const getCityFullInfo = (code) =>
-    cityOptions.find(c => c.cityCode === code) || { cityCode: "", cityName: "", airportName: "" };
+    cityOptions.find((c) => c.cityCode === code) || {
+      cityCode: "",
+      cityName: "",
+      airportName: "",
+    };
 
-  const payloadOptions = options.map(opt => ({
+  const payloadOptions = options.map((opt) => ({
     ...opt,
-    depCityDetail: getCityFullInfo(opt.depCity),  // full object with cityName etc.
+    depCityDetail: getCityFullInfo(opt.depCity), // full object with cityName etc.
     arrCityDetail: getCityFullInfo(opt.arrCity),
   }));
-
 
   // New: Send payload to the API endpoint on save
   const handleSave = async () => {
     const getCityFullInfo = (code) =>
-      cityOptions.find((c) => c.cityCode === code) || { cityCode: "", cityName: "", airportName: "" };
+      cityOptions.find((c) => c.cityCode === code) || {
+        cityCode: "",
+        cityName: "",
+        airportName: "",
+      };
 
     const fullOptions = options.map((opt) => ({
       ...opt,
@@ -263,14 +307,15 @@ const BusOptionForm = ({ bus, onClose, onSave }) => {
       depCityName: getCityFullInfo(opt.depCity).cityName,
       arrCityName: getCityFullInfo(opt.arrCity).cityName,
     }));
+
     const payload = {
-      tripId: bus?.TRIP_ID,
-      rowId: bus?.ROWID,
-      agentId: bus?.AGENT_ID,
-      agentName: bus?.AGENT_NAME,
-      agentEmail: bus?.AGENT_EMAIL,
+      tripId: bus?.TRIP_ID || bus?.item?.TRIP_ID,
+      rowId: bus?.ROWID || bus?.item?.ROWID,
+      agentId: bus?.AGENT_ID || bus?.item?.AGENT_ID,
+      agentName: bus?.AGENT_NAME || bus?.item?.AGENT_NAME,
+      agentEmail: bus?.AGENT_EMAIL || bus?.item?.AGENT_EMAIL,
       requestType: "bus",
-      options:fullOptions,
+      options: fullOptions,
     };
 
     try {
@@ -292,6 +337,7 @@ const BusOptionForm = ({ bus, onClose, onSave }) => {
       if (onSave) {
         onSave(responseData);
       }
+      if (onClose) onClose();
     } catch (error) {
       console.error("Failed to save data:", error);
       // Handle error UI feedback if needed
@@ -318,7 +364,9 @@ const BusOptionForm = ({ bus, onClose, onSave }) => {
       {/* Trip Info */}
       <div className="trip-info">
         <h4>
-          {(cityOptions.find((c) => c.cityCode === options[0]?.depCity)?.cityName || "")} ➡{" "}
+          {(cityOptions.find((c) => c.cityCode === options[0]?.depCity)?.cityName ||
+            "")}{" "}
+          ➡{" "}
           {(cityOptions.find((c) => c.cityCode === options[0]?.arrCity)?.cityName || "")}
         </h4>
         <p>{options[0]?.depDate || ""}</p>

@@ -1,0 +1,145 @@
+.hotel-container {
+  width: 100%;
+  max-width: 820px;
+  margin: auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+}
+
+.hotel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.hotel-h3 {
+  margin: 0;
+  font-size: 18px;
+  border: none;
+}
+
+.hotel-header p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.select-title {
+  margin: 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  font-size: 12px;
+  color: #666;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option-card1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  align-items: center;
+}
+
+.option-card.selected {
+  border-color: #007bff;
+  background: #f8faff;
+}
+
+.hotel-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px; /* optional spacing between items */
+}
+
+
+.hotel-details h5 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.rating {
+  background: #28a745;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+.view-address {
+  display: block;
+  font-size: 12px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.time {
+  font-size: 12px;
+  color: #666;
+}
+
+.icons svg {
+  margin-right: 4px;
+  color: #666;
+}
+
+.option-right h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.tag {
+  display: inline-block;
+  background: #ff5722;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.footer-hotel {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.confirm-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #f1f1f1;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}

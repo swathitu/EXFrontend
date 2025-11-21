@@ -608,6 +608,12 @@
   align-items: center;
   font-size: 14px;
 }
+.transfer-date1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: first baseline;
+  font-size: 14px;
+}
 
 .transfer-date .icon {
   margin-right: 8px;
