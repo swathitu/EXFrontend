@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import TripView from '../TripView/TripView';
 import RequestForms from '../RequestForms/RequestForms';
+import ApproverTripDataView from '../ApproverTripDataView/ApproverTripDataView';
 import "./Trip.css";
 
 const RequestForm = ({ tripId, onClose }) => (
@@ -64,14 +65,21 @@ function Trip() {
       )}
 
       {showForm ? (
-        <RequestForm tripId={editTripId} onClose={closeForm} onFormClose={closeForm} />
-      ) : (
-        <TripView
-          onOpenForm={openFormWithId}
-          onOpenDetail={handleDetailOpen}
-          onCloseDetail={handleDetailClose}
-        />
-      )}
+  <RequestForm tripId={editTripId} onClose={closeForm} onFormClose={closeForm} />
+) : (
+  <>
+    <TripView
+      onOpenForm={openFormWithId}
+      onOpenDetail={handleDetailOpen}
+      onCloseDetail={handleDetailClose}
+    />
+    <ApproverTripDataView
+      onOpenForm={openFormWithId}
+    />
+  </>
+)}
+
+
     </div>
   );
 }

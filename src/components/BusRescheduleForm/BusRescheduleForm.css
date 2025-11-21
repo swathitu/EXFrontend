@@ -1,0 +1,85 @@
+/* Overlay & Modal (Reused base) */
+.reschedule-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4); z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    font-family: "Zoho Puvi", sans-serif;
+}
+
+.reschedule-modal {
+    background: #fff; width: 750px; max-width: 95%; border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15); overflow: hidden;
+    display: flex; flex-direction: column;
+}
+
+/* Header Summary */
+.reschedule-header-summary {
+    padding: 20px; background-color: #f8f9fa; border-bottom: 1px solid #e5e8f1;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.summary-left { display: flex; align-items: center; gap: 20px; }
+.summary-item { display: flex; flex-direction: column; gap: 4px; }
+.summary-date { font-size: 12px; color: #67748e; }
+.summary-loc { font-size: 15px; font-weight: 600; color: #344767; }
+.summary-arrow { color: #9ca3af; }
+.modal-close-btn { background: none; border: none; cursor: pointer; color: #6c757d; }
+
+/* Body */
+.reschedule-body { padding: 20px; background-color: #f8f9fa; border-bottom: 1px solid #fff; }
+
+/* --- BUS GRID LAYOUT --- */
+.bus-grid-row {
+    display: flex;
+    align-items: flex-end; /* Aligns inputs at bottom */
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.grid-col { flex: 1; }
+
+.grid-arrow {
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px; /* Align with input center */
+}
+
+.field-label { display: block; font-size: 13px; color: #67748e; margin-bottom: 6px; }
+
+/* Standard Inputs/Selects with Border */
+.input-wrapper-border, .select-wrapper-border {
+    display: flex; align-items: center;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #fff;
+    padding: 0 10px;
+    height: 38px; /* Fixed height for alignment */
+}
+
+.input-wrapper-border input, .select-wrapper-border select {
+    border: none; outline: none; width: 100%;
+    font-size: 14px; color: #333; background: transparent;
+}
+
+/* Description & Reason */
+.form-row { margin-bottom: 16px; }
+.simple-input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
+
+.reason-section { padding: 20px; background: #fff; }
+.reason-label { font-size: 13px; color: #d9480f; margin-bottom: 8px; display: block; }
+.required { color: red; }
+.reason-textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; resize: none; font-size: 14px; box-sizing: border-box; }
+
+/* Footer */
+.reschedule-footer { padding: 16px 20px; background: #fff; border-top: 1px solid #e5e8f1; display: flex; gap: 12px; }
+
+.btn-reschedule {
+    background-color: #0d6efd; color: #fff; border: 1px solid #0d6efd;
+    padding: 8px 20px; border-radius: 4px; font-weight: 600; cursor: pointer;
+}
+.btn-reschedule:hover { background-color: #0b5ed7; }
+
+.btn-cancel {
+    background-color: #fff; border: 1px solid #d1d5db; color: #333;
+    padding: 8px 20px; border-radius: 4px; font-weight: 500; cursor: pointer;
+}
+.btn-cancel:hover { background-color: #f8f9fa; }

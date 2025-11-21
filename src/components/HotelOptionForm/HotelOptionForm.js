@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./HotelOptionForm.css";
 
 const initialOption = () => ({
+  optionId: null,
   hotelName: "",
   hotelAddress: "",
   city: "",
@@ -31,7 +32,11 @@ const cityOptions = [
   { cityCode: "TYO", cityName: "Tokyo" },
 ];
 
-
+const getCityCodeByName = (name) => {
+  if (!name) return "";
+  const found = cityOptions.find((c) => c.cityName === name);
+  return found ? found.cityCode : ""; 
+};
 const starRatings = [
   { value: "", label: "Select Star Rating" },
   { value: "5 Star", label: "5 Star" },
@@ -59,6 +64,7 @@ const HotelOptions = ({ hotel, onClose, onSave, requestType = "hotel" }) => {
   const cityArr = hotel?.HOTEL_ARR_CITY || "";
 
   const [currencyList, setCurrencyList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [options, setOptions] = useState([
     {
       ...initialOption(),
@@ -85,6 +91,61 @@ const HotelOptions = ({ hotel, onClose, onSave, requestType = "hotel" }) => {
     fetchCurrencies();
   }, []);
 
+  useEffect(() => {
+    const status = (hotel?.Option_Status || "").toLowerCase();
+    const isEditMode = status.includes("added") || status.includes("option");
+
+    if (isEditMode && hotel?.rowId) {
+      const fetchExistingOptions = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`/server/trip_options_forms?rowId=${hotel.rowId}&requestType=hotel`);
+            
+            if (!response.ok) throw new Error("Failed to fetch options");
+            
+            const result = await response.json();
+            
+            if (result.status === 'success' && result.data && result.data.length > 0) {
+                
+                // --- MAP DB COLUMNS TO UI STATE ---
+                const mappedOptions = result.data.map(dbItem => ({
+                    optionId: dbItem.ROWID,
+                    hotelName: dbItem.Merchant_Name,
+                    hotelAddress: dbItem.Hotel_Address,
+                    
+                    city: getCityCodeByName(dbItem.HOTEL_ARR_CITY),
+                    
+                    arrDate: dbItem.HOTEL_ARR_DATE,
+                    arrTime: dbItem.HOTEL_ARR_TIME,
+                    depDate: dbItem.HOTEL_DEP_DATE,
+                    depTime: dbItem.HOTEL_DEP_TIME,
+                    
+                    starRating: dbItem.Hotel_Class,
+                    roomType: dbItem.Room_Type,
+                    
+                    // Convert string "true"/"false" back to boolean
+                    acAvailable: dbItem.Is_AC_Available === 'true',
+                    wifiAvailable: dbItem.Wifi_Availablity === 'true',
+                    wifiType: dbItem.WiFi_Type,
+                    breakfastComplimentary: dbItem.Is_Breakfast_Complimentary === 'true',
+
+                    amount: dbItem.Amount,
+                    currency: dbItem.Currency_id,
+                    isRefundable: dbItem.Refund_Type === 'Refundable',
+                    notes: dbItem.Notes
+                }));
+                setOptions(mappedOptions);
+            }
+        } catch (error) {
+            console.error("Error loading existing options:", error);
+        } finally {
+            setIsLoading(false);
+        }
+      };
+      fetchExistingOptions();
+    }
+  }, [hotel]);
+
   const addOption = () => {
     setOptions((prev) => [...prev, initialOption()]);
   };
@@ -109,6 +170,7 @@ const HotelOptions = ({ hotel, onClose, onSave, requestType = "hotel" }) => {
     // Map options to include cityName alongside cityCode
     const mappedOptions = options.map((opt) => ({
       ...opt,
+      optionId: opt.optionId,
       cityName: getCityName(opt.city), // add cityName here
     }));
 
@@ -191,14 +253,11 @@ const HotelOptions = ({ hotel, onClose, onSave, requestType = "hotel" }) => {
         <div className="option-card" key={idx}>
           <div className="option-header">
             <h4>Option {idx + 1}</h4>
-            <span
-              className="delete-icon"
-              onClick={() => removeOption(idx)}
-              role="button"
-              aria-label="Remove option"
-            >
-              🗑
-            </span>
+            {!opt.optionId && (
+                            <span className="delete-icon" onClick={() => removeOption(idx)} role="button" aria-label="Remove option">
+                            🗑
+                            </span>
+                        )}
           </div>
 
           <div className="option-grid">
