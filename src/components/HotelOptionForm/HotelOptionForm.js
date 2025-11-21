@@ -35,7 +35,7 @@ const cityOptions = [
 const getCityCodeByName = (name) => {
   if (!name) return "";
   const found = cityOptions.find((c) => c.cityName === name);
-  return found ? found.cityCode : ""; 
+  return found ? found.cityCode : "";
 };
 const starRatings = [
   { value: "", label: "Select Star Rating" },
@@ -56,7 +56,6 @@ const roomTypes = [
 ];
 
 const HotelOptions = ({ hotel, onClose, onSave, requestType = "hotel" }) => {
-  console.log("hotel props", hotel);
   const arrDate = hotel?.HOTEL_ARR_DATE || "";
   const arrTime = hotel?.HOTEL_ARR_TIME || "";
   const depDate = hotel?.HOTEL_DEP_DATE || "";
@@ -92,54 +91,58 @@ const HotelOptions = ({ hotel, onClose, onSave, requestType = "hotel" }) => {
   }, []);
 
   useEffect(() => {
+    console.log("Hotel prop changed:", hotel);
+    console.log("Current options state:", hotel?.Option_Status);
     const status = (hotel?.Option_Status || "").toLowerCase();
     const isEditMode = status.includes("added") || status.includes("option");
+    const rowId = hotel?.rowId || hotel?.ROWID;
+    console.log("isEditMode:", isEditMode, "rowId:", rowId);
 
-    if (isEditMode && hotel?.rowId) {
+    if (isEditMode && rowId) {
       const fetchExistingOptions = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`/server/trip_options_forms?rowId=${hotel.rowId}&requestType=hotel`);
-            
-            if (!response.ok) throw new Error("Failed to fetch options");
-            
-            const result = await response.json();
-            
-            if (result.status === 'success' && result.data && result.data.length > 0) {
-                
-                // --- MAP DB COLUMNS TO UI STATE ---
-                const mappedOptions = result.data.map(dbItem => ({
-                    optionId: dbItem.ROWID,
-                    hotelName: dbItem.Merchant_Name,
-                    hotelAddress: dbItem.Hotel_Address,
-                    
-                    city: getCityCodeByName(dbItem.HOTEL_ARR_CITY),
-                    
-                    arrDate: dbItem.HOTEL_ARR_DATE,
-                    arrTime: dbItem.HOTEL_ARR_TIME,
-                    depDate: dbItem.HOTEL_DEP_DATE,
-                    depTime: dbItem.HOTEL_DEP_TIME,
-                    
-                    starRating: dbItem.Hotel_Class,
-                    roomType: dbItem.Room_Type,
-                    
-                    // Convert string "true"/"false" back to boolean
-                    acAvailable: dbItem.Is_AC_Available === 'true',
-                    wifiAvailable: dbItem.Wifi_Availablity === 'true',
-                    wifiType: dbItem.WiFi_Type,
-                    breakfastComplimentary: dbItem.Is_Breakfast_Complimentary === 'true',
+          const response = await fetch(`/server/trip_options_forms?rowId=${rowId}&requestType=hotel`);
 
-                    amount: dbItem.Amount,
-                    currency: dbItem.Currency_id,
-                    isRefundable: dbItem.Refund_Type === 'Refundable',
-                    notes: dbItem.Notes
-                }));
-                setOptions(mappedOptions);
-            }
+          if (!response.ok) throw new Error("Failed to fetch options");
+
+          const result = await response.json();
+
+          if (result.status === 'success' && result.data && result.data.length > 0) {
+
+            // --- MAP DB COLUMNS TO UI STATE ---
+            const mappedOptions = result.data.map(dbItem => ({
+              optionId: dbItem.ROWID,
+              hotelName: dbItem.Merchant_Name,
+              hotelAddress: dbItem.Hotel_Address,
+
+              city: getCityCodeByName(dbItem.HOTEL_ARR_CITY),
+
+              arrDate: dbItem.HOTEL_ARR_DATE,
+              arrTime: dbItem.HOTEL_ARR_TIME,
+              depDate: dbItem.HOTEL_DEP_DATE,
+              depTime: dbItem.HOTEL_DEP_TIME,
+
+              starRating: dbItem.Hotel_Class,
+              roomType: dbItem.Room_Type,
+
+              // Convert string "true"/"false" back to boolean
+              acAvailable: dbItem.Is_AC_Available === 'true',
+              wifiAvailable: dbItem.Wifi_Availablity === 'true',
+              wifiType: dbItem.WiFi_Type,
+              breakfastComplimentary: dbItem.Is_Breakfast_Complimentary === 'true',
+
+              amount: dbItem.Amount,
+              currency: dbItem.Currency_id,
+              isRefundable: dbItem.Refund_Type === 'Refundable',
+              notes: dbItem.Notes
+            }));
+            setOptions(mappedOptions);
+          }
         } catch (error) {
-            console.error("Error loading existing options:", error);
+          console.error("Error loading existing options:", error);
         } finally {
-            setIsLoading(false);
+          setIsLoading(false);
         }
       };
       fetchExistingOptions();
@@ -203,6 +206,9 @@ const HotelOptions = ({ hotel, onClose, onSave, requestType = "hotel" }) => {
       if (onSave) {
         onSave(result);
       }
+      if (onClose) onClose();
+
+
     } catch (error) {
       console.error("Error saving data:", error);
     }
@@ -254,10 +260,10 @@ const HotelOptions = ({ hotel, onClose, onSave, requestType = "hotel" }) => {
           <div className="option-header">
             <h4>Option {idx + 1}</h4>
             {!opt.optionId && (
-                            <span className="delete-icon" onClick={() => removeOption(idx)} role="button" aria-label="Remove option">
-                            🗑
-                            </span>
-                        )}
+              <span className="delete-icon" onClick={() => removeOption(idx)} role="button" aria-label="Remove option">
+                🗑
+              </span>
+            )}
           </div>
 
           <div className="option-grid">

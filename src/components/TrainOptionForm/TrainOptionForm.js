@@ -14,7 +14,7 @@ const cityOptions = [
 const getCityCodeByName = (name) => {
   if (!name) return "";
   const found = cityOptions.find((c) => c.cityName === name);
-  return found ? found.cityCode : ""; 
+  return found ? found.cityCode : "";
 };
 
 const initialOption = () => ({
@@ -190,49 +190,49 @@ const TrainOptionForm = ({ train, onClose, onSave }) => {
 
   // 2. FETCH EXISTING OPTIONS (EDIT MODE)
   useEffect(() => {
-   
+
     const status = (train?.Option_Status || "").toLowerCase();
     const isEditMode = status.includes("added") || status.includes("option");
 
-    console.log("Train Form - Status:", status, "RowID:", train?.rowId);
+    const rowId = train?.rowId || train?.ROWID;
 
-    if (isEditMode && train?.rowId) {
+    if (isEditMode && rowId) {
       const fetchExistingOptions = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`/server/trip_options_forms?rowId=${train.rowId}&requestType=train`);
-            
-            if (!response.ok) throw new Error("Failed to fetch options");
-            
-            const result = await response.json();
-            console.log("Train Options Fetched:", result);
-            
-            if (result.status === 'success' && result.data && result.data.length > 0) {
-                
-                // --- MAP DB COLUMNS TO UI STATE ---
-                const mappedOptions = result.data.map(dbItem => ({
-                    optionId: dbItem.ROWID,
-                    carrierName: dbItem.Merchant_Name,
-                    
-                    depCity: getCityCodeByName(dbItem.TRAIN_DEP_CITY), 
-                    arrCity: getCityCodeByName(dbItem.TRAIN_ARR_CITY),
-                    
-                    depDate: dbItem.TRAIN_DEP_DATE,
-                    depTime: dbItem.TRAIN_DEP_TIME,
-                    arrDate: dbItem.TRAIN_ARR_DATE,
-                    arrTime: dbItem.TRAIN_ARR_TIME,
-                    
-                    amount: dbItem.Amount,
-                    currency: dbItem.Currency_id,
-                    isRefundable: dbItem.Refund_Type === 'Refundable',
-                    notes: dbItem.Notes
-                }));
-                setOptions(mappedOptions);
-            }
+          const response = await fetch(`/server/trip_options_forms?rowId=${rowId}&requestType=train`);
+
+          if (!response.ok) throw new Error("Failed to fetch options");
+
+          const result = await response.json();
+          console.log("Train Options Fetched:", result);
+
+          if (result.status === 'success' && result.data && result.data.length > 0) {
+
+            // --- MAP DB COLUMNS TO UI STATE ---
+            const mappedOptions = result.data.map(dbItem => ({
+              optionId: dbItem.ROWID,
+              carrierName: dbItem.Merchant_Name,
+
+              depCity: getCityCodeByName(dbItem.TRAIN_DEP_CITY),
+              arrCity: getCityCodeByName(dbItem.TRAIN_ARR_CITY),
+
+              depDate: dbItem.TRAIN_DEP_DATE,
+              depTime: dbItem.TRAIN_DEP_TIME,
+              arrDate: dbItem.TRAIN_ARR_DATE,
+              arrTime: dbItem.TRAIN_ARR_TIME,
+
+              amount: dbItem.Amount,
+              currency: dbItem.Currency_id,
+              isRefundable: dbItem.Refund_Type === 'Refundable',
+              notes: dbItem.Notes
+            }));
+            setOptions(mappedOptions);
+          }
         } catch (error) {
-            console.error("Error loading existing options:", error);
+          console.error("Error loading existing options:", error);
         } finally {
-            setIsLoading(false);
+          setIsLoading(false);
         }
       };
       fetchExistingOptions();
@@ -265,7 +265,7 @@ const TrainOptionForm = ({ train, onClose, onSave }) => {
       depCityName: getCityFullInfo(opt.depCity).cityName,
       arrCityName: getCityFullInfo(opt.arrCity).cityName,
     }));
-    
+
     const payload = {
       tripId: train?.TRIP_ID,
       rowId: train?.ROWID,
@@ -290,10 +290,12 @@ const TrainOptionForm = ({ train, onClose, onSave }) => {
       }
 
       const responseData = await response.json();
-      
+
       if (onSave) {
         onSave(responseData);
       }
+
+      if (onClose) onClose();
     } catch (error) {
       console.error("Failed to save data:", error);
     }
@@ -328,7 +330,7 @@ const TrainOptionForm = ({ train, onClose, onSave }) => {
 
       {/* LOADING UI (This was missing in your code) */}
       {isLoading ? (
-         <div style={{padding: '20px', textAlign: 'center', color: '#666'}}>Loading existing options...</div>
+        <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>Loading existing options...</div>
       ) : (
         <>
           {options.map((opt, idx) => (
@@ -343,7 +345,7 @@ const TrainOptionForm = ({ train, onClose, onSave }) => {
           ))}
 
           {/* Add New Option */}
-          <div className="add-option btn-primary" onClick={addOption} style={{marginBottom: '16px', cursor: 'pointer', textAlign: 'center'}}>
+          <div className="add-option btn-primary" onClick={addOption} style={{ marginBottom: '16px', cursor: 'pointer', textAlign: 'center' }}>
             + Add New Option
           </div>
         </>

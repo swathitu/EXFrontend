@@ -1,0 +1,126 @@
+.bus-container {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
+  position: fixed; /* Optional: keep it fixed over the viewport */
+  top: 0;
+  left: 0;
+  background: white; /* Or any background */
+  z-index: 1000; /* To ensure it overlays other components */
+  overflow-y: auto; /* In case content exceeds viewport height */
+  padding: 20px; /* Adjust as needed */
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.select-title {
+  margin: 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.table-header2 {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr 0.8fr 0.8fr 1.2fr; /* Adjusted column widths */
+  font-size: 12px;
+  color: #666;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  text-align: center; /* Align header text */
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bus-name{
+  display: flex;
+}
+
+.option-card1 {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr 0.8fr 0.8fr 1.2fr; /* Same as header for alignment */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  align-items: center;
+}
+
+.option-card.selected {
+  border-color: #007bff;
+  background: #f8faff;
+}
+
+.bus-details h5 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.time,
+.location {
+  font-size: 12px;
+  color: #666;
+}
+
+/* ✅ Alignment Fix for Duration & Notes */
+.col.duration,
+.col.notes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 500;
+}
+
+.col.price {
+  text-align: right;
+}
+
+.tag {
+  display: inline-block;
+  background: #ff5722;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+
+
+.footer-bus {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.confirm-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #f1f1f1;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
