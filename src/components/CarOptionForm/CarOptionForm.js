@@ -20,10 +20,15 @@ const carTypes = [
 ];
 
 
-
+const getCityCodeByName = (name) => {
+  if (!name) return "";
+  const found = cityOptions.find((c) => c.cityName === name);
+  return found ? found.cityCode : ""; 
+};
 
 
 const initialOption = () => ({
+  optionId: null,
   carName: "",
   depDate: "",
   depTime: "",
@@ -48,16 +53,21 @@ const CarOptionCard = ({ index, option, onChange, onRemove, currencyList }) => {
 
   return (
     <div className="option-card">
+      <input type="hidden" value={option.optionId || ""} />
       <div className="option-header">
         <h4>Option {index + 1}</h4>
-        <span
-          className="delete-icon"
-          onClick={() => onRemove(index)}
-          role="button"
-          aria-label="Remove option"
-        >
-          🗑
-        </span>
+        {!option.optionId && (
+          <span
+            className="delete-icon"
+            onClick={() => onRemove(index)}
+            role="button"
+            aria-label="Remove option"
+            title="Remove this option"
+            style={{ cursor: 'pointer', color: 'red' }} // Optional styling to ensure visibility
+          >
+            🗑
+          </span>
+        )}
       </div>
 
       <div className="option-grid">
@@ -213,6 +223,7 @@ const CarOptionForm = ({ car, onClose, onSave }) => {
 
   const [currencyList, setCurrencyList] = useState([]);
   const [options, setOptions] = useState([initialFromCar()]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchCurrencies = async () => {
@@ -227,6 +238,60 @@ const CarOptionForm = ({ car, onClose, onSave }) => {
 
     fetchCurrencies();
   }, []);
+
+  // 2. FETCH EXISTING OPTIONS (EDIT MODE)
+  useEffect(() => {
+    const status = (car?.Option_Status || "").toLowerCase();
+    // Check if we are in "Edit Mode"
+    const isEditMode = status.includes("added") || status.includes("option");
+
+    if (isEditMode && car?.rowId) {
+      const fetchExistingOptions = async () => {
+        setIsLoading(true);
+        try {
+            // Call the API with the Trip Line Item ID (rowId)
+            const response = await fetch(`/server/trip_options_forms?rowId=${car.rowId}&requestType=car`);
+            
+            if (!response.ok) throw new Error("Failed to fetch options");
+            
+            const result = await response.json();
+            
+            // Check if data exists
+            if (result.status === 'success' && result.data && result.data.length > 0) {
+                
+                // --- CRITICAL: MAP DB COLUMNS TO UI STATE ---
+                const mappedOptions = result.data.map(dbItem => ({
+                    optionId: dbItem.ROWID, // <--- Capturing the Hidden ID
+                    carName: dbItem.Merchant_Name,
+                    
+                    // Convert Names back to Codes for dropdowns
+                    depCity: getCityCodeByName(dbItem.CAR_DEP_CITY), 
+                    arrCity: getCityCodeByName(dbItem.CAR_ARR_CITY),
+                    
+                    depDate: dbItem.CAR_DEP_DATE,
+                    depTime: dbItem.CAR_DEP_TIME,
+                    arrDate: dbItem.CAR_ARR_DATE,
+                    arrTime: dbItem.CAR_ARR_TIME,
+                    carType: dbItem.CAR_TYPE,
+                    amount: dbItem.Amount,
+                    currency: dbItem.Currency_id,
+                    isRefundable: dbItem.Refund_Type === 'Refundable',
+                    notes: dbItem.Notes
+                }));
+                
+                // Update the form with the fetched data
+                setOptions(mappedOptions);
+            }
+        } catch (error) {
+            console.error("Error loading existing options:", error);
+        } finally {
+            setIsLoading(false);
+        }
+      };
+      
+      fetchExistingOptions();
+    }
+  }, [car]);
 
   const addOption = () => {
     setOptions((prev) => [...prev, initialFromCar()]);
@@ -258,6 +323,7 @@ const CarOptionForm = ({ car, onClose, onSave }) => {
 
     const fullOptions = options.map((opt) => ({
       ...opt,
+      optionId: opt.optionId,
       depCityName: getCityFullInfo(opt.depCity).cityName,
       arrCityName: getCityFullInfo(opt.arrCity).cityName,
     }));

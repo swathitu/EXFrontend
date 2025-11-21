@@ -10,7 +10,14 @@ const cityOptions = [
   { cityCode: "TYO", cityName: "Tokyo", airportName: "NRT" },
 ];
 
+const getCityCodeByName = (name) => {
+  if (!name) return "";
+  const found = cityOptions.find((c) => c.cityName === name);
+  return found ? found.cityCode : ""; 
+};
+
 const initialOption = () => ({
+  optionId: null,
   carrierName: "",
   depDate: "",
   depTime: "",
@@ -36,9 +43,11 @@ const BusOptionCard = ({ index, option, onChange, onRemove, currencyList }) => {
     <div className="option-card">
       <div className="option-header">
         <h4>Option {index + 1}</h4>
-        <span className="delete-icon" onClick={() => onRemove(index)} role="button" aria-label="Remove option">
-          🗑
-        </span>
+        {!option.optionId && (
+            <span className="delete-icon" onClick={() => onRemove(index)} role="button" aria-label="Remove option">
+            🗑
+            </span>
+        )}
       </div>
 
       <div className="option-grid">
@@ -156,7 +165,54 @@ const BusOptionForm = ({ bus, onClose, onSave }) => {
   };
 
   const [currencyList, setCurrencyList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [options, setOptions] = useState([initialFromTrain()]);
+
+  useEffect(() => {
+    const status = (bus?.Option_Status || "").toLowerCase();
+    const isEditMode = status.includes("added") || status.includes("option");
+
+    if (isEditMode && bus?.rowId) {
+      const fetchExistingOptions = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`/server/trip_options_forms?rowId=${bus.rowId}&requestType=bus`);
+            
+            if (!response.ok) throw new Error("Failed to fetch options");
+            
+            const result = await response.json();
+            
+            if (result.status === 'success' && result.data && result.data.length > 0) {
+                
+                // --- MAP DB COLUMNS TO UI STATE ---
+                const mappedOptions = result.data.map(dbItem => ({
+                    optionId: dbItem.ROWID,
+                    carrierName: dbItem.Merchant_Name,
+                    
+                    depCity: getCityCodeByName(dbItem.BUS_DEP_CITY), 
+                    arrCity: getCityCodeByName(dbItem.BUS_ARR_CITY),
+                    
+                    depDate: dbItem.BUS_DEP_DATE,
+                    depTime: dbItem.BUS_DEP_TIME,
+                    arrDate: dbItem.BUS_ARR_DATE,
+                    arrTime: dbItem.BUS_ARR_TIME,
+                    
+                    amount: dbItem.Amount,
+                    currency: dbItem.Currency_id,
+                    isRefundable: dbItem.Refund_Type === 'Refundable',
+                    notes: dbItem.Notes
+                }));
+                setOptions(mappedOptions);
+            }
+        } catch (error) {
+            console.error("Error loading existing options:", error);
+        } finally {
+            setIsLoading(false);
+        }
+      };
+      fetchExistingOptions();
+    }
+  }, [bus]);
 
   useEffect(() => {
     const fetchCurrencies = async () => {
@@ -203,6 +259,7 @@ const BusOptionForm = ({ bus, onClose, onSave }) => {
 
     const fullOptions = options.map((opt) => ({
       ...opt,
+      optionId: opt.optionId,
       depCityName: getCityFullInfo(opt.depCity).cityName,
       arrCityName: getCityFullInfo(opt.arrCity).cityName,
     }));

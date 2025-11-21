@@ -1,0 +1,187 @@
+/* Overlay */
+.cancel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 2000; /* High z-index to sit on top of everything */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Zoho Puvi", sans-serif;
+}
+
+/* Modal Box */
+.cancel-modal {
+    background: #fff;
+    width: 550px;
+    max-width: 90%;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.cancel-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cancel-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+.close-btn:hover {
+    background-color: #f1f3f5;
+    color: #343a40;
+}
+
+/* Body Content */
+.cancel-body {
+    padding: 24px;
+}
+
+/* Summary Box Style */
+.cancel-summary-box {
+    border: 1px solid #e5e8f1;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+    background-color: #fff; /* Or slightly grey #f8f9fa if preferred */
+}
+
+.summary-dates {
+    font-size: 13px;
+    color: #67748e;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+}
+
+.summary-route {
+    font-size: 16px;
+    font-weight: 600;
+    color: #344767;
+    display: flex;
+    align-items: center;
+}
+
+.arrow {
+    color: #9ca3af;
+    margin: 0 8px;
+    font-size: 14px;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 8px;
+}
+
+.reason-label-red {
+    font-size: 13px;
+    color: #d32f2f impotant; /* Red Color */
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.required {
+    color: #d32f2f;
+    margin-left: 4px;
+}
+
+.reason-textarea {
+    width: 100%;
+    height: 100px;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    resize: none;
+    font-size: 14px;
+    box-sizing: border-box;
+    font-family: inherit;
+    color: #333;
+}
+
+.reason-textarea:focus {
+    outline: 1px solid #0d6efd;
+    border-color: #0d6efd;
+}
+
+.warning-text {
+    font-size: 13px;
+    color: #67748e;
+    margin-top: 12px;
+    margin-bottom: 0;
+}
+
+/* Footer */
+.cancel-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e5e8f1;
+    background: #fff;
+    display: flex;
+    gap: 12px;
+}
+
+/* Blue Confirm Button */
+.btn-confirm-cancel {
+    background-color: #0d6efd; /* Blue */
+    color: #fff;
+    border: 1px solid #0d6efd;
+    padding: 8px 24px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-confirm-cancel:hover {
+    background-color: #0b5ed7;
+}
+
+.btn-confirm-cancel:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* White Cancel Button */
+.btn-dont-cancel {
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    color: #333;
+    padding: 8px 24px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-dont-cancel:hover {
+    background-color: #f8f9fa;
+    border-color: #c2c6cc;
+}
