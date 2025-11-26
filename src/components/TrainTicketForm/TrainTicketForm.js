@@ -1,30 +1,37 @@
 import React, { useState, useEffect } from "react";
-import "./TrainTicketForm.css";
+import "./TrainTicketForm.css"; 
 
 const cityOptions = [
   { cityCode: "", cityName: "Select City" },
-  { cityCode: "NYC", cityName: "New York" },
-  { cityCode: "LON", cityName: "London" },
-  { cityCode: "PAR", cityName: "Paris" },
-  { cityCode: "DXB", cityName: "Dubai" },
-  { cityCode: "TYO", cityName: "Tokyo" },
+  { cityCode: "NDLS", cityName: "New Delhi" },
+  { cityCode: "BCT", cityName: "Mumbai Central" },
+  { cityCode: "HWH", cityName: "Howrah" },
+  { cityCode: "MAS", cityName: "Chennai Central" },
+  { cityCode: "SBC", cityName: "Bangalore City" },
+  { cityCode: "HYB", cityName: "Hyderabad" },
+  { cityCode: "ADI", cityName: "Ahmedabad" },
 ];
 
 const TrainTicketForm = ({ Train, onClose }) => {
-  console.log("train", Train);
+  console.log('Train Data:', Train);
 
   const [bookingId, setBookingId] = useState("");
   const [bookingDate, setBookingDate] = useState("");
+  
+  // Main Amount
   const [amountCurrency, setAmountCurrency] = useState("INR");
   const [amountValue, setAmountValue] = useState("");
+  
+  // Refundable
   const [isRefundable, setIsRefundable] = useState(false);
+
+  // Other Charges State
+  const [showOtherCharges, setShowOtherCharges] = useState(false);
+  const [otherChargesValue, setOtherChargesValue] = useState(""); // Removed otherChargesCurrency state
+
   const [notes, setNotes] = useState("");
   const [createExpense, setCreateExpense] = useState(false);
   const [currencyList, setCurrencyList] = useState([]);
-  const [showOtherCharges, setShowOtherCharges] = useState(false);
-  const [otherChargesCurrency, setOtherChargesCurrency] = useState("INR");
-  const [otherChargesAmount, setOtherChargesAmount] = useState("");
-  const [attachments, setAttachments] = useState([]);
 
   const [itineraryRows, setItineraryRows] = useState([]);
 
@@ -32,11 +39,11 @@ const TrainTicketForm = ({ Train, onClose }) => {
   useEffect(() => {
     const fetchCurrencies = async () => {
       try {
-        const response = await fetch("/server/get_currencyMaster/currency");
+        const response = await fetch('/server/get_currencyMaster/currency');
         const data = await response.json();
         setCurrencyList(data);
       } catch (error) {
-        console.error("Error fetching currencies:", error);
+        console.error('Error fetching currencies:', error);
       }
     };
     fetchCurrencies();
@@ -47,19 +54,18 @@ const TrainTicketForm = ({ Train, onClose }) => {
     if (Train && Object.keys(Train).length > 0) {
       const newItineraryRow = {
         id: Train.ROWID || Date.now(),
-        carrierName: Train.Merchant_Name || "",
-        busNumber: "", // Add if you have train number in data
+        carrierName: Train.Merchant_Name || "Indian Railways", 
+        trainNumber: "", 
         departDate: Train.TRAIN_DEP_DATE || "",
         departTime: Train.TRAIN_DEP_TIME || "",
-        arriveDate: Train.BUS_ARR_DATE || "",
-        arriveTime: Train.BUS_ARR_TIME || "",
-        depCity: Train.BUS_DEP_CITY || "",
-        arrCity: Train.BUS_ARR_CITY || "",
+        arriveDate: Train.TRAIN_ARR_DATE || "",
+        arriveTime: Train.TRAIN_ARR_TIME || "",
+        depCity: Train.TRAIN_DEP_CITY || "",
+        arrCity: Train.TRAIN_ARR_CITY || "",
       };
 
       setItineraryRows([newItineraryRow]);
 
-      // Initialize amount and currency from Train if available
       setAmountValue(Train.Amount || "");
       setAmountCurrency(Train.Currency_id || "INR");
     } else {
@@ -100,25 +106,6 @@ const TrainTicketForm = ({ Train, onClose }) => {
     setItineraryRows((prev) => prev.filter((row) => row.id !== id));
   };
 
-  const handleFileChange = (event) => {
-    const newFiles = Array.from(event.target.files);
-    setAttachments((prev) => [
-      ...prev,
-      ...newFiles.map((file) => ({
-        id: Date.now() + Math.random(),
-        file: file,
-        url: URL.createObjectURL(file),
-      })),
-    ]);
-    event.target.value = null;
-  };
-
-  const removeAttachment = (idToRemove) => {
-    setAttachments((prev) =>
-      prev.filter((attachment) => attachment.id !== idToRemove)
-    );
-  };
-
   const renderCityOptions = () =>
     cityOptions.map(({ cityCode, cityName }) => (
       <option key={cityCode} value={cityCode}>
@@ -133,25 +120,17 @@ const TrainTicketForm = ({ Train, onClose }) => {
       bookingId,
       bookingDate,
       amount: { currency: amountCurrency, value: amountValue },
+      // Use main currency for other charges since selector was removed
+      otherCharges: showOtherCharges ? { currency: amountCurrency, value: otherChargesValue } : null,
       isRefundable,
       notes,
       createExpense,
       itinerary: itineraryRows,
-      otherCharges: showOtherCharges
-        ? {
-            currency: otherChargesCurrency,
-            amount: otherChargesAmount,
-          }
-        : null,
-      attachments: attachments.map((attachment) => ({
-        name: attachment.file.name,
-        type: attachment.file.type,
-        size: attachment.file.size,
-      })),
     };
 
-    console.log("Submitting Ticket:", payload);
-    alert("Ticket submitted (mock)!");
+    console.log("Submitting Train Ticket:", payload);
+    alert("Train Ticket submitted successfully!");
+    onClose(); 
   };
 
   return (
@@ -166,53 +145,11 @@ const TrainTicketForm = ({ Train, onClose }) => {
       <div className="ticket-content">
         {/* LEFT: Attachment dropzone */}
         <section className="attachment-panel" aria-label="Attach documents">
-          {attachments.length === 0 && (
-            <div className="attachment-dropzone">
-              <input
-                type="file"
-                id="file-upload"
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-                multiple
-                accept="image/*, application/pdf"
-              />
-              <label htmlFor="file-upload" className="drop-icon-label">
-                Add docus
-              </label>
-              <p className="drop-hint">Attach documents from computer</p>
-            </div>
-          )}
-
-          <div className="attachments-list">
-            {attachments.map((attachment) => (
-              <div key={attachment.id} className="attachment-preview">
-                <button
-                  className="remove-attachment-btn"
-                  onClick={() => removeAttachment(attachment.id)}
-                  aria-label={`Remove ${attachment.file.name}`}
-                >
-                  ✕
-                </button>
-
-                {attachment.file.type.startsWith("image/") ? (
-                  <img
-                    src={attachment.url}
-                    alt={attachment.file.name}
-                    className="attachment-image"
-                  />
-                ) : (
-                  <span
-                    role="img"
-                    aria-label="document"
-                    className="attachment-icon"
-                  >
-                    📄
-                  </span>
-                )}
-
-                <p className="attachment-filename">{attachment.file.name}</p>
-              </div>
-            ))}
+          <div className="attachment-dropzone">
+            <button className="drop-icon" aria-label="Attach">
+              ⤒
+            </button>
+            <p className="drop-hint">Attach documents from computer</p>
           </div>
         </section>
 
@@ -220,9 +157,7 @@ const TrainTicketForm = ({ Train, onClose }) => {
         <section className="ticket-form">
           <div className="route-summary">
             <span className="city">
-              {itineraryRows.length > 0
-                ? getCityNameCode(itineraryRows[0].depCity)
-                : ""}
+              {itineraryRows.length > 0 ? getCityNameCode(itineraryRows[0].depCity) : ""}
             </span>
             <span className="separator">➜</span>
             <span className="city">
@@ -231,9 +166,7 @@ const TrainTicketForm = ({ Train, onClose }) => {
                 : ""}
             </span>
             <span className="route-sub">
-              {itineraryRows.length > 0
-                ? formatDate(itineraryRows[0].departDate)
-                : ""}
+              {itineraryRows.length > 0 ? formatDate(itineraryRows[0].departDate) : ""}
             </span>
           </div>
 
@@ -248,7 +181,7 @@ const TrainTicketForm = ({ Train, onClose }) => {
                 type="text"
                 value={bookingId}
                 onChange={(e) => setBookingId(e.target.value)}
-                placeholder="Enter Booking ID"
+                placeholder="Enter PNR / Booking ID"
               />
             </div>
 
@@ -309,8 +242,8 @@ const TrainTicketForm = ({ Train, onClose }) => {
             </div>
           </div>
 
-          {/* Other Charges */}
-          <div className="checkbox-field">
+          {/* Other Charges Toggle */}
+          <div className="checkbox-field" style={{ marginBottom: "16px" }}>
             <input
               id="otherCharges"
               type="checkbox"
@@ -320,37 +253,19 @@ const TrainTicketForm = ({ Train, onClose }) => {
             <label htmlFor="otherCharges">Other Charges</label>
           </div>
 
+          {/* Conditional Rendering for Other Charges Inputs - NO CURRENCY SELECTOR */}
           {showOtherCharges && (
-            <div className="amount-row">
-              <div className="form-field currency-field">
-                <label>
-                  Amount <span className="req">*</span>
-                </label>
-                <div className="amount-inputs">
-                  <select
-                    aria-label="Currency"
-                    value={otherChargesCurrency}
-                    onChange={(e) => setOtherChargesCurrency(e.target.value)}
-                  >
-                    {currencyList.length > 0 ? (
-                      currencyList.map((currency) => (
-                        <option key={currency.Code} value={currency.Code}>
-                          {currency.Name} ({currency.Code})
-                        </option>
-                      ))
-                    ) : (
-                      <option value="INR">INR</option>
-                    )}
-                  </select>
+            <div className="amount-row" style={{ marginBottom: "16px", background: "#f8fafc", padding: "10px", borderRadius: "6px" }}>
+              <div className="form-field" style={{ width: '100%' }}>
+                <label>Other Charges Amount</label>
                   <input
                     type="number"
                     inputMode="decimal"
                     step="0.01"
                     placeholder="0.00"
-                    value={otherChargesAmount}
-                    onChange={(e) => setOtherChargesAmount(e.target.value)}
+                    value={otherChargesValue}
+                    onChange={(e) => setOtherChargesValue(e.target.value)}
                   />
-                </div>
               </div>
             </div>
           )}
@@ -365,6 +280,17 @@ const TrainTicketForm = ({ Train, onClose }) => {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
+          </div>
+
+          {/* Create an expense */}
+          <div className="checkbox-field">
+            <input
+              id="createExpense"
+              type="checkbox"
+              checked={createExpense}
+              onChange={(e) => setCreateExpense(e.target.checked)}
+            />
+            <label htmlFor="createExpense">Create an expense for this ticket</label>
           </div>
 
           {/* Update Itinerary */}
@@ -383,7 +309,17 @@ const TrainTicketForm = ({ Train, onClose }) => {
                     type="text"
                     value={row.carrierName}
                     onChange={(e) => updateRow(row.id, "carrierName", e.target.value)}
-                    placeholder="Enter carrier name"
+                    placeholder="e.g. Indian Railways"
+                  />
+                </div>
+
+                <div className="field">
+                  <label>Train Number</label>
+                  <input
+                    type="text"
+                    value={row.trainNumber}
+                    onChange={(e) => updateRow(row.id, "trainNumber", e.target.value)}
+                    placeholder="e.g. 12002"
                   />
                 </div>
 
@@ -459,7 +395,7 @@ const TrainTicketForm = ({ Train, onClose }) => {
           className="ghost"
           onClick={(e) => {
             e.preventDefault();
-            alert("Cancelled (mock).");
+            onClose();
           }}
         >
           Cancel

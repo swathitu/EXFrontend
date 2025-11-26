@@ -1,0 +1,435 @@
+/* TrainTicketForm.css */
+
+/* Toolbar */
+.ticket-page {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+    max-height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #f8fafc;
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.ticket-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.toolbar-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: #1f2937;
+}
+
+.toolbar-close {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+.toolbar-close:hover {
+    color: #334155;
+}
+
+/* Content layout */
+.ticket-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    min-height: 70vh;
+    padding-top: 20px;
+}
+
+/* Attachment panel */
+.attachment-panel {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: #fcfcfd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    min-height: 420px;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+.attachment-panel:hover {
+    border-color: var(--primary);
+    background: #eff6ff50;
+}
+
+.attachment-dropzone {
+    text-align: center;
+    padding: 24px;
+}
+
+.drop-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.attachment-panel:hover .drop-icon {
+    background: var(--primary);
+    color: #fff;
+}
+.drop-hint {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* Main form area */
+.ticket-form {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    background: #fff;
+    box-shadow: var(--shadow-md);
+    height: fit-content;
+}
+
+/* Route summary at top */
+.route-summary {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.route-summary .city {
+    font-weight: 700;
+    font-size: 16px;
+    color: #1f2937;
+}
+.route-summary .separator {
+    color: #94a3b8;
+}
+.route-summary .route-sub {
+    margin-left: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+}
+
+/* Form fields */
+.form-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+.form-field.inline {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+.form-field label {
+    font-size: 12px;
+    color: #475467;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+/* Inputs, selects, textarea styles */
+.form-field input[type="text"],
+.form-field input[type="date"],
+.form-field input[type="time"],
+.form-field input[type="number"],
+.form-field select,
+.form-field textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Required indicator */
+.req {
+    color: var(--danger);
+    font-weight: 600;
+    margin-left: 2px;
+}
+
+/* Two-column layout */
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Amount row styles */
+.amount-row {
+    display: grid;
+    grid-template-columns: 1.3fr auto;
+    gap: 16px;
+    align-items: center;
+}
+
+/* Currency input group */
+.currency-field .amount-inputs {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 8px;
+}
+
+/* Checkbox styles */
+.checkbox-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #475467;
+}
+
+/* Link buttons */
+.link-btn {
+    border: none;
+    background: transparent;
+    color: #1d4ed8;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s;
+}
+.link-btn:hover {
+    color: #1d4ed8;
+}
+
+/* Section headers */
+.section-header {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: #344054;
+    border-left: 4px solid var(--primary);
+    padding-left: 10px;
+    font-size: 15px;
+}
+
+/* Itinerary actions & table styles */
+.itinerary-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+.table-wrapper {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
+}
+.itinerary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.itinerary-table thead th {
+    background: #f1f5f9;
+    color: #475467;
+    font-weight: 600;
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+}
+.itinerary-table tbody td {
+    border-bottom: 1px solid var(--border);
+    padding: 8px 10px;
+    background: white;
+}
+.itinerary-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.itinerary-table tbody td input,
+.itinerary-table tbody td select {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 13px;
+}
+.empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 16px;
+    background: #f8fafc;
+}
+
+/* Buttons and icons */
+.icon-btn {
+    border: 1px solid var(--border);
+    background: #fff;
+    color: #475467;
+    border-radius: 6px;
+    padding: 6px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.icon-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+.icon-btn.danger {
+    color: var(--danger);
+    border-color: #fca5a5;
+}
+.icon-btn.danger:hover {
+    background: #fee2e2;
+    border-color: var(--danger);
+}
+
+/* Footer buttons */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+    margin-top: 20px;
+}
+.primary {
+    background: rgb(78, 78, 245);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background 0.15s, box-shadow 0.15s;
+}
+.primary:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.ghost {
+    background: #fff;
+    color: #475467;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.ghost:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+/* Responsive adjustments */
+@media(max-width: 1024px) {
+    .ticket-content {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .attachment-panel {
+        min-height: 220px;
+    }
+    .two-col {
+        grid-template-columns: 1fr;
+    }
+    .amount-row {
+        grid-template-columns: 1fr;
+    }
+    .currency-field .amount-inputs {
+        grid-template-columns: 100px 1fr;
+    }
+}
+
+/* Itinerary grid - vertical, scrollable */
+.itinerary-section {
+    display: block;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 transparent;
+}
+.itinerary-section::-webkit-scrollbar {
+    width: 8px;
+}
+.itinerary-section::-webkit-scrollbar-thumb {
+    background-color: #94a3b8;
+    border-radius: 4px;
+}
+
+/* Style individual form card */
+.form-ticket {
+    width: 100%;
+    max-width: 1200px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(230px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+
+/* Individual row inside form card */
+.form-ticket .field {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Date/time inputs inline */
+.form-ticket .date-time {
+    display: flex;
+    gap: 8px;
+}
+
+/* Resizeable input/selects inside form card */
+.form-ticket input[type="text"],
+.form-ticket input[type="date"],
+.form-ticket input[type="time"],
+.form-ticket select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Delete button in row */
+.delete-icon {
+    grid-column: 7; /* place at the end */
+    justify-self: center;
+    align-self: center;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #ef4444;
+    transition: color 0.2s;
+}
+.delete-icon:hover {
+    color: #b91c1c;
+}
