@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./FlightTicketForm.css";
- 
+
 const currencies = ["INR", "USD", "EUR"];
- 
+
 const cityOptions = [
   { cityCode: "", cityName: "Select City", airportName: "" },
   { cityCode: "NYC", cityName: "New York", airportName: "JFK" },
@@ -11,12 +11,10 @@ const cityOptions = [
   { cityCode: "DXB", cityName: "Dubai", airportName: "DXB" },
   { cityCode: "TYO", cityName: "Tokyo", airportName: "NRT" },
 ];
- 
+
 const FlightTicketForm = ({ flight = [], onClose }) => {
-  // If passed a single object, wrap it in array
   const flightsArray = Array.isArray(flight) ? flight : [flight];
- 
-  // Initialize itinerary rows from flights prop, mapping flight objects to form rows
+
   const mapFlightToItineraryRow = (fl) => ({
     id: fl.ROWID || Date.now() + Math.random(),
     carrierName: fl.Merchant_Name || "",
@@ -27,11 +25,14 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
     arriveTime: fl.FLIGHT_ARR_TIME || "",
     baggageDetails: fl.Baggage_Details || "",
     travelClass: fl.Flight_Class || "",
-    depCity: cityOptions.find((c) => c.airportName === fl.DEP_AIRPORT_NAME)?.cityCode || "",
-    arrCity: cityOptions.find((c) => c.airportName === fl.ARR_AIRPORT_NAME)?.cityCode || "",
+    depCity:
+      cityOptions.find((c) => c.airportName === fl.DEP_AIRPORT_NAME)?.cityCode ||
+      "",
+    arrCity:
+      cityOptions.find((c) => c.airportName === fl.ARR_AIRPORT_NAME)?.cityCode ||
+      "",
   });
- 
-  // Form state
+
   const [bookingId, setBookingId] = useState("");
   const [bookingDate, setBookingDate] = useState("");
   const [amountCurrency, setAmountCurrency] = useState("INR");
@@ -40,30 +41,30 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
   const [notes, setNotes] = useState("");
   const [createExpense, setCreateExpense] = useState(false);
   const [currencyList, setCurrencyList] = useState([]);
- 
-  // Itinerary rows initialized from flight prop
+  const [showOtherCharges, setShowOtherCharges] = useState(false);
+  const [otherChargesCurrency, setOtherChargesCurrency] = useState("INR");
+  const [otherChargesAmount, setOtherChargesAmount] = useState("");
+  const [attachments, setAttachments] = useState([]);
   const [itineraryRows, setItineraryRows] = useState([]);
- 
- 
+
   useEffect(() => {
     const fetchCurrencies = async () => {
       try {
-        const response = await fetch('/server/get_currencyMaster/currency');
+        const response = await fetch("/server/get_currencyMaster/currency");
         const data = await response.json();
         setCurrencyList(data);
       } catch (error) {
-        console.error('Error fetching currencies:', error);
+        console.error("Error fetching currencies:", error);
       }
     };
     fetchCurrencies();
   }, []);
- 
+
   useEffect(() => {
     if (flightsArray.length > 0) {
       const initRows = flightsArray.map(mapFlightToItineraryRow);
       setItineraryRows(initRows);
- 
-      // If sum of amounts available, set amountValue and currency (assuming uniform)
+
       const totalAmount = flightsArray.reduce(
         (sum, f) => sum + Number(f.Amount || 0),
         0
@@ -74,31 +75,30 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
       }
     }
   }, [flight]);
- 
+
   const getCityNameCode = (cityCode) => {
     const city = cityOptions.find((c) => c.cityCode === cityCode);
     return city ? `${city.cityName} (${city.cityCode})` : cityCode || "";
   };
- 
-  // Utility to format date (can customize as needed)
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
-    if (Number.isNaN(date)) return dateStr; // fallback if invalid date string
+    if (Number.isNaN(date)) return dateStr;
     return date.toLocaleDateString("en-US", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
   };
- 
-  // Utility to get city display with code and airport name
+
   const getCityDisplay = (cityCode) => {
     const city = cityOptions.find((c) => c.cityCode === cityCode);
-    return city ? `${city.cityName} (${city.cityCode}) - ${city.airportName}` : cityCode;
+    return city
+      ? `${city.cityName} (${city.cityCode}) - ${city.airportName}`
+      : cityCode;
   };
- 
-  // Handlers for itinerary rows
+
   const addItineraryRow = () => {
     setItineraryRows((prev) => [
       ...prev,
@@ -117,27 +117,46 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
       },
     ]);
   };
- 
+
   const updateRow = (id, field, value) => {
     setItineraryRows((prev) =>
       prev.map((row) => (row.id === id ? { ...row, [field]: value } : row))
     );
   };
- 
+
   const removeRow = (id) => {
     setItineraryRows((prev) => prev.filter((row) => row.id !== id));
   };
- 
+
+  const handleFileChange = (event) => {
+    const newFiles = Array.from(event.target.files);
+    setAttachments((prev) => [
+      ...prev,
+      ...newFiles.map((file) => ({
+        id: Date.now() + Math.random(),
+        file: file,
+        url: URL.createObjectURL(file),
+      })),
+    ]);
+    event.target.value = null;
+  };
+
+  const removeAttachment = (idToRemove) => {
+    setAttachments((prev) =>
+      prev.filter((attachment) => attachment.id !== idToRemove)
+    );
+  };
+
   const renderCityOptions = () =>
     cityOptions.map(({ cityCode, cityName }) => (
       <option key={cityCode} value={cityCode}>
         {cityName}
       </option>
     ));
- 
+
   const onSaveAndSubmit = (e) => {
     e.preventDefault();
- 
+
     const payload = {
       bookingId,
       bookingDate,
@@ -146,12 +165,23 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
       notes,
       createExpense,
       itinerary: itineraryRows,
+      otherCharges: showOtherCharges
+        ? {
+            currency: otherChargesCurrency,
+            amount: otherChargesAmount,
+          }
+        : null,
+      attachments: attachments.map((att) => ({
+        name: att.file.name,
+        type: att.file.type,
+        size: att.file.size,
+      })),
     };
- 
+
     console.log("Submitting Ticket:", payload);
     alert("Ticket submitted (mock)!");
   };
- 
+
   return (
     <div className="ticket-page">
       <div className="ticket-toolbar">
@@ -160,18 +190,56 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
           ✕
         </button>
       </div>
- 
+
       <div className="ticket-content">
         {/* LEFT: Attachment dropzone */}
         <section className="attachment-panel" aria-label="Attach documents">
-          <div className="attachment-dropzone">
-            <button className="drop-icon" aria-label="Attach">
-              ⤒
-            </button>
-            <p className="drop-hint">Attach documents from computer</p>
+          {attachments.length === 0 && (
+            <div className="attachment-dropzone">
+              <input
+                type="file"
+                id="file-upload"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+                multiple
+                accept="image/*,application/pdf"
+              />
+              <label htmlFor="file-upload" className="drop-icon-label">
+                Add docus
+              </label>
+              <p className="drop-hint">Attach documents from computer</p>
+            </div>
+          )}
+
+          <div className="attachments-list">
+            {attachments.map((attachment) => (
+              <div key={attachment.id} className="attachment-preview">
+                <button
+                  className="remove-attachment-btn"
+                  onClick={() => removeAttachment(attachment.id)}
+                  aria-label={`Remove ${attachment.file.name}`}
+                >
+                  ✕
+                </button>
+
+                {attachment.file.type.startsWith("image/") ? (
+                  <img
+                    src={attachment.url}
+                    alt={attachment.file.name}
+                    className="attachment-image"
+                  />
+                ) : (
+                  <span role="img" aria-label="document" className="attachment-icon">
+                    📄
+                  </span>
+                )}
+
+                <p className="attachment-filename">{attachment.file.name}</p>
+              </div>
+            ))}
           </div>
         </section>
- 
+
         {/* RIGHT: Form */}
         <section className="ticket-form">
           <div className="route-summary">
@@ -185,11 +253,10 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                 : ""}
             </span>
             <span className="route-sub">
-              {itineraryRows.length > 0
-                ? formatDate(itineraryRows[0].departDate)
-                : ""}
+              {itineraryRows.length > 0 ? formatDate(itineraryRows[0].departDate) : ""}
             </span>
           </div>
+
           {/* Booking details */}
           <div className="two-col">
             <div className="form-field">
@@ -204,7 +271,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                 placeholder="Enter Booking ID"
               />
             </div>
- 
+
             <div className="form-field">
               <label htmlFor="bookingDate">
                 Booking Date <span className="req">*</span>
@@ -217,7 +284,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
               />
             </div>
           </div>
- 
+
           {/* Amount + Refundable */}
           <div className="amount-row">
             <div className="form-field currency-field">
@@ -231,7 +298,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                   onChange={(e) => setAmountCurrency(e.target.value)}
                 >
                   {currencyList.length > 0 ? (
-                    currencyList.map(curr => (
+                    currencyList.map((curr) => (
                       <option key={curr.Code} value={curr.Code}>
                         {curr.Name} ({curr.Code})
                       </option>
@@ -250,7 +317,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                 />
               </div>
             </div>
- 
+
             <div className="checkbox-field">
               <input
                 id="refundable"
@@ -261,7 +328,8 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
               <label htmlFor="refundable">Refundable</label>
             </div>
           </div>
- 
+
+          {/* Other Charges */}
           <div className="checkbox-field">
             <input
               id="otherCharges"
@@ -271,41 +339,48 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
             />
             <label htmlFor="otherCharges">Other Charges</label>
           </div>
- 
-          {/* Notes */}
-          {/* <div className="form-field">
-            <label htmlFor="notes">Notes</label>
-            <textarea
-              id="notes"
-              rows={3}
-              placeholder="Add notes..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
-          </div> */}
- 
-          {/* Create an expense */}
-          <div className="checkbox-field">
-            <input
-              id="createExpense"
-              type="checkbox"
-              checked={createExpense}
-              onChange={(e) => setCreateExpense(e.target.checked)}
-            />
-            <label htmlFor="createExpense">Create an expense for this ticket</label>
-          </div>
- 
-          {/* Update Itinerary */}
-          <div className="section-header">
-            <span>Update Itinerary</span>
-          </div>
- 
+
+          {showOtherCharges && (
+            <div className="amount-row">
+              <div className="form-field currency-field">
+                <label>
+                  Amount <span className="req">*</span>
+                </label>
+                <div className="amount-inputs">
+                  <select
+                    aria-label="Currency"
+                    value={otherChargesCurrency}
+                    onChange={(e) => setOtherChargesCurrency(e.target.value)}
+                  >
+                    {currencyList.length > 0 ? (
+                      currencyList.map((curr) => (
+                        <option key={curr.Code} value={curr.Code}>
+                          {curr.Name} ({curr.Code})
+                        </option>
+                      ))
+                    ) : (
+                      <option value="INR">INR</option>
+                    )}
+                  </select>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={otherChargesAmount}
+                    onChange={(e) => setOtherChargesAmount(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Itinerary rows grid */}
           <div className="itinerary-section">
             {itineraryRows.map((row) => (
               <div className="form-ticket" key={row.id}>
                 <input type="hidden" value={row.rowId || ""} />
- 
+
                 <div className="field">
                   <label>Carrier Name *</label>
                   <input
@@ -315,7 +390,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                     placeholder="Enter carrier name"
                   />
                 </div>
- 
+
                 <div className="field">
                   <label>Flight Number</label>
                   <input
@@ -324,7 +399,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                     onChange={(e) => updateRow(row.id, "flightNumber", e.target.value)}
                   />
                 </div>
- 
+
                 <div className="field">
                   <label>Departure Date & Time *</label>
                   <div className="date-time">
@@ -348,7 +423,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                   </select>
                   <p className="location">Depart from: {getCityDisplay(row.depCity)}</p>
                 </div>
- 
+
                 <div className="field">
                   <label>Arrival Date & Time *</label>
                   <div className="date-time">
@@ -371,7 +446,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                   </select>
                   <p className="location">Arrive at: {getCityDisplay(row.arrCity)}</p>
                 </div>
- 
+
                 <div className="field">
                   <label>Baggage Details</label>
                   <input
@@ -381,7 +456,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                     onChange={(e) => updateRow(row.id, "baggageDetails", e.target.value)}
                   />
                 </div>
- 
+
                 <div className="field">
                   <label>Class</label>
                   <select
@@ -395,7 +470,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                     <option value="premium economy">Premium Economy</option>
                   </select>
                 </div>
- 
+
                 {itineraryRows.length > 1 && (
                   <button
                     type="button"
@@ -409,7 +484,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
                 )}
               </div>
             ))}
- 
+
             <button
               type="button"
               className="link-btn"
@@ -421,7 +496,7 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
           </div>
         </section>
       </div>
- 
+
       {/* Footer actions */}
       <div className="form-actions" style={{ marginTop: "20px" }}>
         <button className="primary" onClick={onSaveAndSubmit}>
@@ -440,7 +515,9 @@ const FlightTicketForm = ({ flight = [], onClose }) => {
     </div>
   );
 };
- 
+
+
+
+
+
 export default FlightTicketForm;
- 
- 
