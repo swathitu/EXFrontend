@@ -19,6 +19,8 @@ import HotelPreviousItineraries from "../HotelPreviousItineraries/HotelPreviousI
 import FlightRescheduleForm from "../FlightRescheduleForm/FlightRescheduleForm";
 import FlightPreviousItineraries from "../FlightPreviousItineraries/FlightPreviousItineraries";
 import CancelItineraryModal from "../CancelItineraryModal/CancelItineraryModal";
+import TrainTicketForm from "../TrainTicketForm/TrainTicketForm";
+import BusTicketForm from "../BusTicketForm/BusTicketForm";
 
 /* ---------------- Icons ---------------- */
 const CloseIcon = () => (<svg viewBox="0 0 512 512" className="icon-hover"><path d="m285.7 256 198-198c8.2-8.2 8.2-21.5 0-29.7s-21.5-8.2-29.7 0l-198 198-198-198c8.2-8.2-21.5-8.2-29.7 0s-8.2 21.5 0 29.7l198 198-198 198c-8.2 8.2-8.2 21.5 0 29.7 4.1 4.1 9.5 6.2 14.8 6.2s10.7-2 14.8-6.2l198-198 198 198c4.1 4.1 9.5 6.2 14.8 6.2s10.7-2 14.8-6.2c8.2-8.2 8.2-21.5 0-29.7L285.7 256z" /></svg>);
@@ -47,33 +49,56 @@ const ALL_TABS = [
     { key: "train", label: "Train", icon: <TrainIcon /> },
 ];
 
-const getStatusLabel = (status) => {
-    // 1. If the field is null/empty, show "Waiting for Options"
+const getStatusLabel = (item) => {
+    // 1. Check Booking Status First
+    const bookingStatus = (item.Booking_Status || "").toLowerCase().trim();
+    if (bookingStatus === 'booked') {
+        return "Booked";
+    }
+
+    const status = (item.Option_Status || "").toLowerCase().trim();
+
+    // 2. If the field is null/empty, show "Waiting for Options"
     if (!status) return "Waiting for Options";
 
-    // Normalize string to check case-insensitively
-    const s = String(status).toLowerCase().trim();
-
-    // 2. If the field says "added" or "options added", show the new text
-    if (s === 'added' || s === 'options added') {
+    // 3. If the field says "added" or "options added", show the new text
+    if (status === 'added' || status === 'options added') {
         return "Yet to Select an Option";
     }
-    else if (s === 'selected' || s === 'option selected') {
+    else if (status === 'selected' || status === 'option selected') {
         return "Booking Pending";
     }
 
-    return status; // Default
+    return item.Option_Status; // Default to original string
 };
 
 /* ---------------- Reusable Action Button Logic ---------------- */
-const BookingActionButtons = ({ item, onAddOptions, openMenu, toggleMenu, menuId }) => {
+const BookingActionButtons = ({ item, onAddOptions, openMenu, toggleMenu, menuId, onAddTicket }) => {
     // Normalize status to handle case sensitivity
     const status = (item.Option_Status || "").toLowerCase().trim();
     const cancelStatus = (item.Cancel_Status || "").toLowerCase().trim();
+    const bookingStatus = (item.Booking_Status || "").toLowerCase().trim();
 
     if (cancelStatus === 'cancelled') {
         return null;
     }
+
+    // --- NEW LOGIC: If Booked -> Show "Edit Ticket" ---
+    if (bookingStatus === 'booked') {
+         return (
+            <button
+                className="btn btn-secondary" // Reusing secondary style for Edit
+                style={{ border: '1px solid #d1d5db', width: '100%' }}
+                onClick={(e) => { 
+                    e.preventDefault(); 
+                    if(onAddTicket) onAddTicket(item); // Reopens the Ticket Form
+                }}
+            >
+                Edit Ticket
+            </button>
+        );
+    }
+
     // 1. If Status is "Added" -> Show ONLY "Edit Options"
     if (status === 'added' || status === 'options added' || status === 'option added') {
         return (
@@ -93,7 +118,10 @@ const BookingActionButtons = ({ item, onAddOptions, openMenu, toggleMenu, menuId
             <button
                 className="btn-add-options main"
                 style={{ borderRadius: '6px', width: '100%' }}
-                onClick={(e) => { e.preventDefault(); /* Add your Add Ticket handler here later */ }}
+                onClick={(e) => { 
+                    e.preventDefault(); 
+                    if(onAddTicket) onAddTicket(item); // <--- Use the prop here
+                }}
             >
                 + Add Ticket
             </button>
@@ -116,7 +144,10 @@ const BookingActionButtons = ({ item, onAddOptions, openMenu, toggleMenu, menuId
                     <a href="#" className="dropdown-item" onClick={(e) => { e.preventDefault(); onAddOptions(item); }}>
                         + Add Options
                     </a>
-                    <a href="#" className="dropdown-item" onClick={(e) => e.preventDefault()}>
+                    <a href="#" className="dropdown-item" onClick={(e) => { 
+                        e.preventDefault();
+                        if(onAddTicket) onAddTicket(item); // <--- Use the prop here
+                    }}>
                         + Add Ticket
                     </a>
                 </div>
@@ -323,7 +354,7 @@ const SubmitterHeader = ({ trip, onBack, onApprove, isApproving, onReject, isRej
 };
 
 // MODIFIED: Replace your old FlightDetails with this one
-const FlightDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick, onViewHistoryClick, onCancelClick }) => {
+const FlightDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick, onViewHistoryClick, onCancelClick, onDeleteOption }) => {
     const [openMenu, setOpenMenu] = useState(null);
 
     if (!bookings || bookings.length === 0) {
@@ -362,12 +393,14 @@ const FlightDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleCl
                 const moreMenuId = `more-${i}`;
                 const showHistory = (item.Reschedule_Status || "").toLowerCase() === "reschedule";
                 const isCancelled = (item.Cancel_Status || "").toLowerCase() === "cancelled";
+                const optionStatus = (item.Option_Status || "").toLowerCase();
+                const isAdded = optionStatus === 'added' || optionStatus === 'options added';
                 const showMenuButton = !isCancelled || showHistory;
                 return (
                     <div className="flight-leg-card" key={`flt-${i}`}>
                         {isApproved && (
                             <div className="flight-options-status-bar">
-                                <span className="status-badge">{getStatusLabel(item.Option_Status)}</span>
+                                <span className="status-badge">{getStatusLabel(item)}</span>
                                 {/* This is now dynamic */}
                                 <div className="agent-info">
                                     <span>Travel Agent: </span>
@@ -425,7 +458,24 @@ const FlightDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleCl
 
                                             {openMenu === moreMenuId && (
                                                 <div className="dropdown-menu">
-
+                                                    {isAdded && !isCancelled && (
+                                                        <>
+                                                            <a href="#" className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                onDeleteOption(item); // <--- Call the prop here
+                                                            }}>
+                                                                Delete Options
+                                                            </a>
+                                                            <a href="#" className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                // Call handler passed from parent (need to add prop)
+                                                                // onSelectOption(item); 
+                                                                alert("Select Option Logic");
+                                                            }}>
+                                                                Select Option
+                                                            </a>
+                                                        </>
+                                                    )}
                                                     {/* ONLY Show Reschedule/Cancel if NOT cancelled */}
                                                     {!isCancelled && (
                                                         <>
@@ -466,7 +516,7 @@ const FlightDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleCl
     );
 };
 //Hotel Details Component
-const HotelDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick, onViewHistoryClick, onCancelClick }) => {
+const HotelDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick, onViewHistoryClick, onCancelClick, onDeleteOption }) => {
     const [openMenu, setOpenMenu] = useState(null);
 
     if (!bookings || bookings.length === 0) {
@@ -483,14 +533,16 @@ const HotelDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleCli
             {bookings.map((item, i) => {
                 const optionsMenuId = `options-${i}`;
                 const moreMenuId = `more-${i}`;
+                const optionStatus = (item.Option_Status || "").toLowerCase();
                 const showHistory = (item.Reschedule_Status || "").toLowerCase() === "reschedule";
                 const isCancelled = (item.Cancel_Status || "").toLowerCase() === "cancelled";
+                const isAdded = optionStatus === 'added' || optionStatus === 'options added';
                 const showMenuButton = !isCancelled || showHistory;
                 return (
                     <div className="hotel-card" key={`hot-${i}`}>
                         {isApproved && (
                             <div className="flight-options-status-bar"> {/* Reusing flight style */}
-                                <span className="status-badge">{getStatusLabel(item.Option_Status)}</span>
+                                <span className="status-badge">{getStatusLabel(item)}</span>
                                 <div className="agent-info">
                                     <span>Travel Agent: </span>
                                     {item.agentName ? (
@@ -540,7 +592,24 @@ const HotelDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleCli
 
                                             {openMenu === moreMenuId && (
                                                 <div className="dropdown-menu">
-
+                                                    {isAdded && !isCancelled && (
+                                                        <>
+                                                            <a href="#" className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                onDeleteOption(item); // <--- Call the prop here
+                                                            }}>
+                                                                Delete Options
+                                                            </a>
+                                                            <a href="#" className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                // Call handler passed from parent (need to add prop)
+                                                                // onSelectOption(item); 
+                                                                alert("Select Option Logic");
+                                                            }}>
+                                                                Select Option
+                                                            </a>
+                                                        </>
+                                                    )}
                                                     {/* ONLY Show Reschedule/Cancel if NOT cancelled */}
                                                     {!isCancelled && (
                                                         <>
@@ -580,7 +649,7 @@ const HotelDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleCli
 };
 
 //car details component
-const CarDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick, onViewHistoryClick, onCancelClick }) => { // <-- Add onAddOptionsClick
+const CarDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick, onViewHistoryClick, onCancelClick, onDeleteOption }) => { // <-- Add onAddOptionsClick
     const [openMenu, setOpenMenu] = useState(null);
 
     if (!bookings || bookings.length === 0) {
@@ -597,14 +666,16 @@ const CarDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick
             {bookings.map((item, i) => {
                 const optionsMenuId = `options-${i}`;
                 const moreMenuId = `more-${i}`;
+                const optionStatus = (item.Option_Status || "").toLowerCase();
                 const showHistory = (item.Reschedule_Status || "").toLowerCase() === "reschedule";
                 const isCancelled = (item.Cancel_Status || "").toLowerCase() === "cancelled";
+                const isAdded = optionStatus === 'added' || optionStatus === 'options added';
                 const showMenuButton = !isCancelled || showHistory;
                 return (
                     <div className="car-card" key={`car-${i}`}>
                         {isApproved && (
                             <div className="flight-options-status-bar"> {/* Reusing flight style */}
-                                <span className="status-badge">{getStatusLabel(item.Option_Status)}</span>
+                                <span className="status-badge">{getStatusLabel(item)}</span>
                                 <div className="agent-info">
                                     <span>Travel Agent: </span>
                                     {item.agentName ? (
@@ -664,7 +735,24 @@ const CarDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick
 
                                             {openMenu === moreMenuId && (
                                                 <div className="dropdown-menu">
-
+                                                    {isAdded && !isCancelled && (
+                                                        <>
+                                                            <a href="#" className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                onDeleteOption(item); // <--- Call the prop here
+                                                            }}>
+                                                                Delete Options
+                                                            </a>
+                                                            <a href="#" className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                // Call handler passed from parent (need to add prop)
+                                                                // onSelectOption(item); 
+                                                                alert("Select Option Logic");
+                                                            }}>
+                                                                Select Option
+                                                            </a>
+                                                        </>
+                                                    )}
                                                     {/* ONLY Show Reschedule/Cancel if NOT cancelled */}
                                                     {!isCancelled && (
                                                         <>
@@ -704,7 +792,7 @@ const CarDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick
 };
 
 
-const BusDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick, onViewHistoryClick, onCancelClick }) => {
+const BusDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick, onViewHistoryClick, onCancelClick, onDeleteOption,onAddTicketClick }) => {
     const [openMenu, setOpenMenu] = useState(null);
 
     if (!bookings || bookings.length === 0) {
@@ -721,14 +809,16 @@ const BusDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick
             {bookings.map((item, i) => {
                 const optionsMenuId = `options-${i}`;
                 const moreMenuId = `more-${i}`;
+                const optionStatus = (item.Option_Status || "").toLowerCase();
                 const showHistory = (item.Reschedule_Status || "").toLowerCase() === "reschedule";
                 const isCancelled = (item.Cancel_Status || "").toLowerCase() === "cancelled";
+                const isAdded = optionStatus === 'added' || optionStatus === 'options added';
                 const showMenuButton = !isCancelled || showHistory;
                 return (
                     <div className="bus-card" key={`bus-${i}`}>
                         {isApproved && (
                             <div className="flight-options-status-bar"> {/* Reusing flight style */}
-                                <span className="status-badge">{getStatusLabel(item.Option_Status)}</span>
+                                <span className="status-badge">{getStatusLabel(item)}</span>
                                 <div className="agent-info">
                                     <span>Travel Agent: </span>
                                     {item.agentName ? (
@@ -774,6 +864,7 @@ const BusDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick
                                         openMenu={openMenu}
                                         toggleMenu={toggleMenu}
                                         menuId={optionsMenuId}
+                                        onAddTicket={onAddTicketClick}
                                     />
                                     {showMenuButton && (
                                         <div className="dropdown-wrapper">
@@ -783,7 +874,24 @@ const BusDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick
 
                                             {openMenu === moreMenuId && (
                                                 <div className="dropdown-menu">
-
+                                                    {isAdded && !isCancelled && (
+                                                        <>
+                                                            <a href="#" className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                onDeleteOption(item); // <--- Call the prop here
+                                                            }}>
+                                                                Delete Options
+                                                            </a>
+                                                            <a href="#" className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                // Call handler passed from parent (need to add prop)
+                                                                // onSelectOption(item); 
+                                                                alert("Select Option Logic");
+                                                            }}>
+                                                                Select Option
+                                                            </a>
+                                                        </>
+                                                    )}
                                                     {/* ONLY Show Reschedule/Cancel if NOT cancelled */}
                                                     {!isCancelled && (
                                                         <>
@@ -822,7 +930,7 @@ const BusDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick
     );
 };
 
-const TrainDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick, onViewHistoryClick, onCancelClick }) => {
+const TrainDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleClick, onViewHistoryClick, onCancelClick, onDeleteOption,onAddTicketClick }) => {
     const [openMenu, setOpenMenu] = useState(null);
 
     if (!bookings || bookings.length === 0) {
@@ -839,14 +947,16 @@ const TrainDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleCli
             {bookings.map((item, i) => {
                 const optionsMenuId = `options-${i}`;
                 const moreMenuId = `more-${i}`;
+                const optionStatus = (item.Option_Status || "").toLowerCase();
                 const showHistory = (item.Reschedule_Status || "").toLowerCase() === "reschedule";
                 const isCancelled = (item.Cancel_Status || "").toLowerCase() === "cancelled";
+                const isAdded = optionStatus === 'added' || optionStatus === 'options added';
                 const showMenuButton = !isCancelled || showHistory;
                 return (
                     <div className="train-card" key={`train-${i}`}>
                         {isApproved && (
                             <div className="flight-options-status-bar"> {/* Reusing flight style */}
-                                <span className="status-badge">{getStatusLabel(item.Option_Status)}</span>
+                                <span className="status-badge">{getStatusLabel(item)}</span>
                                 <div className="agent-info">
                                     <span>Travel Agent: </span>
                                     {item.agentName ? (
@@ -892,6 +1002,7 @@ const TrainDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleCli
                                         openMenu={openMenu}
                                         toggleMenu={toggleMenu}
                                         menuId={optionsMenuId}
+                                        onAddTicket={onAddTicketClick}
                                     />
                                     {showMenuButton && (
                                         <div className="dropdown-wrapper">
@@ -901,7 +1012,24 @@ const TrainDetails = ({ bookings, tripStatus, onAddOptionsClick, onRescheduleCli
 
                                             {openMenu === moreMenuId && (
                                                 <div className="dropdown-menu">
-
+                                                    {isAdded && !isCancelled && (
+                                                        <>
+                                                            <a href="#" className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                onDeleteOption(item); // <--- Call the prop here
+                                                            }}>
+                                                                Delete Options
+                                                            </a>
+                                                            <a href="#" className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                // Call handler passed from parent (need to add prop)
+                                                                // onSelectOption(item); 
+                                                                alert("Select Option Logic");
+                                                            }}>
+                                                                Select Option
+                                                            </a>
+                                                        </>
+                                                    )}
                                                     {/* ONLY Show Reschedule/Cancel if NOT cancelled */}
                                                     {!isCancelled && (
                                                         <>
@@ -1032,6 +1160,9 @@ export default function ApproverTripDataView({ onOpenForm }) {
     const [viewHistoryTrainBooking, setViewHistoryTrainBooking] = useState(null);
     const [viewHistoryHotelBooking, setViewHistoryHotelBooking] = useState(null);
     const [viewHistoryFlightBooking, setViewHistoryFlightBooking] = useState(null);
+
+    const [currentTrainTicketBooking, setCurrentTrainTicketBooking] = useState(null);
+    const [currentBusTicketBooking, setCurrentBusTicketBooking] = useState(null);
     // --- NEW: Placeholder for Update function ---
     const handleUpdate = () => {
         if (!trip) return;
@@ -1045,6 +1176,14 @@ export default function ApproverTripDataView({ onOpenForm }) {
         }
     };
 
+
+    const handleOpenTrainTicketModal = (bookingItem) => {
+    setCurrentTrainTicketBooking(bookingItem);
+};
+// Inside function ApproverTripDataView
+const handleOpenBusTicketModal = (bookingItem) => {
+    setCurrentBusTicketBooking(bookingItem);
+};
     const loadTripData = useCallback(async () => {
         try {
             setLoading(true);
@@ -1074,6 +1213,38 @@ export default function ApproverTripDataView({ onOpenForm }) {
         }
     }, [tripId]);
 
+    const handleDeleteOption = async (item, type) => {
+        if (!window.confirm("Are you sure you want to delete these options? This will reset the status.")) {
+            return;
+        }
+
+        try {
+            const payload = {
+                rowId: item.rowId,
+                requestType: type
+            };
+
+            // Call the new backend function
+            const response = await fetch('/server/trip_delete_option/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                // Refresh page to show "Waiting for Options" again
+                handleOptionSaveSuccess(); 
+                alert("Options deleted successfully.");
+            } else {
+                alert("Failed to delete options: " + result.message);
+            }
+        } catch (error) {
+            console.error("Delete error:", error);
+            alert("Error deleting options.");
+        }
+    };
     const handleConfirmCancel = async (item, reason) => {
         try {
             const payload = {
@@ -1304,11 +1475,11 @@ export default function ApproverTripDataView({ onOpenForm }) {
                             ))}
                         </div>
                         <div>
-                            {activeTab === "flight" && <FlightDetails bookings={trip.bookings.flight} tripStatus={trip.status} onAddOptionsClick={handleOpenFlightModal} onRescheduleClick={handleRescheduleFlight} onViewHistoryClick={handleViewHistoryFlight} onCancelClick={(item) => handleOpenCancelModal(item, 'flight')} />}
-                            {activeTab === "hotel" && <HotelDetails bookings={trip.bookings.hotel} tripStatus={trip.status} onAddOptionsClick={handleOpenHotelModal} onRescheduleClick={handleRescheduleHotel} onViewHistoryClick={handleViewHistoryHotel} onCancelClick={(item) => handleOpenCancelModal(item, 'hotel')} />}
-                            {activeTab === "car" && <CarDetails bookings={trip.bookings.car} tripStatus={trip.status} onAddOptionsClick={handleOpenCarModal} onRescheduleClick={handleRescheduleCar} onViewHistoryClick={handleViewHistoryCar} onCancelClick={(item) => handleOpenCancelModal(item, 'car')} />}
-                            {activeTab === "bus" && <BusDetails bookings={trip.bookings.bus} tripStatus={trip.status} onAddOptionsClick={handleOpenBusModal} onRescheduleClick={handleRescheduleBus} onViewHistoryClick={handleViewHistoryBus} onCancelClick={(item) => handleOpenCancelModal(item, 'bus')} />}
-                            {activeTab === "train" && <TrainDetails bookings={trip.bookings.train} tripStatus={trip.status} onAddOptionsClick={handleOpenTrainModal} onRescheduleClick={handleRescheduleTrain} onViewHistoryClick={handleViewHistoryTrain} onCancelClick={(item) => handleOpenCancelModal(item, 'train')} />}
+                            {activeTab === "flight" && <FlightDetails bookings={trip.bookings.flight} tripStatus={trip.status} onAddOptionsClick={handleOpenFlightModal} onRescheduleClick={handleRescheduleFlight} onViewHistoryClick={handleViewHistoryFlight} onCancelClick={(item) => handleOpenCancelModal(item, 'flight')} onDeleteOption={(item) => handleDeleteOption(item, 'flight')} />}
+                            {activeTab === "hotel" && <HotelDetails bookings={trip.bookings.hotel} tripStatus={trip.status} onAddOptionsClick={handleOpenHotelModal} onRescheduleClick={handleRescheduleHotel} onViewHistoryClick={handleViewHistoryHotel} onCancelClick={(item) => handleOpenCancelModal(item, 'hotel')} onDeleteOption={(item) => handleDeleteOption(item, 'hotel')} />}
+                            {activeTab === "car" && <CarDetails bookings={trip.bookings.car} tripStatus={trip.status} onAddOptionsClick={handleOpenCarModal} onRescheduleClick={handleRescheduleCar} onViewHistoryClick={handleViewHistoryCar} onCancelClick={(item) => handleOpenCancelModal(item, 'car')} onDeleteOption={(item) => handleDeleteOption(item, 'car')} />}
+                            {activeTab === "bus" && <BusDetails bookings={trip.bookings.bus} tripStatus={trip.status} onAddOptionsClick={handleOpenBusModal} onRescheduleClick={handleRescheduleBus} onViewHistoryClick={handleViewHistoryBus} onCancelClick={(item) => handleOpenCancelModal(item, 'bus')} onDeleteOption={(item) => handleDeleteOption(item, 'bus')} onAddTicketClick={handleOpenBusTicketModal}/>}
+                            {activeTab === "train" && <TrainDetails bookings={trip.bookings.train} tripStatus={trip.status} onAddOptionsClick={handleOpenTrainModal} onRescheduleClick={handleRescheduleTrain} onViewHistoryClick={handleViewHistoryTrain} onCancelClick={(item) => handleOpenCancelModal(item, 'train')} onDeleteOption={(item) => handleDeleteOption(item, 'train')} onAddTicketClick={handleOpenTrainTicketModal}/>}
                         </div>
                     </section>
                 </div>
@@ -1441,6 +1612,21 @@ export default function ApproverTripDataView({ onOpenForm }) {
                     onConfirm={handleConfirmCancel} // <--- This connects the button!
                 />
             )}
+
+            {currentTrainTicketBooking && (
+    <TrainTicketForm
+        Train={currentTrainTicketBooking}
+        onClose={() => setCurrentTrainTicketBooking(null)}
+    />
+)}
+
+{currentBusTicketBooking && (
+    <BusTicketForm
+        Bus={currentBusTicketBooking}
+        onClose={() => setCurrentBusTicketBooking(null)}
+    />
+)}
+
         </div>
     );
 }

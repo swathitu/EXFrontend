@@ -19,6 +19,7 @@ import Footer from "./components/Footer";
 import Home from "./components/Home";
 import Trip from "./components/Trip/Trip";
 import ApproverTripDataView from "./components/ApproverTripDataView/ApproverTripDataView";
+import AgentTripDataView from "./components/TravelAgent/AgentTripDataView";
 import TripDataView from "./components/Trip/TripDataView";
 import LocationList from "./components/masters/LocationList";
 import LocationForm from "./components/masters/LocationForm";
@@ -37,6 +38,7 @@ import FlightDesk from "./components/FlightDesk/FlightDesk";
 import HotelDesk from "./components/HotelDesk/HotelDesk";
 import TrainDesk from "./components/TrainDesk/TrainDesk"
 import Trips from "./components/Trips/Trips";
+import AgentTripList from "./components/AgentTripList/AgentTripList";
 
 
 // ---------------------------------------------
@@ -44,11 +46,11 @@ import Trips from "./components/Trips/Trips";
 // ---------------------------------------------
 const ROLES = {
   ADMIN: "admin",
-  ADMIN1: "admin1",        // <--- new role
+  ADMIN1: "admin1",        
   APPROVER: "approver",
   SUBMITTER: "submitter",
-  TRAVEL_ASSOCIATE: "travel_associate",  // <--- new role
-
+  TRAVEL_ASSOCIATE: "travel_associate",  
+  AGENT: "agent",
 };
 
 
@@ -187,6 +189,7 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
     const v = String(value || "").toLowerCase();
     if (v === "admin1") return ROLES.ADMIN1; // must come before "admin"
     if (v === "admin") return ROLES.ADMIN;
+    if (v.includes("agent")) return ROLES.AGENT;
     if (v.includes("approver")) return ROLES.APPROVER;
     if (v.includes("submit")) return ROLES.SUBMITTER;
     if (v.includes("travel_associate")) return ROLES.TRAVEL_ASSOCIATE;
@@ -215,7 +218,7 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
         });
 
         const json = await res.json();
-
+        console.log("API Response:", json);
         if (!res.ok || json.status !== "success") {
           throw new Error(json?.message || "Access check failed");
         }
@@ -224,9 +227,13 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
           localStorage.setItem("userEmail", json.data.email);
         }
 
-        // Expecting shape: { status: "success", data: { email, role } }
-        const apiRole = json?.data?.role;
+     // Check exact path to role
+        const apiRole = json?.data?.role; 
+        console.log("Extracted API Role:", apiRole); // <--- SHOULD BE "agent"
+
         const normalized = normalizeRole(apiRole);
+        console.log("Final Normalized Role:", normalized); // <--- SHOULD BE "agent"
+
         if (!cancelled) setRole(normalized);
       } catch (e) {
         if (!cancelled) setError(e?.message || String(e));
@@ -245,8 +252,8 @@ function useAccessRole(userEmail, { defaultRole = ROLES.ADMIN } = {}) {
 }
 
 function RoleBasedRedirect({ role }) {
-  if (role === ROLES.TRAVEL_ASSOCIATE) {  
-    return <Navigate to="/expenseDataView" replace />;
+  if (role === ROLES.TRAVEL_ASSOCIATE || role === ROLES.AGENT) {  
+    return <Navigate to="/ta-trips" replace />;
   }
   return <Navigate to="/home" replace />;
 }
@@ -255,21 +262,27 @@ function RoleBasedRedirect({ role }) {
 // Shell with routes & guards
 // ---------------------------------------------
 function AppShell({ currentRole, userEmail, userName, onLogout }) {
-
+console.log("AppShell Rendering with Role:", currentRole);
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isTripsApproverPage = location.pathname === "/trips-approver";
+  const isTripDetailView = location.pathname.startsWith("/expenseDataView/");
   const isTripData = location.pathname.startsWith("/trip-data");
   const isApproverDataView = location.pathname.startsWith(
     "/approver-trip-data"
   );
 
+const needsFullPageLayout = isTripData || isApproverDataView || isTripDetailView || isTripsApproverPage;
+const noScrollMain = isTripData || isTripDetailView || isTripsApproverPage;
+
   const contentCardClassNames = [
     "content-card",
-    isTripData ? "tdv-full-bleed" : "",
-    currentRole === ROLES.ADMIN ? "content-card-admin" : "content-card-ta"
-    // Add other roles here if needed
+    // This applies your role-based class (e.g., for themes)
+    currentRole === ROLES.ADMIN ? "content-card-admin" : "content-card-ta",
+    // This *also* applies the layout class when needed
+    needsFullPageLayout ? "content-card--full-page" : ""
   ].join(" ").trim();
 
   const handleAddFromSidebar = (key) => {
@@ -280,6 +293,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
   };
 
   const handleSelectFromSidebar = (key) => {
+    console.log("Sidebar clicked with key:", key);
     if (key === "home") navigate("/home");
     else if (key === "location") navigate("/masters/location");
     else if (key === "departments") navigate("/masters/department");
@@ -296,6 +310,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
     else if (key === "busDesk") navigate("/traveldesk/busDesk");
     else if (key === "trainDesk") navigate("/traveldesk/trainDesk");
     else if (key === 'trips') navigate("/trips")
+    else if (key === 'ta-trips') navigate("/ta-trips");
 
   };
 
@@ -325,7 +340,7 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
 
       
 
-      <main className={`main ${isApproverDataView ? "main--no-scroll" : ""}`}>
+     <main className={`main ${noScrollMain ? "main--no-scroll" : ""}`}>
         <div className={contentCardClassNames}>
        
           <Routes>
@@ -338,7 +353,17 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
               path="/dashboard"
               element={<h1>Welcome to Zoho Expense</h1>}
             />
-
+            <Route
+              path="/ta-trips"
+              element={
+                <RequireRole 
+                  allow={[ROLES.ADMIN, ROLES.TRAVEL_ASSOCIATE, ROLES.AGENT]} 
+                  currentRole={currentRole}
+                >
+                 <AgentTripList userEmail={userEmail} />
+                </RequireRole>
+              }
+            />
             {/* Home: approver + submitter (+ admin via guard) */}
             <Route
               path="/home"
@@ -351,7 +376,18 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
                 </RequireRole>
               }
             />
-
+            <Route
+  path="/agent-trip-data/:tripId" // Unique route for Agent view
+  element={
+    <RequireRole 
+      allow={[ROLES.ADMIN, ROLES.TRAVEL_ASSOCIATE, ROLES.AGENT]} 
+      currentRole={currentRole}
+    >
+      {/* Pass userEmail for filtering */}
+      <AgentTripDataView userEmail={userEmail} />
+    </RequireRole>
+  }
+/>
             {/* Trip: admin + submitter */}
             <Route
               path="/trip"
@@ -365,16 +401,16 @@ function AppShell({ currentRole, userEmail, userName, onLogout }) {
               }
             />
 
-            <Route 
-            path='/trips'
-            element={
-              <RequireRole
-              allow={[ ROLES.ADMIN]}
+            <Route
+              path='/trips'
+              element={
+                <RequireRole
+                  allow={[ROLES.ADMIN]}
                   currentRole={currentRole}
-              >
-                <Trips/>
-              </RequireRole>
-            }
+                >
+                  <Trips />
+                </RequireRole>
+              }
             />
 
             {/* My approvals: approver only */}

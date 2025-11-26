@@ -14,7 +14,7 @@
     padding: 20px;
     box-sizing: border-box;
 }
-
+ 
 .ticket-toolbar {
     display: flex;
     align-items: center;
@@ -27,14 +27,14 @@
     box-shadow: var(--shadow-sm);
     /* Added subtle shadow */
 }
-
+ 
 .toolbar-title {
     font-weight: 700;
     /* Bolder title */
     font-size: 16px;
     color: #1f2937;
 }
-
+ 
 .toolbar-close {
     margin-left: auto;
     border: none;
@@ -45,11 +45,11 @@
     cursor: pointer;
     transition: color 0.15s;
 }
-
+ 
 .toolbar-close:hover {
     color: #334155;
 }
-
+ 
 /* Content two-column layout */
 .ticket-content {
     display: grid;
@@ -59,7 +59,7 @@
     min-height: 70vh;
     padding-top: 20px;
 }
-
+ 
 /* Attachment panel */
 .attachment-panel {
     border: 2px dashed var(--border);
@@ -74,18 +74,18 @@
     min-height: 420px;
     transition: border-color 0.2s, background-color 0.2s;
 }
-
+ 
 .attachment-panel:hover {
     border-color: var(--primary);
     /* Hover feedback */
     background: #eff6ff50;
 }
-
+ 
 .attachment-dropzone {
     text-align: center;
     padding: 24px;
 }
-
+ 
 .drop-icon {
     width: 44px;
     height: 44px;
@@ -99,19 +99,19 @@
     cursor: pointer;
     transition: all 0.2s;
 }
-
+ 
 .attachment-panel:hover .drop-icon {
     background: var(--primary);
     color: white;
 }
-
+ 
 .drop-hint {
     margin-top: 10px;
     /* Increased margin */
     font-size: 13px;
     color: var(--muted);
 }
-
+ 
 /* Right form (MODIFIED) */
 .ticket-form {
     width: 100%;
@@ -126,7 +126,7 @@
     height: fit-content;
     /* Ensure it only takes up necessary height */
 }
-
+ 
 .route-summary {
     display: flex;
     align-items: baseline;
@@ -134,25 +134,25 @@
     margin-bottom: 12px;
     /* Increased margin */
 }
-
+ 
 .route-summary .city {
     font-weight: 700;
     /* Bolder city name */
     font-size: 16px;
     color: #1f2937;
 }
-
+ 
 .route-summary .separator {
     color: #94a3b8;
 }
-
+ 
 .route-summary .route-sub {
     margin-left: 8px;
     font-size: 12px;
     color: var(--muted);
     font-style: italic;
 }
-
+ 
 /* Fields */
 .form-field {
     display: flex;
@@ -160,20 +160,20 @@
     margin-bottom: 16px;
     /* Increased bottom margin */
 }
-
+ 
 .form-field.inline {
     flex-direction: row;
     align-items: center;
     gap: 8px;
 }
-
+ 
 .form-field label {
     font-size: 12px;
     color: #475467;
     margin-bottom: 6px;
     font-weight: 500;
 }
-
+ 
 /* Input, Select, Textarea Styles (MODIFIED) */
 .form-field input[type="text"],
 .form-field input[type="date"],
@@ -192,7 +192,7 @@
     /* Subtle inner shadow */
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
-
+ 
 /* Focus state (MODIFIED) */
 .form-field input:focus,
 .form-field select:focus,
@@ -201,17 +201,17 @@
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     /* Primary color ring */
 }
-
+ 
 .form-field textarea {
     resize: vertical;
 }
-
+ 
 .req {
     color: var(--danger);
     font-weight: 600;
     margin-left: 2px;
 }
-
+ 
 /* Two columns */
 .two-col {
     display: grid;
@@ -219,7 +219,7 @@
     gap: 16px;
     /* Increased gap */
 }
-
+ 
 /* Amount row */
 .amount-row {
     display: grid;
@@ -228,13 +228,13 @@
     /* Increased gap */
     align-items: center;
 }
-
+ 
 .currency-field .amount-inputs {
     display: grid;
     grid-template-columns: 120px 1fr;
     gap: 8px;
 }
-
+ 
 .checkbox-field {
     display: inline-flex;
     align-items: center;
@@ -242,7 +242,7 @@
     color: #475467;
     font-size: 13px;
 }
-
+ 
 /* Link button (Add other charges, Add flight) (MODIFIED) */
 .link-btn {
     border: none;
@@ -254,12 +254,12 @@
     transition: color 0.15s;
     color: #1d4ed8;
 }
-
-
+ 
+ 
 .link-btn:hover {
     color: #1d4ed8;
 }
-
+ 
 /* Section header (MODIFIED) */
 .section-header {
     margin-top: 20px;
@@ -273,7 +273,7 @@
     /* Increased padding */
     font-size: 15px;
 }
-
+ 
 /* Itinerary actions */
 .itinerary-actions {
     display: flex;
@@ -282,7 +282,7 @@
     margin-bottom: 10px;
     /* Increased margin */
 }
-
+ 
 /* Table */
 .table-wrapper {
     border: 1px solid var(--border);
@@ -290,13 +290,13 @@
     box-shadow: var(--shadow-sm);
     /* Added subtle shadow */
 }
-
+ 
 .itinerary-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
 }
-
+ 
 .itinerary-table thead th {
     background: #f1f5f9;
     /* Slightly darker header */
@@ -306,18 +306,18 @@
     padding: 10px;
     border-bottom: 1px solid var(--border);
 }
-
+ 
 .itinerary-table tbody td {
     border-bottom: 1px solid var(--border);
     padding: 8px 10px;
     /* Adjusted padding */
     background: white;
 }
-
+ 
 .itinerary-table tbody tr:last-child td {
     border-bottom: none;
 }
-
+ 
 .itinerary-table tbody td input,
 .itinerary-table tbody td select {
     width: 100%;
@@ -327,14 +327,14 @@
     padding: 4px 6px;
     font-size: 13px;
 }
-
+ 
 .empty-state {
     text-align: center;
     color: var(--muted);
     padding: 16px;
     background: #f8fafc;
 }
-
+ 
 /* Icons / buttons (MODIFIED) */
 .icon-btn {
     border: 1px solid var(--border);
@@ -345,23 +345,23 @@
     cursor: pointer;
     transition: all 0.15s;
 }
-
+ 
 .icon-btn:hover {
     background: #f1f5f9;
     border-color: #cbd5e1;
 }
-
+ 
 .icon-btn.danger {
     color: var(--danger);
     border-color: #fca5a5;
     /* Slightly softer red border */
 }
-
+ 
 .icon-btn.danger:hover {
     background: #fee2e2;
     border-color: var(--danger);
 }
-
+ 
 /* Footer actions */
 .form-actions {
     display: flex;
@@ -371,7 +371,7 @@
     margin-top: 20px;
     /* Increased top margin */
 }
-
+ 
 .primary {
     background: rgb(78, 78, 245);
     color: white;
@@ -384,12 +384,12 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: background 0.15s, box-shadow 0.15s;
 }
-
+ 
 .primary:hover {
     background: #1d4ed8;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
-
+ 
 .ghost {
     background: #fff;
     color: #475467;
@@ -400,38 +400,38 @@
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
 }
-
+ 
 .ghost:hover {
     background: #f8fafc;
     border-color: #cbd5e1;
 }
-
+ 
 /* Responsive */
 @media (max-width: 1024px) {
     .ticket-content {
         grid-template-columns: 1fr;
         gap: 16px;
     }
-
+ 
     .attachment-panel {
         min-height: 220px;
     }
-
+ 
     .two-col {
         grid-template-columns: 1fr;
     }
-
+ 
     .amount-row {
         grid-template-columns: 1fr;
     }
-
+ 
     .currency-field .amount-inputs {
         grid-template-columns: 100px 1fr;
     }
 }
-
+ 
 /* NEW/UPDATED for itinerary grid section with vertical stacking and aligned grid fields */
-
+ 
 .itinerary-section {
     display: block;
     /* stack items vertically */
@@ -442,16 +442,16 @@
     scrollbar-width: thin;
     scrollbar-color: #94a3b8 transparent;
 }
-
+ 
 .itinerary-section::-webkit-scrollbar {
     width: 8px;
 }
-
+ 
 .itinerary-section::-webkit-scrollbar-thumb {
     background-color: #94a3b8;
     border-radius: 4px;
 }
-
+ 
 .form-ticket {
     width: 100%;
     max-width: 1200px;
@@ -464,17 +464,17 @@
     margin-bottom: 16px;
     box-sizing: border-box;
 }
-
+ 
 .form-ticket .field {
     display: flex;
     flex-direction: column;
 }
-
+ 
 .form-ticket .date-time {
     display: flex;
     gap: 8px;
 }
-
+ 
 .form-ticket input[type="text"],
 .form-ticket input[type="date"],
 .form-ticket input[type="time"],
@@ -482,7 +482,7 @@
     width: 100%;
     box-sizing: border-box;
 }
-
+ 
 .delete-icon {
     grid-column: 7;
     /* place in last grid column (next to Class) */
@@ -496,7 +496,8 @@
     color: #ef4444;
     transition: color 0.2s;
 }
-
+ 
 .delete-icon:hover {
     color: #b91c1c;
 }
+ 
