@@ -1,0 +1,154 @@
+/* src/components/AgentTripList/AgentTripList.css */
+
+/* ---------- Global & Layout ---------- */
+:root {
+  --primary-blue: #2563eb;
+  --light-gray-bg: #f8f9fd;
+  --border-color: #eef2f9;
+  --text-primary: #344767;
+  --text-secondary: #67748e;
+  --text-link: #2563eb;
+}
+
+.agent-trips-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--light-gray-bg);
+  padding-top: 0.75rem;
+  gap: 0.75rem;
+  margin: 0 !important;
+}
+
+.agent-card {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  overflow: hidden;
+  margin: 0 1.5rem 0.75rem 1.5rem;
+}
+
+/* ---------- Table Styles ---------- */
+.table-wrapper {
+  flex-grow: 1;
+  overflow-x: auto;
+  padding: 0;
+}
+
+.data-table {
+  width: 100%;
+  min-width: 1000px;
+  border-collapse: collapse;
+}
+
+.data-table th, .data-table td {
+  padding: 14px 16px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.data-table th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+}
+
+.data-table td {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.clickable-row:hover {
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+.td--align-top {
+  vertical-align: top;
+}
+
+/* ---------- Column Widths ---------- */
+.data-table th:nth-child(1), .data-table td:nth-child(1) { width: 15%; } /* Submitter */
+.data-table th:nth-child(2), .data-table td:nth-child(2) { width: 10%; } /* Trip# */
+.data-table th:nth-child(3), .data-table td:nth-child(3) { width: 25%; white-space: normal; } /* Details */
+.data-table th:nth-child(4), .data-table td:nth-child(4) { width: 15%; } /* Destination */
+.data-table th:nth-child(5), .data-table td:nth-child(5) { width: 15%; } /* Status */
+.data-table th:nth-child(6), .data-table td:nth-child(6) { width: 10%; text-align: center; } /* Booking */
+.data-table th:nth-child(7), .data-table td:nth-child(7) { width: 10%; } /* Action (Optional) */
+
+/* ---------- Text & Links ---------- */
+.trip-number-cell { font-weight: 600; color: var(--text-primary); }
+
+.trip-details-group { display: flex; flex-direction: column; gap: 4px; }
+
+.trip-link { color: var(--text-link); text-decoration: none; font-weight: 600; }
+.trip-link:hover { text-decoration: underline; }
+
+.trip-dates { color: var(--text-secondary); font-size: 0.8rem; }
+
+/* ---------- Pills ---------- */
+.status-pill {
+  display: inline-block; padding: 4px 10px; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+}
+.pill--pending, .pill--submitted { background: #fff8c5; color: #946200; }
+.pill--approved  { background: #d1fae5; color: #065f46; }
+.pill--rejected, .pill--cancelled  { background: #fee2e2; color: #991b1b; }
+
+.user-pill-wrapper { display: flex; flex-direction: column; gap: 3px; }
+
+.approver-pill {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 2px 8px 2px 4px; border-radius: 999px; background: #f3f4f6; color: #374151; font-weight: 500;
+}
+
+.initial-circle {
+  width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.8rem; color: #fff; background-color: #9ca3af; flex-shrink: 0;
+}
+
+.approver-name { font-size: 13px; }
+
+/* ---------- Booking Icons ---------- */
+.booking-cell { display: flex; gap: 0.25rem; align-items: center; justify-content: center; }
+
+.booking-icon-circle {
+  width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #4b5563; border: 1px solid #e0e0e0;
+}
+.booking-icon-circle svg { width: 14px; height: 14px; }
+
+/* ---------- Loading ---------- */
+.loading-container {
+  display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 60vh;
+  color: var(--text-secondary); gap: 1rem;
+}
+.loader {
+  border: 5px solid #f3f4f6; border-top: 5px solid var(--primary-blue); border-radius: 50%;
+  width: 40px; height: 40px; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* ---------- Pagination ---------- */
+.table-pagination {
+  flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;
+  padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-secondary);
+  border-top: 1px solid var(--border-color); background-color: #fff;
+}
+.pagination-right { display: flex; align-items: center; gap: 1.5rem; }
+.rows-per-page-select { border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; }
+.nav-arrows { display: flex; gap: 0.5rem; }
+.nav-arrows button { border: none; background: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; }
+.nav-arrows button:disabled { color: #ccc; cursor: not-allowed; }

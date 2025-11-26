@@ -20,6 +20,29 @@ export async function fetchAllTrips(signal) {
   }
 }
 
+export async function fetchAgentTrips(signal, agentEmail) {
+  alert("coming to trip api function");
+  // Points to the new route 'agent_trips'
+  const FN = `/server/trips_api/agent_trips?agent_email=${encodeURIComponent(agentEmail)}`;
+  
+  try {
+    const res = await fetch(FN, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      signal,
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`Agent Trips API ${res.status}: ${text || res.statusText}`);
+    }
+    const json = await res.json();
+    return Array.isArray(json.data) ? json.data : [];
+  } catch (error) {
+    console.error("[fetchAgentTrips] Error:", error);
+    throw error;
+  }
+}
+
 export async function fetchTripById(id, signal) {
   const FN = "/server/trips_api/GetData";
   try {
