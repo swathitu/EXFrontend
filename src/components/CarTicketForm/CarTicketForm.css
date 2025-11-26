@@ -431,5 +431,94 @@
 .delete-icon:hover {
     color: #b91c1c;
 }
- 
- 
+
+
+.attachment-panel {
+    flex-basis: 35%; /* Gives it a fixed width on the left */
+    padding: 15px;
+    background-color: #f7f7f7;
+    border-right: 1px solid #eee;
+    min-height: 400px; /* Gives the panel a good initial height */
+}
+
+/* Dropzone styling */
+.attachment-dropzone {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+/* List container for multiple files */
+.attachments-list {
+    display: flex; /* Allows multiple attachments to sit side-by-side */
+    flex-wrap: wrap;
+    gap: 15px; /* Spacing between attachments */
+}
+
+/* Individual preview box */
+.attachment-preview {
+    width: 300px; /* Good standard width for a thumbnail card */
+    padding: 8px;
+    position: relative;
+    height:300px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    background-color: white;
+}
+
+/* Styling for the image itself */
+.attachment-preview img {
+    width: 100%; /* Makes the image fill the width of the .attachment-preview box */
+    height: 80px; /* Fixed height for consistent thumbnails */
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+/* Style for the document icon (if not an image) */
+.attachment-preview span[role="img"] {
+    font-size: 40px;
+    display: block;
+    margin: 0 auto 5px;
+}
+
+/* File name text */
+.attachment-preview p {
+    font-size: 12px;
+    margin: 0;
+    word-break: break-all; /* Prevents long names from overflowing */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Use ellipsis for long file names */
+}
+
+.remove-attachment-btn {
+    position: absolute; /* KEY CHANGE */
+    top: -8px; 
+    right: -8px; 
+    background-color: #f44336; /* Red background */
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%; /* Circular button */
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    line-height: 1;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10; /* Ensures it sits on top of the image */
+    transition: background-color 0.2s;
+}
+
+.remove-attachment-btn:hover {
+    background-color: #d32f2f;
+}
+
+
