@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import "./CarOptionForm.css";
 
 const cityOptions = [
-  { cityCode: "", cityName: "Select City", airportName: "" },
-  { cityCode: "NYC", cityName: "New York", airportName: "JFK" },
-  { cityCode: "LON", cityName: "London", airportName: "Heathrow" },
-  { cityCode: "PAR", cityName: "Paris", airportName: "CDG" },
-  { cityCode: "DXB", cityName: "Dubai", airportName: "DXB" },
-  { cityCode: "TYO", cityName: "Tokyo", airportName: "NRT" },
+  { cityCode: "", cityName: "Select City" },
+  { cityCode: "NYC", cityName: "New York" },
+  { cityCode: "LON", cityName: "London" },
+  { cityCode: "PAR", cityName: "Paris" },
+  { cityCode: "DXB", cityName: "Dubai" },
+  { cityCode: "TYO", cityName: "Tokyo" },
 ];
 
 const carTypes = [
@@ -19,13 +19,11 @@ const carTypes = [
   { value: "van", label: "Van" },
 ];
 
-
 const getCityCodeByName = (name) => {
   if (!name) return "";
   const found = cityOptions.find((c) => c.cityName === name);
-  return found ? found.cityCode : ""; 
+  return found ? found.cityCode : "";
 };
-
 
 const initialOption = () => ({
   optionId: null,
@@ -63,7 +61,7 @@ const CarOptionCard = ({ index, option, onChange, onRemove, currencyList }) => {
             role="button"
             aria-label="Remove option"
             title="Remove this option"
-            style={{ cursor: 'pointer', color: 'red' }} // Optional styling to ensure visibility
+            style={{ cursor: "pointer", color: "red" }}
           >
             🗑
           </span>
@@ -196,7 +194,8 @@ const CarOptionCard = ({ index, option, onChange, onRemove, currencyList }) => {
   );
 };
 
-const CarOptionForm = ({ car, onClose, onSave }) => {
+const CarOptionForm = ({ car, onClose, onSave, submitter }) => {
+
   const initialFromCar = () => {
     const origin = car?.CAR_DEP_CITY || "";
     const dest = car?.CAR_ARR_CITY || "";
@@ -224,6 +223,15 @@ const CarOptionForm = ({ car, onClose, onSave }) => {
   const [currencyList, setCurrencyList] = useState([]);
   const [options, setOptions] = useState([initialFromCar()]);
   const [isLoading, setIsLoading] = useState(false);
+  const [savedEmail, setSavedEmail] = useState(null);
+
+
+
+  useEffect(() => {
+    const emailFromStorage = localStorage.getItem("userEmail");
+    setSavedEmail(emailFromStorage);
+    console.log("Saved Email from localStorage:", emailFromStorage);
+  }, []);
 
   useEffect(() => {
     const fetchCurrencies = async () => {
@@ -239,56 +247,45 @@ const CarOptionForm = ({ car, onClose, onSave }) => {
     fetchCurrencies();
   }, []);
 
-  // 2. FETCH EXISTING OPTIONS (EDIT MODE)
   useEffect(() => {
     const status = (car?.Option_Status || "").toLowerCase();
-    // Check if we are in "Edit Mode"
     const isEditMode = status.includes("added") || status.includes("option");
 
-    if (isEditMode && car?.rowId) {
+    if (isEditMode && car?.ROWID) {
       const fetchExistingOptions = async () => {
         setIsLoading(true);
         try {
-            // Call the API with the Trip Line Item ID (rowId)
-            const response = await fetch(`/server/trip_options_forms?rowId=${car.rowId}&requestType=car`);
-            
-            if (!response.ok) throw new Error("Failed to fetch options");
-            
-            const result = await response.json();
-            
-            // Check if data exists
-            if (result.status === 'success' && result.data && result.data.length > 0) {
-                
-                // --- CRITICAL: MAP DB COLUMNS TO UI STATE ---
-                const mappedOptions = result.data.map(dbItem => ({
-                    optionId: dbItem.ROWID, // <--- Capturing the Hidden ID
-                    carName: dbItem.Merchant_Name,
-                    
-                    // Convert Names back to Codes for dropdowns
-                    depCity: getCityCodeByName(dbItem.CAR_DEP_CITY), 
-                    arrCity: getCityCodeByName(dbItem.CAR_ARR_CITY),
-                    
-                    depDate: dbItem.CAR_DEP_DATE,
-                    depTime: dbItem.CAR_DEP_TIME,
-                    arrDate: dbItem.CAR_ARR_DATE,
-                    arrTime: dbItem.CAR_ARR_TIME,
-                    carType: dbItem.CAR_TYPE,
-                    amount: dbItem.Amount,
-                    currency: dbItem.Currency_id,
-                    isRefundable: dbItem.Refund_Type === 'Refundable',
-                    notes: dbItem.Notes
-                }));
-                
-                // Update the form with the fetched data
-                setOptions(mappedOptions);
-            }
+          const response = await fetch(
+            `/server/trip_options_forms?rowId=${car.ROWID}&requestType=car`
+          );
+          if (!response.ok) throw new Error("Failed to fetch options");
+
+          const result = await response.json();
+          if (result.status === "success" && result.data && result.data.length > 0) {
+            const mappedOptions = result.data.map((dbItem) => ({
+              optionId: dbItem.ROWID,
+              carName: dbItem.Merchant_Name,
+              depCity: getCityCodeByName(dbItem.CAR_DEP_CITY),
+              arrCity: getCityCodeByName(dbItem.CAR_ARR_CITY),
+              depDate: dbItem.CAR_DEP_DATE,
+              depTime: dbItem.CAR_DEP_TIME,
+              arrDate: dbItem.CAR_ARR_DATE,
+              arrTime: dbItem.CAR_ARR_TIME,
+              carType: dbItem.CAR_TYPE,
+              amount: dbItem.Amount,
+              currency: dbItem.Currency_id,
+              isRefundable: dbItem.Refund_Type === "Refundable",
+              notes: dbItem.Notes,
+            }));
+            setOptions(mappedOptions);
+          }
         } catch (error) {
-            console.error("Error loading existing options:", error);
+          console.error("Error loading existing options:", error);
         } finally {
-            setIsLoading(false);
+          setIsLoading(false);
         }
       };
-      
+
       fetchExistingOptions();
     }
   }, [car]);
@@ -307,19 +304,12 @@ const CarOptionForm = ({ car, onClose, onSave }) => {
     setOptions((prev) => prev.filter((_, i) => i !== index));
   };
 
-
   const getCityFullInfo = (code) =>
-    cityOptions.find(c => c.cityCode === code) || { cityCode: "", cityName: "", airportName: "" };
-
-  const payloadOptions = options.map(opt => ({
-    ...opt,
-    depCityDetail: getCityFullInfo(opt.depCity),  // full object with cityName etc.
-    arrCityDetail: getCityFullInfo(opt.arrCity),
-  }));
+    cityOptions.find((c) => c.cityCode === code) || { cityCode: "", cityName: "" };
 
   const handleSave = async () => {
     const getCityFullInfo = (code) =>
-      cityOptions.find((c) => c.cityCode === code) || { cityCode: "", cityName: "", airportName: "" };
+      cityOptions.find((c) => c.cityCode === code) || { cityCode: "", cityName: "" };
 
     const fullOptions = options.map((opt) => ({
       ...opt,
@@ -339,6 +329,7 @@ const CarOptionForm = ({ car, onClose, onSave }) => {
     };
 
     try {
+      // Save trip options
       const response = await fetch("/server/trip_options_forms/", {
         method: "POST",
         headers: {
@@ -352,9 +343,38 @@ const CarOptionForm = ({ car, onClose, onSave }) => {
       }
 
       const responseData = await response.json();
+
+      // Prepare mail trigger payload
+      const mailPayload = {
+        userEmail: savedEmail,                       // saved user email from state or localStorage
+        receiverEmail: submitter || "",  // usually submitter's email
+        tripId: car?.TRIP_ID || "",
+        tripNumber: car?.TRIP_NUMBER || "",
+        mode: "car",
+      };
+
+      // Trigger mail notification
+      const mailResponse = await fetch("/server/addOption_mailtrigger/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(mailPayload),
+      });
+
+      if (!mailResponse.ok) {
+        console.error(`Mail trigger API failed with status ${mailResponse.status}`);
+      } else {
+        const mailResult = await mailResponse.json();
+        console.log("Mail trigger success:", mailResult);
+      }
+
+      // Callbacks after successful save
       if (onSave) onSave(responseData);
+      if (onClose) onClose();
+
     } catch (error) {
-      console.error("Failed to save data:", error);
+      console.error("Failed to save data or trigger mail:", error);
     }
   };
 
@@ -382,8 +402,14 @@ const CarOptionForm = ({ car, onClose, onSave }) => {
           {(cityOptions.find((c) => c.cityCode === options[0]?.depCity)?.cityName || "")} ➡{" "}
           {(cityOptions.find((c) => c.cityCode === options[0]?.arrCity)?.cityName || "")}
         </h4>
-        <p>{options[0]?.depDate || ""} ({options[0]?.depTime || ""}) - {options[0]?.arrDate || ""} ({options[0]?.arrTime || ""})</p>
+        <p>
+          {options[0]?.depDate || ""} ({options[0]?.depTime || ""}) -{" "}
+          {options[0]?.arrDate || ""} ({options[0]?.arrTime || ""})
+        </p>
       </div>
+
+      {/* Loading Indicator */}
+      {isLoading && <p>Loading existing options...</p>}
 
       {/* Option Cards */}
       {options.map((opt, idx) => (
@@ -398,7 +424,7 @@ const CarOptionForm = ({ car, onClose, onSave }) => {
       ))}
 
       {/* Add New Option */}
-      <div className=" add-option btn-primary" onClick={addOption}>
+      <div className="add-option btn-primary" onClick={addOption}>
         + Add New Option
       </div>
 

@@ -42,7 +42,7 @@ const cityOptions = [
 ];
 
 const HotelRescheduleForm = ({ bookingData, onClose, onSave }) => {
-  
+  console.log("HotelRescheduleForm Booking Data:", bookingData);
   const [isLoading, setIsLoading] = useState(false);
 
   // Helper for Smart City Lookup
@@ -66,12 +66,12 @@ const HotelRescheduleForm = ({ bookingData, onClose, onSave }) => {
   // Initialize State (Without Star Rating / Room Type)
   const [formData, setFormData] = useState({
     // Check-in (Arrival in DB)
-    checkInDate: bookingData?.HOTEL_ARR_DATE || "", 
-    checkInTime: bookingData?.HOTEL_ARR_TIME || "", 
+    checkInDate: bookingData?.HOTEL_DEP_DATE || bookingData?.checkIn || "", 
+    checkInTime: bookingData?.HOTEL_DEP_TIME || bookingData?.checkInTime || "", 
     
     // Check-out (Departure in DB)
-    checkOutDate: bookingData?.HOTEL_DEP_DATE || "", 
-    checkOutTime: bookingData?.HOTEL_DEP_TIME || "", 
+    checkOutDate: bookingData?.HOTEL_ARR_DATE || bookingData?.checkOut || "", 
+    checkOutTime: bookingData?.HOTEL_ARR_TIME || bookingData?.checkOutTime || "", 
     
     // Location
     location: getSmartCityCode(bookingData?.HOTEL_ARR_CITY || bookingData?.locationCity),
@@ -96,7 +96,7 @@ const HotelRescheduleForm = ({ bookingData, onClose, onSave }) => {
     const payload = {
         ...formData,
         tripId: bookingData.Trip_ID || bookingData.tripId,
-        rowId: bookingData.rowId,
+        rowId: bookingData.rowId || bookingData.ROWID,
         requestType: 'hotel' 
     };
 
@@ -131,14 +131,14 @@ const HotelRescheduleForm = ({ bookingData, onClose, onSave }) => {
         <div className="reschedule-header-summary">
             <div className="summary-left">
                 <div className="summary-item">
-                    <span className="summary-date">{bookingData?.checkInDate} {bookingData?.checkInTime}</span>
+                    <span className="summary-date">{bookingData?.checkInDate || bookingData?.HOTEL_DEP_DATE || bookingData?.checkIn} {bookingData?.checkInTime || bookingData?.HOTEL_DEP_TIME || bookingData?.checkInTime}</span>
                     <span className="summary-loc">{getCityHeaderDisplay(bookingData?.HOTEL_ARR_CITY || bookingData?.locationCity)}</span>
                 </div>
                 <div className="summary-arrow">
                     <ArrowRightIcon />
                 </div>
                 <div className="summary-item">
-                    <span className="summary-date">{bookingData?.checkOutDate} {bookingData?.checkOutTime}</span>
+                    <span className="summary-date">{bookingData?.checkOutDate || bookingData?.HOTEL_ARR_DATE || bookingData?.checkOut} {bookingData?.checkOutTime || bookingData?.HOTEL_ARR_TIME || bookingData?.checkOutTime}</span>
                     <span className="summary-loc">{getCityHeaderDisplay(bookingData?.HOTEL_ARR_CITY || bookingData?.locationCity)}</span>
                 </div>
             </div>

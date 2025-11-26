@@ -11,12 +11,13 @@ const CommentsIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill
 const BusPreviousItineraries = ({ bookingData, onClose }) => {
     const [historyList, setHistoryList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const rowId = bookingData?.ROWID || bookingData?.rowId
 
     useEffect(() => {
         const fetchHistory = async () => {
             try {
                 // Fetch Bus history
-                const response = await fetch(`/server/trip_reschedule?rowId=${bookingData.rowId}&requestType=bus`);
+                const response = await fetch(`/server/trip_reschedule?rowId=${rowId}&requestType=bus`);
                 const result = await response.json();
                 
                 if (result.status === 'success') {
@@ -29,7 +30,7 @@ const BusPreviousItineraries = ({ bookingData, onClose }) => {
             }
         };
 
-        if (bookingData?.rowId) {
+        if (rowId) {
             fetchHistory();
         }
     }, [bookingData]);

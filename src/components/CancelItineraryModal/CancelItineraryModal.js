@@ -26,18 +26,19 @@ const formatDate = (dateStr) => {
 };
 
 const CancelItineraryModal = ({ bookingData, onClose, onConfirm }) => {
+  console.log("CancelItineraryModal Booking Data:", bookingData);
   const [cancelReason, setCancelReason] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   // --- Helper to extract and FORMAT display data ---
   const getSummary = () => {
     // 1. Get Raw or Formatted values from props
-    const rawStart = bookingData.depDate || bookingData.pickUpDate || bookingData.checkInDate || bookingData.BUS_DEP_DATE || bookingData.CAR_DEP_DATE || bookingData.TRAIN_DEP_DATE || bookingData.FLIGHT_DEP_DATE || bookingData.HOTEL_ARR_DATE || "";
-    const rawEnd = bookingData.arrDate || bookingData.dropOffDate || bookingData.checkOutDate || bookingData.BUS_ARR_DATE || bookingData.CAR_ARR_DATE || bookingData.TRAIN_ARR_DATE || bookingData.FLIGHT_ARR_DATE || bookingData.HOTEL_DEP_DATE || "";
+    const rawStart = bookingData.depDate || bookingData.pickUpDate || bookingData.checkInDate || bookingData.BUS_DEP_DATE || bookingData.CAR_DEP_DATE || bookingData.TRAIN_DEP_DATE || bookingData.FLIGHT_DEP_DATE || bookingData.HOTEL_ARR_DATE || bookingData.checkIn || bookingData.date ||"";
+    const rawEnd = bookingData.arrDate || bookingData.dropOffDate || bookingData.checkOutDate || bookingData.BUS_ARR_DATE || bookingData.CAR_ARR_DATE || bookingData.TRAIN_ARR_DATE || bookingData.FLIGHT_ARR_DATE || bookingData.HOTEL_DEP_DATE || bookingData.checkOut || bookingData.date ||"";
 
     // 2. Get Locations
-    const from = bookingData.depCity || bookingData.pickUpLocation || bookingData.locationCity || bookingData.BUS_DEP_CITY || bookingData.CAR_DEP_CITY || bookingData.TRAIN_DEP_CITY || bookingData.FLIGHT_DEP_CITY || bookingData.HOTEL_ARR_CITY || "";
-    const to = bookingData.arrCity || bookingData.dropOffLocation || bookingData.BUS_ARR_CITY || bookingData.CAR_ARR_CITY || bookingData.TRAIN_ARR_CITY || bookingData.FLIGHT_ARR_CITY || "";
+    const from = bookingData.depCity || bookingData.pickUpLocation || bookingData.locationCity || bookingData.BUS_DEP_CITY || bookingData.CAR_DEP_CITY || bookingData.TRAIN_DEP_CITY || bookingData.FLIGHT_DEP_CITY || bookingData.HOTEL_ARR_CITY || bookingData.departure || "";
+    const to = bookingData.arrCity || bookingData.dropOffLocation || bookingData.BUS_ARR_CITY || bookingData.CAR_ARR_CITY || bookingData.TRAIN_ARR_CITY || bookingData.FLIGHT_ARR_CITY ||  bookingData.arrival||"";
 
     // 3. Return FORMATTED dates
     return { 

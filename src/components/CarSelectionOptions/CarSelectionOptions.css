@@ -24,7 +24,7 @@
 
 .table-header {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  /* grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; */
   font-size: 12px;
   color: #666;
   border-bottom: 1px solid #ddd;
@@ -40,7 +40,7 @@
 
 .option-card1 {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  /* grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; */
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 12px;

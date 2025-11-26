@@ -6,7 +6,22 @@ import HotelOptions from "../HotelOptionForm/HotelOptionForm";
 import TrainOptionForm from "../TrainOptionForm/TrainOptionForm";
 import CarOptionForm from "../CarOptionForm/CarOptionForm";
 import BusOptionForm from "../BusOptionForm/BusOptionForm";
-
+import HotelRescheduleForm from "../HotelRescheduleForm/HotelRescheduleForm";
+import HotelPreviousItineraries from "../HotelPreviousItineraries/HotelPreviousItineraries";
+import CancelItineraryModal from "../CancelItineraryModal/CancelItineraryModal";
+import FlightRescheduleForm from "../FlightRescheduleForm/FlightRescheduleForm";
+import FlightPreviousItineraries from "../FlightPreviousItineraries/FlightPreviousItineraries";
+import CarRescheduleForm from "../CarRescheduleForm/CarRescheduleForm";
+import CarPreviousItineraries from "../CarPreviousItineraries/CarPreviousItineraries";
+import TrainRescheduleForm from "../TrainRescheduleForm/TrainRescheduleForm";
+import TrainPreviousItineraries from "../TrainPreviousItineraries/TrainPreviousItineraries";
+import BusRescheduleForm from "../BusRescheduleForm/BusRescheduleForm";
+import BusPreviousItineraries from "../BusPreviousItineraries/BusPreviousItineraries";
+import FlightTicketForm from "../FlightTicketForm/FlightTicketForm";
+import BusTicketForm from "../BusTicketForm/BusTicketForm";
+import HotelTicketForm from "../HotelTicketForm/HotelTicketForm";
+import CarTicketForm from "../CarTicketForm/CarTicketForm";
+import TrainTicketForm from "../TrainTicketForm/TrainTicketForm";
 // Reusable hook: close when clicking outside
 function useOnClickOutside(ref, handler) {
   useEffect(() => {
@@ -23,127 +38,492 @@ function useOnClickOutside(ref, handler) {
   }, [ref, handler]);
 }
 
-// Flight card
-const FlightCard = ({
-  flight,
-  optionsData = [],
+const ActionMenu = ({
+  optionStatus,
+  entity,           // flight or hotel object
+  buttonType,
   onAddOptionClick,
   onEditOptionClick,
   onAddTicketClick,
+  onEditTicketClick,
+  onDeleteClick,
+  onSelectOptionsClick,
+  onChangeSelectionClick,
+  onViewPreviousItineraryClick,
+  onViewTicketClick,
+  onDownloadTicketClick,
+  onViewOptionsClick,
+  onRescheduleClick,
+  onCancelClick,
+  rescheduleStatus,
 }) => {
-  const [showAddOptions, setShowAddOptions] = useState(false);
   const [showMenuOptions, setShowMenuOptions] = useState(false);
+  const [showAddOptions, setShowAddOptions] = useState(false);
   const addRef = useRef(null);
   const menuRef = useRef(null);
 
   useOnClickOutside(addRef, () => setShowAddOptions(false));
   useOnClickOutside(menuRef, () => setShowMenuOptions(false));
 
+  return (
+    <div className="menu-icon" style={{ position: "relative", display: "flex", gap: 8 }}>
+      <div ref={addRef}>
+        {buttonType === "add" && (
+          <button className="button-type" onClick={() => onAddOptionClick(entity)}>Add Option</button>
+        )}
+        {buttonType === "edit" && (
+          <button className="button-type" onClick={() => onEditOptionClick(entity)}>Edit Option</button>
+        )}
+        {buttonType === "ticket" && (
+          <button className="button-type" onClick={() => onAddTicketClick(entity)}>Add Ticket</button>
+        )}
+        {buttonType === "editTicket" && (
+          <button className="button-type" onClick={() => onEditTicketClick(entity)}>Edit Ticket</button>
+        )}
+        {buttonType === "view" && (
+          <button className="button-type" onClick={() => alert("View Ticket clicked")}>View Ticket</button>
+        )}
+      </div>
+
+      <div ref={menuRef}>
+        <FaEllipsisH
+          onClick={() => {
+            setShowMenuOptions(v => !v);
+            setShowAddOptions(false);
+          }}
+          style={{ cursor: "pointer", fontSize: 20 }}
+        />
+        {showMenuOptions && (
+          <div className="dropdown menu-options-dropdown">
+            {(!optionStatus || optionStatus === "") && (
+              <>
+                <button onClick={() => onRescheduleClick(entity)}>Reschedule</button>
+                <button onClick={() => onCancelClick(entity)}>Cancel</button>
+                {rescheduleStatus === "Reschedule" && (
+                  <button className="button-type" onClick={() => onViewPreviousItineraryClick(entity)}>View Previous Itinerary</button>
+                )}              </>
+            )}
+            {optionStatus === "added" && (
+              <>
+                <button onClick={() => onDeleteClick(entity)}>Delete</button>
+                {/* <button onClick={() => onSelectOptionsClick(entity)}>Select Options</button> */}
+                <button onClick={() => onRescheduleClick(entity)}>Reschedule</button>
+                <button onClick={() => onCancelClick(entity)}>Cancel</button>
+                {rescheduleStatus === "Reschedule" && (
+                  <button className="button-type" onClick={() => onViewPreviousItineraryClick(entity)}>View Previous Itinerary</button>
+                )}              </>
+            )}
+            {optionStatus === "selected" && (
+              <>
+                <button onClick={() => onEditOptionClick(entity)}>Edit</button>
+                <button onClick={() => onDeleteClick(entity)}>Delete</button>
+              </>
+            )}
+            {optionStatus === "booked" && (
+              <>
+                <button onClick={() => onViewTicketClick(entity)}>View Ticket</button>
+                <button onClick={() => onDownloadTicketClick(entity)}>Download Ticket</button>
+                <button onClick={() => onViewOptionsClick(entity)}>View Options</button>
+                {/* <button onClick={() => onRescheduleClick(entity)}>Reschedule</button> */}
+                {/* <button onClick={() => onCancelClick(entity)}>Cancel</button> */}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Flight card
+
+
+const FlightCard = ({
+  flight,
+  optionsData = [],
+  onAddOptionClick,
+  onEditOptionClick,
+  onAddTicketClick,
+  onEditTicketClick,
+  onDeleteClick,
+  onSelectOptionsClick,
+  onChangeSelectionClick,
+  onViewPreviousItineraryClick,
+  onViewTicketClick,
+  onDownloadTicketClick,
+  onViewOptionsClick,
+  onRescheduleClick,
+  onCancelClick,
+  onSaveReschedule,
+  assignedAgentId,
+  agents,
+  loadingAssign,
+  assignError,
+  onAssignAgentChange,
+}) => {
+  const [showRescheduleForm, setShowRescheduleForm] = useState(false);
+  const [showPreviousItineraries, setShowPreviousItineraries] = useState(false);
+  const [cancelBookingItem, setCancelBookingItem] = useState(null);
+  const [showTicketForm, setShowTicketForm] = useState(false);
+  const [ticketFormData, setTicketFormData] = useState(null);
+
   if (!flight) return null;
+
+  // Determine current optionStatus from optionsData
+  const optionStatus =
+    optionsData.length > 0
+      ? (
+        optionsData.find(
+          (opt) => opt.Option_Status && opt.Option_Status.trim() !== ""
+        )?.Option_Status || ""
+      ).toLowerCase()
+      : null;
+
+  const rescheduleStatus = flight.Reschedule_Status || "";
+  const cancelStatus = flight.Cancel_Status || "";
 
   let statusText = "Waiting for Options";
   let buttonType = "add";
+
+  // Get displayOption for single selected option if exists
   let displayOption = null;
 
-  if (optionsData.length === 0 || optionsData.every(opt => !opt.Option_Status)) {
-    statusText = "Waiting for Options";
-    buttonType = "add";
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "booked")) {
-    statusText = "Ticket booked";
-    buttonType = "view";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "booked");
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "selected")) {
-    statusText = "Booking pending";
-    buttonType = "ticket";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "selected");
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "added")) {
-    statusText = "Yet to select options";
-    buttonType = "edit";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "added");
+  if (cancelStatus.toLowerCase() === "cancelled") {
+    statusText = "Cancelled";
+    buttonType = null; // Hide main buttons and dropdown except possibly "View Previous Itinerary"
+  } else {
+    if (!optionStatus || optionStatus === "") {
+      statusText = "Waiting for Options";
+      buttonType = "add";
+      displayOption = null;
+    } else if (optionStatus === "added") {
+      statusText = "Yet to select options";
+      buttonType = "edit";
+      displayOption = optionsData.find(
+        (opt) => (opt.Option_Status || "").toLowerCase() === "added"
+      );
+    } else if (optionStatus === "selected") {
+      statusText = "Booking pending";
+      buttonType = "ticket";
+      displayOption = optionsData.find(
+        (opt) => (opt.Option_Status || "").toLowerCase() === "selected"
+      );
+    } else if (optionStatus === "booked") {
+      statusText = "Ticket booked";
+      buttonType = "editTicket";
+      displayOption = optionsData.find(
+        (opt) => (opt.Option_Status || "").toLowerCase() === "booked"
+      );
+    }
   }
 
-  // Override flight fields by option data if available
-  const mergedFlight = {
-    FLIGHT_DEP_DATE: displayOption?.FLIGHT_DEP_DATE || flight.FLIGHT_DEP_DATE || flight.depDate,
-    FLIGHT_DEP_TIME: displayOption?.FLIGHT_DEP_TIME || flight.FLIGHT_DEP_TIME || flight.depTime,
-    FLIGHT_ARR_DATE: displayOption?.FLIGHT_ARR_DATE || flight.FLIGHT_ARR_DATE || flight.arrDate,
-    FLIGHT_ARR_TIME: displayOption?.FLIGHT_ARR_TIME || flight.FLIGHT_ARR_TIME || flight.arrTime,
-    FLIGHT_DEP_CITY: displayOption?.FLIGHT_DEP_CITY || flight.FLIGHT_DEP_CITY || flight.depCity,
-    FLIGHT_ARR_CITY: displayOption?.FLIGHT_ARR_CITY || flight.FLIGHT_ARR_CITY || flight.arrCity,
-    DEP_CITY_CODE: displayOption?.DEP_CITY_CODE || flight.DEP_CITY_CODE || flight.depCityCode,
-    ARR_CITY_CODE: displayOption?.ARR_CITY_CODE || flight.ARR_CITY_CODE || flight.arrCityCode,
-    DEP_AIRPORT_NAME: displayOption?.DEP_AIRPORT_NAME || flight.DEP_AIRPORT_NAME || flight.depAirpot,
-    ARR_AIRPORT_NAME: displayOption?.ARR_AIRPORT_NAME || flight.ARR_AIRPORT_NAME || flight.arrAirpot,
+  // For multi-selected options, filter those
+  const selectedOptions = optionsData.filter(
+    (opt) => (opt.Option_Status || "").toLowerCase() === "selected"
+  );
+
+  // Compose mergedFlight for display based on multiple selected options (if any)
+  // Use first flight for departure info and last flight for arrival info
+  const firstFlight = selectedOptions.length > 0 ? selectedOptions[0] : null;
+  const lastFlight =
+    selectedOptions.length > 1
+      ? selectedOptions[selectedOptions.length - 1]
+      : firstFlight;
+
+  const mergedFlightMulti = {
+    FLIGHT_DEP_DATE:
+      firstFlight?.FLIGHT_DEP_DATE ||
+      displayOption?.FLIGHT_DEP_DATE ||
+      flight.FLIGHT_DEP_DATE ||
+      flight.depDate,
+    FLIGHT_DEP_TIME:
+      firstFlight?.FLIGHT_DEP_TIME ||
+      displayOption?.FLIGHT_DEP_TIME ||
+      flight.FLIGHT_DEP_TIME ||
+      flight.depTime,
+    FLIGHT_ARR_DATE:
+      lastFlight?.FLIGHT_ARR_DATE ||
+      displayOption?.FLIGHT_ARR_DATE ||
+      flight.FLIGHT_ARR_DATE ||
+      flight.arrDate,
+    FLIGHT_ARR_TIME:
+      lastFlight?.FLIGHT_ARR_TIME ||
+      displayOption?.FLIGHT_ARR_TIME ||
+      flight.FLIGHT_ARR_TIME ||
+      flight.arrTime,
+    FLIGHT_DEP_CITY:
+      firstFlight?.FLIGHT_DEP_CITY ||
+      displayOption?.FLIGHT_DEP_CITY ||
+      flight.FLIGHT_DEP_CITY ||
+      flight.depCity,
+    FLIGHT_ARR_CITY:
+      lastFlight?.FLIGHT_ARR_CITY ||
+      displayOption?.FLIGHT_ARR_CITY ||
+      flight.FLIGHT_ARR_CITY ||
+      flight.arrCity,
+    DEP_CITY_CODE:
+      firstFlight?.DEP_CITY_CODE ||
+      displayOption?.DEP_CITY_CODE ||
+      flight.DEP_CITY_CODE ||
+      flight.depCityCode,
+    ARR_CITY_CODE:
+      lastFlight?.ARR_CITY_CODE ||
+      displayOption?.ARR_CITY_CODE ||
+      flight.ARR_CITY_CODE ||
+      flight.arrCityCode,
+    DEP_AIRPORT_NAME:
+      firstFlight?.DEP_AIRPORT_NAME ||
+      displayOption?.DEP_AIRPORT_NAME ||
+      flight.DEP_AIRPORT_NAME ||
+      flight.depAirpot,
+    ARR_AIRPORT_NAME:
+      lastFlight?.ARR_AIRPORT_NAME ||
+      displayOption?.ARR_AIRPORT_NAME ||
+      flight.ARR_AIRPORT_NAME ||
+      flight.arrAirpot,
+    MERCHANT_NAME: displayOption?.Merchant_Name || flight.MERCHANT_NAME,
+    AMOUNT: displayOption?.Amount
   };
+
+  const handleReschedule = () => {
+    setShowRescheduleForm(true);
+  };
+
+  const handleViewPreviousItinerary = () => {
+    setShowPreviousItineraries(true);
+  };
+
+  const handleCancelClick = (item, type) => {
+    setCancelBookingItem({ ...item, requestType: type });
+  };
+
+  const handleAddTicketClick = (flightData) => {
+    console.log("Add Ticket clicked with flightData:", flightData);
+    setTicketFormData(flightData);
+    setShowTicketForm(true);
+  };
+
+  const handleConfirmCancel = async (item, reason) => {
+    try {
+      const payload = {
+        rowId: item.rowId || item.ROWID || item.id,
+        requestType: item.requestType,
+        reason: reason,
+      };
+
+      const response = await fetch("/server/trip_cancelation/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        alert("Booking cancelled successfully");
+        setCancelBookingItem(null);
+        if (onSaveReschedule) {
+          onSaveReschedule();
+        }
+      } else {
+        alert("Failed to cancel: " + result.message);
+      }
+    } catch (error) {
+      console.error("Cancel error:", error);
+      alert("Error during cancellation.");
+    }
+  };
+
+  const showButtons = cancelStatus.toLowerCase() !== "cancelled";
 
   return (
     <div className="flight-card1">
       <div className="status-section">
         <span className="status-badge">{statusText}</span>
-        <span className="travel-agent">Travel Agent: Yet to be assigned</span>
+        <span className="travel-agent">
+          Travel Agent:{" "}
+          {assignedAgentId
+            ? agents.find((agent) => agent.row_id === assignedAgentId)?.first_name ||
+            "Assigned"
+            : "Yet to be assigned"}
+        </span>
+        <div
+          className="assigned"
+          style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}
+        >
+          <label>Assigned To:</label>
+          {loadingAssign ? (
+            <span>Assigning...</span>
+          ) : (
+            <select
+              value={assignedAgentId || ""}
+              onChange={(e) => onAssignAgentChange && onAssignAgentChange(e.target.value)}
+            >
+              <option value="">Unassigned</option>
+              {agents?.map((agent) => (
+                <option key={agent.row_id} value={agent.row_id}>
+                  {agent.first_name}
+                </option>
+              ))}
+            </select>
+          )}
+          {assignError && <span className="error-text">{assignError}</span>}
+        </div>
       </div>
 
       <div className="flight-details">
         <div className="flight-date">
-          <FaCalendarAlt className="icon" />
-          <div>
-            <div className="date">{mergedFlight.FLIGHT_DEP_DATE}</div>
-            <div className="preferred-time">Preferred Time: {mergedFlight.FLIGHT_DEP_TIME}</div>
-          </div>
+          {optionStatus === "selected" && (
+            <span>{mergedFlightMulti.MERCHANT_NAME}</span>
+          )}
+
+          {optionStatus === "cancelled" && (
+            <>
+              <span>{mergedFlightMulti.MERCHANT_NAME}</span>
+              <span style={{ marginLeft: 8 }}>
+                {displayOption?.Flight_Number || mergedFlightMulti.Flight_Number || ""}
+              </span>
+            </>
+          )}
+
+          {optionStatus !== "selected" && optionStatus !== "cancelled" && (
+            <>
+              <span>{mergedFlightMulti.MERCHANT_NAME}</span>
+              <FaCalendarAlt className="icon" />
+              <div>
+                <div className="date">{mergedFlightMulti.FLIGHT_DEP_DATE}</div>
+                <div className="preferred-time">
+                  Preferred Time: {mergedFlightMulti.FLIGHT_DEP_TIME}
+                </div>
+              </div>
+            </>
+          )}
         </div>
+
 
         <div className="flight-route">
           <div className="from">
+            <div className="time">{mergedFlightMulti.FLIGHT_DEP_DATE},{mergedFlightMulti.FLIGHT_DEP_TIME}</div>
             <div className="city">
-              {mergedFlight.FLIGHT_DEP_CITY} - {mergedFlight.DEP_CITY_CODE}
+              {mergedFlightMulti.FLIGHT_DEP_CITY} - {mergedFlightMulti.DEP_CITY_CODE}
             </div>
-            <div className="subtext">{mergedFlight.DEP_AIRPORT_NAME}</div>
+            <div className="subtext">{mergedFlightMulti.DEP_AIRPORT_NAME}</div>
           </div>
           <div className="arrow">→</div>
           <div className="to">
+            <div className="time">{mergedFlightMulti.FLIGHT_ARR_DATE}{mergedFlightMulti.FLIGHT_ARR_TIME}</div>
             <div className="city">
-              {mergedFlight.FLIGHT_ARR_CITY} - {mergedFlight.ARR_CITY_CODE}
+              {mergedFlightMulti.FLIGHT_ARR_CITY} - {mergedFlightMulti.ARR_CITY_CODE}
             </div>
-            <div className="subtext">{mergedFlight.ARR_AIRPORT_NAME}</div>
+            <div className="subtext">{mergedFlightMulti.ARR_AIRPORT_NAME}</div>
           </div>
         </div>
 
-        <div className="menu-icon" style={{ position: "relative", display: "flex", gap: 8 }}>
-          <div ref={addRef}>
-            {buttonType === "add" && (
-              <button onClick={() => onAddOptionClick(flight)}>Add Option</button>
-            )}
-            {buttonType === "edit" && (
-              <button onClick={() => onEditOptionClick(flight, optionsData)}>Edit Option</button>
-            )}
-            {buttonType === "ticket" && (
-              <button onClick={() => onAddTicketClick(flight, optionsData)}>Add Ticket</button>
-            )}
-            {buttonType === "view" && (
-              <button onClick={() => alert("View Ticket clicked")}>View Ticket</button>
-            )}
-          </div>
+        {showButtons && (
+          <ActionMenu
+            optionStatus={optionStatus}
+            entity={flight}
+            buttonType={buttonType}
+            onAddOptionClick={onAddOptionClick}
+            onEditOptionClick={(entity) => onEditOptionClick(entity, optionsData)}
+            onAddTicketClick={() =>
+              handleAddTicketClick(
+                selectedOptions.length > 1 ? selectedOptions : selectedOptions[0] || displayOption || flight
+              )
+            }
+            onEditTicketClick={(entity) => onEditTicketClick(entity, optionsData)}
+            onDeleteClick={onDeleteClick}
+            onSelectOptionsClick={onSelectOptionsClick}
+            onChangeSelectionClick={onChangeSelectionClick}
+            onViewPreviousItineraryClick={
+              rescheduleStatus === "Reschedule" ? handleViewPreviousItinerary : () => { }
+            }
+            onViewTicketClick={onViewTicketClick}
+            onDownloadTicketClick={onDownloadTicketClick}
+            onViewOptionsClick={onViewOptionsClick}
+            onRescheduleClick={handleReschedule}
+            onCancelClick={(item) => handleCancelClick(item, "flight")}
+            rescheduleStatus={rescheduleStatus}
+          />
+        )}
 
-          <div ref={menuRef}>
-            <FaEllipsisH
-              onClick={() => {
-                setShowMenuOptions((v) => !v);
-                setShowAddOptions(false);
-              }}
-              style={{ cursor: "pointer", fontSize: 20 }}
-            />
-            {showMenuOptions && (
-              <div className="dropdown menu-options-dropdown">
-                <button>Reschedule</button>
-                <button>Cancel</button>
+
+        {cancelStatus.toLowerCase() === "cancelled" && (
+          <div
+            style={{
+              position: "relative",
+              display: "inline-block",
+              marginTop: 8,
+            }}
+          >
+            <button onClick={() => setShowPreviousItineraries((v) => !v)}>
+              View Previous Itinerary
+            </button>
+            {showPreviousItineraries && (
+              <div
+                className="dropdown menu-options-dropdown"
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  border: "1px solid #ccc",
+                  background: "white",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                  padding: 8,
+                  zIndex: 999,
+                  minWidth: 180,
+                }}
+              >
+                {rescheduleStatus ? (
+                  <button onClick={handleViewPreviousItinerary}>
+                    View Previous Itinerary Details
+                  </button>
+                ) : null}
               </div>
             )}
           </div>
-        </div>
+        )}
       </div>
+
+      {showTicketForm && ticketFormData && (
+        <FlightTicketForm
+          flight={ticketFormData}
+          onClose={() => setShowTicketForm(false)}
+          onSave={() => {
+            setShowTicketForm(false);
+            if (onSaveReschedule) onSaveReschedule();
+          }}
+        />
+      )}
+
+      {showRescheduleForm && (
+        <FlightRescheduleForm
+          bookingData={flight}
+          onClose={() => setShowRescheduleForm(false)}
+          onSave={onSaveReschedule}
+        />
+      )}
+
+      {showPreviousItineraries && (
+        <FlightPreviousItineraries
+          bookingData={flight}
+          onClose={() => setShowPreviousItineraries(false)}
+        />
+      )}
+
+      {cancelBookingItem && (
+        <CancelItineraryModal
+          bookingData={cancelBookingItem}
+          onClose={() => setCancelBookingItem(null)}
+          onConfirm={handleConfirmCancel}
+        />
+      )}
     </div>
   );
 };
+
+
+
 
 // Hotel card
 const HotelCard = ({
@@ -152,36 +532,65 @@ const HotelCard = ({
   onAddHotelOptionClick,
   onEditHotelOptionClick,
   onAddTicketClick,
+  onEditTicketClick,
+  onDeleteClick,
+  onSelectOptionsClick,
+  onChangeSelectionClick,
+  onViewPreviousItineraryClick,
+  onViewTicketClick,
+  onDownloadTicketClick,
+  onViewOptionsClick,
+  onRescheduleClick,
+  onCancelClick,
+  onSaveReschedule,
+  assignedAgentId,
+  agents,
+  loadingAssign,
+  assignError,
+  onAssignAgentChange,
 }) => {
-  const [showAddOptions, setShowAddOptions] = useState(false);
-  const [showMenuOptions, setShowMenuOptions] = useState(false);
-  const addRef = useRef(null);
-  const menuRef = useRef(null);
+  const [showRescheduleForm, setShowRescheduleForm] = useState(false);
+  const [showPreviousItineraries, setShowPreviousItineraries] = useState(false);
+  const [cancelBookingItem, setCancelBookingItem] = useState(null);
+  const [showTicketForm, setShowTicketForm] = useState(false);
+  const [ticketFormData, setTicketFormData] = useState(null);
 
-  useOnClickOutside(addRef, () => setShowAddOptions(false));
-  useOnClickOutside(menuRef, () => setShowMenuOptions(false));
 
   if (!hotel) return null;
+
+  const optionStatus =
+    optionsData.length > 0
+      ? (optionsData.find((opt) => opt.Option_Status && opt.Option_Status.trim() !== "")?.Option_Status || "").toLowerCase()
+      : null;
+
+  const rescheduleStatus = hotel.Reschedule_Status || "";
+  const cancelStatus = hotel.Cancel_Status || "";
 
   let statusText = "Waiting for Options";
   let buttonType = "add";
   let displayOption = null;
 
-  if (optionsData.length === 0 || optionsData.every(opt => !opt.Option_Status)) {
-    statusText = "Waiting for Options";
-    buttonType = "add";
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "booked")) {
-    statusText = "Ticket booked";
-    buttonType = "view";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "booked");
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "selected")) {
-    statusText = "Booking pending";
-    buttonType = "ticket";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "selected");
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "added")) {
-    statusText = "Yet to select options";
-    buttonType = "edit";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "added");
+  if (cancelStatus.toLowerCase() === "cancelled") {
+    statusText = "Cancelled";
+    buttonType = null; // Hide all main buttons and dropdown except View Previous Itinerary below
+  } else {
+    if (!optionStatus || optionStatus === "") {
+      statusText = "Waiting for Options";
+      buttonType = "add";
+      displayOption = null;
+    } else if (optionStatus === "added") {
+      statusText = "Yet to select options";
+      buttonType = "edit";
+      displayOption = optionsData.find((opt) => (opt.Option_Status || "").toLowerCase() === "added");
+    } else if (optionStatus === "selected") {
+      statusText = "Booking pending";
+      buttonType = "ticket";
+      displayOption = optionsData.find((opt) => (opt.Option_Status || "").toLowerCase() === "selected");
+    } else if (optionStatus === "booked") {
+      statusText = "Ticket booked";
+      buttonType = "editTicket";
+      displayOption = optionsData.find((opt) => (opt.Option_Status || "").toLowerCase() === "booked");
+    }
   }
 
   const mergedHotel = {
@@ -192,11 +601,92 @@ const HotelCard = ({
     HOTEL_DEP_TIME: displayOption?.HOTEL_DEP_TIME || hotel.HOTEL_DEP_TIME || hotel.depTime,
   };
 
+  const handleReschedule = () => {
+    setShowRescheduleForm(true);
+  };
+
+  const handleViewPreviousItinerary = () => {
+    setShowPreviousItineraries(true);
+  };
+
+
+  const handleAddTicketClick = (optionData) => {
+    setTicketFormData(optionData);
+    setShowTicketForm(true);
+  };
+
+
+  const handleCancelClick = (item, type) => {
+    setCancelBookingItem({ ...item, requestType: type });
+  };
+
+  const handleConfirmCancel = async (item, reason) => {
+    try {
+      const payload = {
+        rowId: item.rowId || item.ROWID || item.id,
+        requestType: item.requestType, // e.g., 'car', 'bus', 'train', etc.
+        reason: reason,
+      };
+
+      const response = await fetch('/server/trip_cancelation/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        // refresh data or UI as needed
+        alert("Booking cancelled successfully");
+
+        setCancelBookingItem(null); // close the modal
+        onSaveReschedule();
+      } else {
+        alert("Failed to cancel: " + result.message);
+      }
+    } catch (error) {
+      console.error("Cancel error:", error);
+      alert("Error during cancellation.");
+    }
+  };
+
+  const showButtons = cancelStatus.toLowerCase() !== "cancelled"; // buttons hidden only if cancelled
+
   return (
     <div className="hotel-card">
       <div className="status-section">
         <span className="status-badge">{statusText}</span>
-        <span className="travel-agent">Travel Agent: Yet to be assigned</span>
+        <span className="travel-agent">
+          Travel Agent: {assignedAgentId
+            ? agents.find(agent => agent.row_id === assignedAgentId)?.first_name || "Assigned"
+            : "Yet to be assigned"}
+        </span>
+        <div className="assigned" style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+          <label>Assigned To:</label>
+          {loadingAssign ? (
+            <span>Assigning...</span>
+          ) : (
+            <select
+              value={assignedAgentId || ""}
+              onChange={(e) =>
+                onAssignAgentChange && onAssignAgentChange(e.target.value)
+              }
+            >
+              <option value="">Unassigned</option>
+              {agents?.map((agent) => (
+                <option key={agent.row_id} value={agent.row_id}>
+                  {agent.first_name}
+                </option>
+              ))}
+            </select>
+          )}
+          {assignError && (
+            <span className="error-text">
+              {assignError}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="booking-details">
@@ -210,57 +700,116 @@ const HotelCard = ({
         <div className="check-info">
           <div className="check-in">
             <span className="label">Check-in</span>
-            <span className="date">
-              {mergedHotel.HOTEL_DEP_DATE || "N/A"}, {mergedHotel.HOTEL_DEP_TIME || "N/A"}
-            </span>
+            <span className="date">{mergedHotel.HOTEL_DEP_DATE || "N/A"}, {mergedHotel.HOTEL_DEP_TIME || "N/A"}</span>
           </div>
           <span className="separator">-</span>
           <div className="check-out">
             <span className="label">Check-out</span>
-            <span className="date">
-              {mergedHotel.HOTEL_ARR_DATE || "N/A"}, {mergedHotel.HOTEL_ARR_TIME || "N/A"}
-            </span>
+            <span className="date">{mergedHotel.HOTEL_ARR_DATE || "N/A"}, {mergedHotel.HOTEL_ARR_TIME || "N/A"}</span>
           </div>
         </div>
 
         <div className="divider"></div>
 
-        <div className="menu-icon" style={{ position: "relative", display: "flex", gap: 8 }}>
-          <div ref={addRef}>
-            {buttonType === "add" && (
-              <button onClick={() => onAddHotelOptionClick(hotel)}>Add Option</button>
-            )}
-            {buttonType === "edit" && (
-              <button onClick={() => onEditHotelOptionClick(hotel, optionsData)}>Edit Option</button>
-            )}
-            {buttonType === "ticket" && (
-              <button onClick={() => onAddTicketClick(hotel, optionsData)}>Add Ticket</button>
-            )}
-            {buttonType === "view" && (
-              <button onClick={() => alert("View Ticket clicked")}>View Ticket</button>
-            )}
-          </div>
+        {showButtons && (
+          <ActionMenu
+            optionStatus={optionStatus}
+            entity={hotel}
+            buttonType={buttonType}
+            onAddOptionClick={onAddHotelOptionClick}
+            onEditOptionClick={(entity) => onEditHotelOptionClick(entity, optionsData)}
+            onAddTicketClick={() => handleAddTicketClick(displayOption)}
+            onEditTicketClick={onEditTicketClick}
+            onDeleteClick={onDeleteClick}
+            onSelectOptionsClick={onSelectOptionsClick}
+            onChangeSelectionClick={onChangeSelectionClick}
+            onViewPreviousItineraryClick={
+              rescheduleStatus === "Reschedule"
+                ? handleViewPreviousItinerary
+                : () => { } // empty handler to hide button
+            }
+            onViewTicketClick={onViewTicketClick}
+            onDownloadTicketClick={onDownloadTicketClick}
+            onViewOptionsClick={onViewOptionsClick}
+            onRescheduleClick={handleReschedule}
+            rescheduleStatus={rescheduleStatus}
+            onCancelClick={(item) => handleCancelClick(item, "hotel")}
+          />
+        )}
 
-          <div ref={menuRef}>
-            <FaEllipsisH
-              onClick={() => {
-                setShowMenuOptions((v) => !v);
-                setShowAddOptions(false);
-              }}
-              style={{ cursor: "pointer", fontSize: 20 }}
-            />
-            {showMenuOptions && (
-              <div className="dropdown menu-options-dropdown">
-                <button>Reschedule</button>
-                <button>Cancel</button>
+        {cancelStatus.toLowerCase() === "cancelled" && (
+          <div style={{ position: "relative", display: "inline-block", marginTop: 8, marginLeft: 'auto' }}>
+            <button onClick={() => setShowPreviousItineraries((v) => !v)}>
+              View Previous Itinerary
+            </button>
+            {showPreviousItineraries && (
+              <div
+                className="dropdown menu-options-dropdown"
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  border: "1px solid #ccc",
+                  background: "white",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                  padding: 8,
+                  zIndex: 999,
+                  minWidth: 180,
+                }}
+              >
+                {rescheduleStatus ? (
+                  <button onClick={handleViewPreviousItinerary}>
+                    View Previous Itinerary Details
+                  </button>
+                ) : null}
+                {/* ...add more dropdown options if needed */}
               </div>
             )}
           </div>
-        </div>
+        )}
+
+
       </div>
+
+      {showRescheduleForm && (
+        <HotelRescheduleForm
+          bookingData={hotel}
+          onClose={() => setShowRescheduleForm(false)}
+          onSave={onSaveReschedule}
+        />
+      )}
+
+      {showTicketForm && ticketFormData && (
+        <HotelTicketForm
+          Hotel={ticketFormData}
+          onClose={() => setShowTicketForm(false)}
+          onSave={() => {
+            setShowTicketForm(false);
+            if (onSaveReschedule) onSaveReschedule();
+          }}
+        />
+      )}
+
+
+      {showPreviousItineraries && (
+        <HotelPreviousItineraries
+          bookingData={hotel}
+          onClose={() => setShowPreviousItineraries(false)}
+        />
+      )}
+
+      {cancelBookingItem && (
+        <CancelItineraryModal
+          bookingData={cancelBookingItem}
+          onClose={() => setCancelBookingItem(null)}
+          onConfirm={handleConfirmCancel}
+        />
+      )}
     </div>
   );
 };
+
+
 
 // Car card
 const CarCard = ({
@@ -269,9 +818,31 @@ const CarCard = ({
   onAddCarOptionClick,
   onEditCarOptionClick,
   onAddTicketClick,
+  onEditTicketClick,
+  onDeleteClick,
+  onSelectOptionsClick,
+  onChangeSelectionClick,
+  onViewPreviousItineraryClick,
+  onViewTicketClick,
+  onDownloadTicketClick,
+  onViewOptionsClick,
+  onRescheduleClick,
+  onCancelClick,
+  onSaveReschedule,
+  assignedAgentId,
+  agents,
+  loadingAssign,
+  assignError,
+  onAssignAgentChange,
 }) => {
-  const [showAddOptions, setShowAddOptions] = React.useState(false);
+  const [showRescheduleForm, setShowRescheduleForm] = React.useState(false);
+  const [showPreviousItineraries, setShowPreviousItineraries] = React.useState(false);
+  const [cancelBookingItem, setCancelBookingItem] = React.useState(null);
   const [showMenuOptions, setShowMenuOptions] = React.useState(false);
+  const [showAddOptions, setShowAddOptions] = React.useState(false);
+  const [showTicketForm, setShowTicketForm] = useState(false);
+  const [ticketFormData, setTicketFormData] = useState(null);
+
   const addRef = React.useRef(null);
   const menuRef = React.useRef(null);
 
@@ -280,28 +851,40 @@ const CarCard = ({
 
   if (!car) return null;
 
+  const optionStatus = optionsData.length > 0
+    ? (optionsData.find(opt => opt.Option_Status && opt.Option_Status.trim() !== "")?.Option_Status || "").toLowerCase()
+    : null;
+
+  const rescheduleStatus = car.Reschedule_Status || "";
+  const cancelStatus = car.Cancel_Status || "";
+
   let statusText = "Waiting for Options";
   let buttonType = "add";
   let displayOption = null;
 
-  if (optionsData.length === 0 || optionsData.every(opt => !opt.Option_Status)) {
-    statusText = "Waiting for Options";
-    buttonType = "add";
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "booked")) {
-    statusText = "Ticket booked";
-    buttonType = "view";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "booked");
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "selected")) {
-    statusText = "Booking pending";
-    buttonType = "ticket";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "selected");
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "added")) {
-    statusText = "Yet to select options";
-    buttonType = "edit";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "added");
+  if (cancelStatus.toLowerCase() === "cancelled") {
+    statusText = "Cancelled";
+    buttonType = null; // Hide main buttons & dropdown except View Previous Itinerary
+  } else {
+    if (!optionStatus || optionStatus === "") {
+      statusText = "Waiting for Options";
+      buttonType = "add";
+      displayOption = null;
+    } else if (optionStatus === "added") {
+      statusText = "Yet to select options";
+      buttonType = "edit";
+      displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "added");
+    } else if (optionStatus === "selected") {
+      statusText = "Booking pending";
+      buttonType = "ticket";
+      displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "selected");
+    } else if (optionStatus === "booked") {
+      statusText = "Ticket booked";
+      buttonType = "view";
+      displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "booked");
+    }
   }
 
-  // Merge trip option data into car fields, override existing where applicable, else fallback
   const mergedCar = {
     CAR_TYPE: displayOption?.CAR_TYPE || displayOption?.carType || car.CAR_TYPE || car.carType,
     CAR_DRIVER: displayOption?.CAR_DRIVER || displayOption?.driverNeeded || car.CAR_DRIVER || car.driverNeeded,
@@ -319,13 +902,86 @@ const CarCard = ({
     dropOffLocation: displayOption?.CAR_ARR_CITY || displayOption?.arrCity || car.dropOffLocation,
   };
 
-  const merchantName = displayOption?.Merchant_Name || "";
+  const showButtons = cancelStatus.toLowerCase() !== "cancelled";
+
+  const handleReschedule = () => {
+    setShowRescheduleForm(true);
+  };
+
+  const handleViewPreviousItinerary = () => {
+    setShowPreviousItineraries(true);
+  };
+
+
+  const handleAddTicketClick = (optionData) => {
+    setTicketFormData(optionData);
+    setShowTicketForm(true);
+  };
+
+  const handleCancelClick = (item, type) => {
+    setCancelBookingItem({ ...item, requestType: type });
+  };
+
+  const handleConfirmCancel = async (item, reason) => {
+    try {
+      const payload = {
+        rowId: item.rowId || item.ROWID || item.id,
+        requestType: item.requestType,
+        reason,
+      };
+      const response = await fetch('/server/trip_cancelation/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (result.status === 'success') {
+        alert("Booking cancelled successfully");
+        setCancelBookingItem(null);
+        if (onSaveReschedule) onSaveReschedule();
+      } else {
+        alert("Failed to cancel: " + result.message);
+      }
+    } catch (error) {
+      console.error("Cancel error:", error);
+      alert("Error during cancellation.");
+    }
+  };
 
   return (
     <div className="car-card">
       <div className="status-section">
         <span className="status-badge">{statusText}</span>
-        <span className="travel-agent">Travel Agent: Yet to be assigned</span>
+        <span className="travel-agent">
+          Travel Agent: {assignedAgentId
+            ? agents.find(agent => agent.row_id === assignedAgentId)?.first_name || "Assigned"
+            : "Yet to be assigned"}
+        </span>
+        <div className="assigned" style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+          <label>Assigned To:</label>
+          {loadingAssign ? (
+            <span>Assigning...</span>
+          ) : (
+            <select
+              value={assignedAgentId || ""}
+              onChange={(e) =>
+                onAssignAgentChange && onAssignAgentChange(e.target.value)
+              }
+            >
+              <option value="">Unassigned</option>
+              {agents?.map((agent) => (
+                <option key={agent.row_id} value={agent.row_id}>
+                  {agent.first_name}
+                </option>
+              ))}
+            </select>
+          )}
+          {assignError && (
+            <span className="error-text">
+              {assignError}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="booking-details">
@@ -352,9 +1008,7 @@ const CarCard = ({
               {mergedCar.CAR_DEP_DATE || mergedCar.pickUpDate || "N/A"},{" "}
               {mergedCar.CAR_DEP_TIME || mergedCar.pickUpTime || "N/A"}
             </span>
-            <span className="location">
-              {mergedCar.CAR_DEP_CITY || mergedCar.pickUpLocation || "N/A"}
-            </span>
+            <span className="location">{mergedCar.CAR_DEP_CITY || mergedCar.pickUpLocation || "N/A"}</span>
           </div>
           <span className="arrow">→</span>
           <div className="dropoff">
@@ -363,57 +1017,104 @@ const CarCard = ({
               {mergedCar.CAR_ARR_DATE || mergedCar.dropOffDate || "N/A"},{" "}
               {mergedCar.CAR_ARR_TIME || mergedCar.dropOffTime || "N/A"}
             </span>
-            <span className="location">
-              {mergedCar.CAR_ARR_CITY || mergedCar.dropOffLocation || "N/A"}
-            </span>
+            <span className="location">{mergedCar.CAR_ARR_CITY || mergedCar.dropOffLocation || "N/A"}</span>
           </div>
         </div>
 
         <div className="divider"></div>
 
-        <div className="menu-icon" style={{ position: "relative", display: "flex", gap: 8 }}>
-          <div ref={addRef}>
-            {buttonType === "add" && (
-              <button onClick={() => onAddCarOptionClick(car)}>Add Option</button>
-            )}
-            {buttonType === "edit" && (
-              <button onClick={() => onEditCarOptionClick(car, optionsData)}>Edit Option</button>
-            )}
-            {buttonType === "ticket" && (
-              <button onClick={() => onAddTicketClick(car, optionsData)}>Add Ticket</button>
-            )}
-            {buttonType === "view" && (
-              <button
-                onClick={() => {
-                  alert("View Ticket clicked");
-                  // Implement view ticket logic here
+        {showButtons && (
+          <ActionMenu
+            optionStatus={optionStatus}
+            entity={car}
+            buttonType={buttonType}
+            onAddOptionClick={onAddCarOptionClick}
+            onEditOptionClick={(entity) => onEditCarOptionClick(entity, optionsData)}
+            onAddTicketClick={() => handleAddTicketClick(displayOption)}
+            onEditTicketClick={onEditTicketClick}
+            onDeleteClick={onDeleteClick}
+            onSelectOptionsClick={onSelectOptionsClick}
+            onChangeSelectionClick={onChangeSelectionClick}
+            onViewPreviousItineraryClick={
+              rescheduleStatus === "Reschedule"
+                ? handleViewPreviousItinerary
+                : () => { } // empty handler to hide button
+            }
+            onViewTicketClick={onViewTicketClick}
+            onDownloadTicketClick={onDownloadTicketClick}
+            onViewOptionsClick={onViewOptionsClick}
+            onRescheduleClick={handleReschedule}
+            rescheduleStatus={rescheduleStatus}
+            onCancelClick={(item) => handleCancelClick(item, "car")}
+          />
+        )}
+
+        {cancelStatus.toLowerCase() === "cancelled" && (
+          <div style={{ position: "relative", display: "inline-block", marginTop: 8, marginLeft: "auto" }}>
+            <button onClick={() => setShowPreviousItineraries((v) => !v)}>
+              View Previous Itinerary
+            </button>
+            {showPreviousItineraries && (
+              <div
+                className="dropdown menu-options-dropdown"
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  border: "1px solid #ccc",
+                  background: "white",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                  padding: 8,
+                  zIndex: 999,
+                  minWidth: 180,
                 }}
               >
-                View Ticket
-              </button>
-            )}
-          </div>
-
-          <div ref={menuRef}>
-            <FaEllipsisH
-              onClick={() => {
-                setShowMenuOptions((v) => !v);
-                setShowAddOptions(false);
-              }}
-              style={{ cursor: "pointer", fontSize: 20 }}
-            />
-            {showMenuOptions && (
-              <div className="dropdown menu-options-dropdown">
-                <button>Reschedule</button>
-                <button>Cancel</button>
+                {rescheduleStatus ? (
+                  <button onClick={handleViewPreviousItinerary}>View Previous Itinerary Details</button>
+                ) : null}
               </div>
             )}
           </div>
-        </div>
+        )}
       </div>
+
+      {showRescheduleForm && (
+        <CarRescheduleForm
+          bookingData={car}
+          onClose={() => setShowRescheduleForm(false)}
+          onSave={onSaveReschedule}
+        />
+      )}
+
+      {showTicketForm && ticketFormData && (
+        <CarTicketForm
+          Car={ticketFormData}
+          onClose={() => setShowTicketForm(false)}
+          onSave={() => {
+            setShowTicketForm(false);
+            if (onSaveReschedule) onSaveReschedule();
+          }}
+        />
+      )}
+
+      {showPreviousItineraries && (
+        <CarPreviousItineraries
+          bookingData={car}
+          onClose={() => setShowPreviousItineraries(false)}
+        />
+      )}
+
+      {cancelBookingItem && (
+        <CancelItineraryModal
+          bookingData={cancelBookingItem}
+          onClose={() => setCancelBookingItem(null)}
+          onConfirm={handleConfirmCancel}
+        />
+      )}
     </div>
   );
 };
+
 
 // Train card (minimal)
 const TrainCard = ({
@@ -422,36 +1123,71 @@ const TrainCard = ({
   onAddTrainOptionClick,
   onEditTrainOptionClick,
   onAddTicketClick,
+  onEditTicketClick,
+  onDeleteClick,
+  onSelectOptionsClick,
+  onChangeSelectionClick,
+  onViewPreviousItineraryClick,
+  onViewTicketClick,
+  onDownloadTicketClick,
+  onViewOptionsClick,
+  onRescheduleClick,
+  onCancelClick,
+  onSaveReschedule,
+  assignedAgentId,
+  agents,
+  loadingAssign,
+  assignError,
+  onAssignAgentChange,
 }) => {
-  const [showAddOptions, setShowAddOptions] = useState(false);
-  const [showMenuOptions, setShowMenuOptions] = useState(false);
-  const addRef = useRef(null);
-  const menuRef = useRef(null);
+  const [showRescheduleForm, setShowRescheduleForm] = React.useState(false);
+  const [showPreviousItineraries, setShowPreviousItineraries] = React.useState(false);
+  const [cancelBookingItem, setCancelBookingItem] = React.useState(null);
+  const [showMenuOptions, setShowMenuOptions] = React.useState(false);
+  const [showAddOptions, setShowAddOptions] = React.useState(false);
+  const [showTicketForm, setShowTicketForm] = useState(false);
+  const [ticketFormData, setTicketFormData] = useState(null);
+
+  const addRef = React.useRef(null);
+  const menuRef = React.useRef(null);
 
   useOnClickOutside(addRef, () => setShowAddOptions(false));
   useOnClickOutside(menuRef, () => setShowMenuOptions(false));
 
   if (!train) return null;
 
+  const optionStatus = optionsData.length > 0
+    ? (optionsData.find(opt => opt.Option_Status && opt.Option_Status.trim() !== "")?.Option_Status || "").toLowerCase()
+    : null;
+
+  const rescheduleStatus = train.Reschedule_Status || "";
+  const cancelStatus = train.Cancel_Status || "";
+
   let statusText = "Waiting for Options";
   let buttonType = "add";
   let displayOption = null;
 
-  if (optionsData.length === 0 || optionsData.every(opt => !opt.Option_Status)) {
-    statusText = "Waiting for Options";
-    buttonType = "add";
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "booked")) {
-    statusText = "Ticket booked";
-    buttonType = "view";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "booked");
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "selected")) {
-    statusText = "Booking pending";
-    buttonType = "ticket";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "selected");
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "added")) {
-    statusText = "Yet to select options";
-    buttonType = "edit";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "added");
+  if (cancelStatus.toLowerCase() === "cancelled") {
+    statusText = "Cancelled";
+    buttonType = null; // Hide main buttons except "View Previous Itinerary"
+  } else {
+    if (!optionStatus || optionStatus === "") {
+      statusText = "Waiting for Options";
+      buttonType = "add";
+      displayOption = null;
+    } else if (optionStatus === "added") {
+      statusText = "Yet to select options";
+      buttonType = "edit";
+      displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "added");
+    } else if (optionStatus === "selected") {
+      statusText = "Booking pending";
+      buttonType = "ticket";
+      displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "selected");
+    } else if (optionStatus === "booked") {
+      statusText = "Ticket booked";
+      buttonType = "view";
+      displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "booked");
+    }
   }
 
   const mergedTrain = {
@@ -460,11 +1196,87 @@ const TrainCard = ({
     TRAIN_ARR_CITY: displayOption?.TRAIN_ARR_CITY || train.TRAIN_ARR_CITY || train.arrival,
   };
 
+  const showButtons = cancelStatus.toLowerCase() !== "cancelled";
+
+  const handleReschedule = () => {
+    setShowRescheduleForm(true);
+  };
+
+
+
+  const handleAddTicketClick = (optionData) => {
+    setTicketFormData(optionData);
+    setShowTicketForm(true);
+  };
+
+  const handleViewPreviousItinerary = () => {
+    setShowPreviousItineraries(true);
+  };
+
+  const handleCancelClick = (item, type) => {
+    setCancelBookingItem({ ...item, requestType: type });
+  };
+
+  const handleConfirmCancel = async (item, reason) => {
+    try {
+      const payload = {
+        rowId: item.rowId || item.ROWID || item.id,
+        requestType: item.requestType,
+        reason,
+      };
+      const response = await fetch('/server/trip_cancelation/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (result.status === 'success') {
+        alert("Booking cancelled successfully");
+        setCancelBookingItem(null);
+        if (onSaveReschedule) onSaveReschedule();
+      } else {
+        alert("Failed to cancel: " + result.message);
+      }
+    } catch (error) {
+      console.error("Cancel error:", error);
+      alert("Error during cancellation.");
+    }
+  };
+
   return (
     <div className="transfer-card">
       <div className="status-section">
         <span className="status-badge">{statusText}</span>
-        <span className="travel-agent">Travel Agent: Yet to be assigned</span>
+        <span className="travel-agent">
+          Travel Agent: {assignedAgentId
+            ? agents.find(agent => agent.row_id === assignedAgentId)?.first_name || "Assigned"
+            : "Yet to be assigned"}
+        </span>
+        <div className="assigned" style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+          <label>Assigned To:</label>
+          {loadingAssign ? (
+            <span>Assigning...</span>
+          ) : (
+            <select
+              value={assignedAgentId || ""}
+              onChange={(e) =>
+                onAssignAgentChange && onAssignAgentChange(e.target.value)
+              }
+            >
+              <option value="">Unassigned</option>
+              {agents?.map((agent) => (
+                <option key={agent.row_id} value={agent.row_id}>
+                  {agent.first_name}
+                </option>
+              ))}
+            </select>
+          )}
+          {assignError && (
+            <span className="error-text">
+              {assignError}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="booking-details">
@@ -489,42 +1301,98 @@ const TrainCard = ({
 
         <div className="divider"></div>
 
-        <div className="menu-icon" style={{ position: "relative", display: "flex", gap: 8 }}>
-          <div ref={addRef}>
-            {buttonType === "add" && (
-              <button onClick={() => onAddTrainOptionClick(train)}>Add Option</button>
-            )}
-            {buttonType === "edit" && (
-              <button onClick={() => onEditTrainOptionClick(train, optionsData)}>Edit Option</button>
-            )}
-            {buttonType === "ticket" && (
-              <button onClick={() => onAddTicketClick(train, optionsData)}>Add Ticket</button>
-            )}
-            {buttonType === "view" && (
-              <button onClick={() => alert("View Ticket clicked")}>View Ticket</button>
-            )}
-          </div>
+        {showButtons && (
+          <ActionMenu
+            optionStatus={optionStatus}
+            entity={train}
+            buttonType={buttonType}
+            onAddOptionClick={onAddTrainOptionClick}
+            onEditOptionClick={(entity) => onEditTrainOptionClick(entity, optionsData)}
+            onAddTicketClick={() => handleAddTicketClick(displayOption)}
+            onEditTicketClick={onEditTicketClick}
+            onDeleteClick={onDeleteClick}
+            onSelectOptionsClick={onSelectOptionsClick}
+            onChangeSelectionClick={onChangeSelectionClick}
+            onViewPreviousItineraryClick={
+              rescheduleStatus === "Reschedule"
+                ? handleViewPreviousItinerary
+                : () => { } // empty handler to hide button
+            }
+            onViewTicketClick={onViewTicketClick}
+            onDownloadTicketClick={onDownloadTicketClick}
+            onViewOptionsClick={onViewOptionsClick}
+            onRescheduleClick={handleReschedule}
+            rescheduleStatus={rescheduleStatus}
+            onCancelClick={(item) => handleCancelClick(item, "train")}
+          />
+        )}
 
-          <div ref={menuRef}>
-            <FaEllipsisH
-              onClick={() => {
-                setShowMenuOptions((v) => !v);
-                setShowAddOptions(false);
-              }}
-              style={{ cursor: "pointer", fontSize: 20 }}
-            />
-            {showMenuOptions && (
-              <div className="dropdown menu-options-dropdown">
-                <button>Reschedule</button>
-                <button>Cancel</button>
+        {cancelStatus.toLowerCase() === "cancelled" && (
+          <div style={{ position: "relative", display: "inline-block", marginTop: 8, marginLeft: "auto" }}>
+            <button onClick={() => setShowPreviousItineraries((v) => !v)}>
+              View Previous Itinerary
+            </button>
+            {showPreviousItineraries && (
+              <div
+                className="dropdown menu-options-dropdown"
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  border: "1px solid #ccc",
+                  background: "white",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                  padding: 8,
+                  zIndex: 999,
+                  minWidth: 180,
+                }}
+              >
+                {rescheduleStatus ? (
+                  <button onClick={handleViewPreviousItinerary}>View Previous Itinerary Details</button>
+                ) : null}
               </div>
             )}
           </div>
-        </div>
+        )}
       </div>
+
+      {showRescheduleForm && (
+        <TrainRescheduleForm
+          bookingData={train}
+          onClose={() => setShowRescheduleForm(false)}
+          onSave={onSaveReschedule}
+        />
+      )}
+
+      {showPreviousItineraries && (
+        <TrainPreviousItineraries
+          bookingData={train}
+          onClose={() => setShowPreviousItineraries(false)}
+        />
+      )}
+
+      {showTicketForm && ticketFormData && (
+        <TrainTicketForm
+          Train={ticketFormData}
+          onClose={() => setShowTicketForm(false)}
+          onSave={() => {
+            setShowTicketForm(false);
+            if (onSaveReschedule) onSaveReschedule();
+          }}
+        />
+      )}
+
+      {cancelBookingItem && (
+        <CancelItineraryModal
+          bookingData={cancelBookingItem}
+          onClose={() => setCancelBookingItem(null)}
+          onConfirm={handleConfirmCancel}
+        />
+      )}
     </div>
   );
 };
+
 
 
 const BusCard = ({
@@ -533,36 +1401,84 @@ const BusCard = ({
   onAddBusOptionClick,
   onEditBusOptionClick,
   onAddTicketClick,
+  onEditTicketClick,
+  onDeleteClick,
+  onSelectOptionsClick,
+  onChangeSelectionClick,
+  onViewPreviousItineraryClick,
+  onViewTicketClick,
+  onDownloadTicketClick,
+  onViewOptionsClick,
+  onRescheduleClick,
+  onCancelClick,
+  onSaveReschedule,
+  assignedAgentId,
+  agents,
+  loadingAssign,
+  assignError,
+  onAssignAgentChange,
 }) => {
-  const [showAddOptions, setShowAddOptions] = useState(false);
-  const [showMenuOptions, setShowMenuOptions] = useState(false);
-  const addRef = useRef(null);
-  const menuRef = useRef(null);
+  const [showRescheduleForm, setShowRescheduleForm] = React.useState(false);
+  const [showPreviousItineraries, setShowPreviousItineraries] = React.useState(false);
+  const [cancelBookingItem, setCancelBookingItem] = React.useState(null);
+  const [showMenuOptions, setShowMenuOptions] = React.useState(false);
+  const [showAddOptions, setShowAddOptions] = React.useState(false);
+  const [showTicketForm, setShowTicketForm] = React.useState(false);
+  const [ticketFormData, setTicketFormData] = React.useState(null);
+
+  const addRef = React.useRef(null);
+  const menuRef = React.useRef(null);
 
   useOnClickOutside(addRef, () => setShowAddOptions(false));
   useOnClickOutside(menuRef, () => setShowMenuOptions(false));
 
-  if (!bus?.item) return null;
+  if (!bus) return null;
+  const priority = ["booked", "selected", "added"];
+
+  const optionStatus = optionsData.length > 0
+    ? (() => {
+      // Map all option statuses to lowercase
+      const statuses = optionsData
+        .map(opt => (opt.Option_Status || "").toLowerCase())
+        .filter(s => s); // Remove empty
+
+      // Find the highest priority status present
+      for (const p of priority) {
+        if (statuses.includes(p)) return p;
+      }
+      return null;
+    })()
+    : null;
+
+  const rescheduleStatus = bus.Reschedule_Status || "";
+  console.log('resc status', rescheduleStatus)
+  const cancelStatus = bus.Cancel_Status || "";
 
   let statusText = "Waiting for Options";
   let buttonType = "add";
   let displayOption = null;
 
-  if (optionsData.length === 0 || optionsData.every(opt => !opt.Option_Status)) {
-    statusText = "Waiting for Options";
-    buttonType = "add";
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "booked")) {
-    statusText = "Ticket booked";
-    buttonType = "view";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "booked");
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "selected")) {
-    statusText = "Booking pending";
-    buttonType = "ticket";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "selected");
-  } else if (optionsData.some(opt => (opt.Option_Status || "").toLowerCase() === "added")) {
-    statusText = "Yet to select options";
-    buttonType = "edit";
-    displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "added");
+  if (cancelStatus.toLowerCase() === "cancelled") {
+    statusText = "Cancelled";
+    buttonType = null; // Hide main buttons except View Previous Itinerary below
+  } else {
+    if (!optionStatus || optionStatus === "") {
+      statusText = "Waiting for Options";
+      buttonType = "add";
+      displayOption = null;
+    } else if (optionStatus === "added") {
+      statusText = "Yet to select options";
+      buttonType = "edit";
+      displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "added");
+    } else if (optionStatus === "selected") {
+      statusText = "Booking pending";
+      buttonType = "ticket";
+      displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "selected");
+    } else if (optionStatus === "booked") {
+      statusText = "Ticket booked";
+      buttonType = "view";
+      displayOption = optionsData.find(opt => (opt.Option_Status || "").toLowerCase() === "booked");
+    }
   }
 
   const mergedBus = {
@@ -571,11 +1487,85 @@ const BusCard = ({
     BUS_ARR_CITY: displayOption?.BUS_ARR_CITY || bus.item?.BUS_ARR_CITY || bus.item?.arrival,
   };
 
+  const showButtons = cancelStatus.toLowerCase() !== "cancelled";
+
+  const handleReschedule = () => {
+    setShowRescheduleForm(true);
+  };
+
+  const handleViewPreviousItinerary = () => {
+    setShowPreviousItineraries(true);
+  };
+
+  const handleCancelClick = (item, type) => {
+    setCancelBookingItem({ ...item, requestType: type });
+  };
+
+  const handleAddTicketClick = (optionData) => {
+    setTicketFormData(optionData);
+    setShowTicketForm(true);
+  };
+
+  const handleConfirmCancel = async (item, reason) => {
+    try {
+      const payload = {
+        rowId: item.rowId || item.ROWID || item.id,
+        requestType: item.requestType,
+        reason,
+      };
+      const response = await fetch('/server/trip_cancelation/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (result.status === 'success') {
+        alert("Booking cancelled successfully");
+        setCancelBookingItem(null);
+        if (onSaveReschedule) onSaveReschedule();
+      } else {
+        alert("Failed to cancel: " + result.message);
+      }
+    } catch (error) {
+      console.error("Cancel error:", error);
+      alert("Error during cancellation.");
+    }
+  };
+
   return (
     <div className="transfer-card">
       <div className="status-section">
         <span className="status-badge">{statusText}</span>
-        <span className="travel-agent">Travel Agent: Yet to be assigned</span>
+        <span className="travel-agent">
+          Travel Agent: {assignedAgentId
+            ? agents.find(agent => agent.row_id === assignedAgentId)?.first_name || "Assigned"
+            : "Yet to be assigned"}
+        </span>
+        <div className="assigned" style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+          <label>Assigned To:</label>
+          {loadingAssign ? (
+            <span>Assigning...</span>
+          ) : (
+            <select
+              value={assignedAgentId || ""}
+              onChange={(e) =>
+                onAssignAgentChange && onAssignAgentChange(e.target.value)
+              }
+            >
+              <option value="">Unassigned</option>
+              {agents?.map((agent) => (
+                <option key={agent.row_id} value={agent.row_id}>
+                  {agent.first_name}
+                </option>
+              ))}
+            </select>
+          )}
+          {assignError && (
+            <span className="error-text">
+              {assignError}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="booking-details">
@@ -587,7 +1577,6 @@ const BusCard = ({
             <FaCalendarAlt className="icon" />
             <span>{mergedBus.BUS_DEP_DATE || "N/A"}</span>
           </div>
-
         </div>
 
         <div className="divider"></div>
@@ -606,42 +1595,100 @@ const BusCard = ({
 
         <div className="divider"></div>
 
-        <div className="menu-icon" style={{ position: "relative", display: "flex", gap: 8 }}>
-          <div ref={addRef}>
-            {buttonType === "add" && (
-              <button onClick={() => onAddBusOptionClick(bus)}>Add Option</button>
-            )}
-            {buttonType === "edit" && (
-              <button onClick={() => onEditBusOptionClick(bus, optionsData)}>Edit Option</button>
-            )}
-            {buttonType === "ticket" && (
-              <button onClick={() => onAddTicketClick(bus, optionsData)}>Add Ticket</button>
-            )}
-            {buttonType === "view" && (
-              <button onClick={() => alert("View Ticket clicked")}>View Ticket</button>
-            )}
-          </div>
 
-          <div ref={menuRef}>
-            <FaEllipsisH
-              onClick={() => {
-                setShowMenuOptions((v) => !v);
-                setShowAddOptions(false);
-              }}
-              style={{ cursor: "pointer", fontSize: 20 }}
-            />
-            {showMenuOptions && (
-              <div className="dropdown menu-options-dropdown">
-                <button>Reschedule</button>
-                <button>Cancel</button>
+        {showButtons && (
+          <ActionMenu
+            optionStatus={optionStatus}
+            entity={bus}
+            buttonType={buttonType}
+            onAddOptionClick={onAddBusOptionClick}
+            onEditOptionClick={(entity) => onEditBusOptionClick(entity, optionsData)}
+            onAddTicketClick={() => handleAddTicketClick(displayOption)}
+            onEditTicketClick={onEditTicketClick}
+            onDeleteClick={onDeleteClick}
+            onSelectOptionsClick={onSelectOptionsClick}
+            onChangeSelectionClick={onChangeSelectionClick}
+            onViewPreviousItineraryClick={
+              rescheduleStatus === "Reschedule"
+                ? handleViewPreviousItinerary
+                : () => { } // empty handler to hide button
+            }
+            onViewTicketClick={onViewTicketClick}
+            onDownloadTicketClick={onDownloadTicketClick}
+            onViewOptionsClick={onViewOptionsClick}
+            onRescheduleClick={handleReschedule}
+            rescheduleStatus={rescheduleStatus}
+            onCancelClick={(item) => handleCancelClick(item, "bus")}
+          />
+        )}
+
+        {cancelStatus.toLowerCase() === "cancelled" && (
+          <div style={{ position: "relative", display: "inline-block", marginTop: 8, marginLeft: "auto" }}>
+            <button onClick={() => setShowPreviousItineraries((v) => !v)}>
+              View Previous Itinerary
+            </button>
+            {showPreviousItineraries && (
+              <div
+                className="dropdown menu-options-dropdown"
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  border: "1px solid #ccc",
+                  background: "white",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                  padding: 8,
+                  zIndex: 999,
+                  minWidth: 180,
+                }}
+              >
+                {rescheduleStatus ? (
+                  <button onClick={handleViewPreviousItinerary}>View Previous Itinerary Details</button>
+                ) : null}
               </div>
             )}
           </div>
-        </div>
+        )}
       </div>
+
+
+      {showTicketForm && ticketFormData && (
+        <BusTicketForm
+          Bus={ticketFormData}
+          onClose={() => setShowTicketForm(false)}
+          onSave={() => {
+            setShowTicketForm(false);
+            if (onSaveReschedule) onSaveReschedule();
+          }}
+        />
+      )}
+
+      {showRescheduleForm && (
+        <BusRescheduleForm
+          bookingData={bus}
+          onClose={() => setShowRescheduleForm(false)}
+          onSave={onSaveReschedule}
+        />
+      )}
+
+      {showPreviousItineraries && (
+        <BusPreviousItineraries
+          bookingData={bus}
+          onClose={() => setShowPreviousItineraries(false)}
+        />
+      )}
+
+      {cancelBookingItem && (
+        <CancelItineraryModal
+          bookingData={cancelBookingItem}
+          onClose={() => setCancelBookingItem(null)}
+          onConfirm={handleConfirmCancel}
+        />
+      )}
     </div>
   );
 };
+
 
 const OptionForm = ({ request, onClose }) => {
   const [details, setDetails] = useState(null);
@@ -657,6 +1704,9 @@ const OptionForm = ({ request, onClose }) => {
   const [optionFormTrain, setOptionFormTrain] = useState(null);
   const [optionFormCar, setOptionFormCar] = useState(null);
   const [optionFormBus, setOptionFormBus] = useState(null);
+  const [submitterEmail, setSubmitterEmail] = useState("");
+  const [assignedAgentsByRowId, setAssignedAgentsByRowId] = useState({});
+
 
   // Active mode derived from modesSummary
   const [activeMode, setActiveMode] = useState("");
@@ -679,21 +1729,25 @@ const OptionForm = ({ request, onClose }) => {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       if (data.status === "success") {
+
+
         const reqData = data.data;
+        const email = reqData.SUBMITTER_EMAIL || "";
+        setSubmitterEmail(email);
         // Compute default agentId...
         let agentId = "";
         const assoc = reqData.associatedData || {};
-        for (const key of ["CarData", "FlightData", "HotelData", "TrainData", "BusData"]) {
-          if (assoc[key]?.length > 0) {
-            const item = assoc[key][0];
-            if (item.AGENT_ID) {
-              agentId = item.AGENT_ID;
-              break;
+        const map = {};
+        ["CarData", "FlightData", "HotelData", "TrainData", "BusData"].forEach((key) => {
+          (assoc[key] || []).forEach((item) => {
+            if (item.AGENT_ID && item.ROWID) {
+              map[item.ROWID] = item.AGENT_ID;
             }
-          }
-        }
+          });
+        });
+
+        setAssignedAgentsByRowId(map);
         setDetails(reqData);
-        setAssignedAgentId(agentId);
         const firstMode = reqData.modesSummary?.[0] || "";
         setActiveMode(firstMode);
       } else {
@@ -743,24 +1797,32 @@ const OptionForm = ({ request, onClose }) => {
       .map((n) => n[0])
       .join("")
       .toUpperCase() || "NA";
-
-  const handleAssignedToChange = async (agentRowId) => {
+  const handleAssignedToChange = async (rowId, agentRowId) => {
     setAssignError(null);
     setLoadingAssign(true);
     try {
       const selectedAgent = agents.find((a) => a.row_id === agentRowId);
       if (!selectedAgent) throw new Error("Please select a valid agent");
 
-      // Choose a subtable row id with data if present, else trip row id
       const assoc = trip.associatedData || {};
-      const firstModeKey = (trip.modesSummary?.[0] || "") + "Data";
-      const subtableRowId = assoc[firstModeKey]?.[0]?.ROWID || trip.ROWID || "";
+      const allModeKeys = ["FlightData", "HotelData", "CarData", "TrainData", "BusData"];
+
+      let tripType = "";
+      for (const key of allModeKeys) {
+        const found = (assoc[key] || []).find(
+          (i) => String(i.ROWID) === String(rowId)
+        );
+        if (found) {
+          tripType = key.replace("Data", ""); // Flight, Hotel, etc.
+          break;
+        }
+      }
 
       const payload = {
         from_email: savedEmail,
         to_email: selectedAgent.email,
-        ROWID: subtableRowId,
-        tripType: trip.modesSummary?.[0] || "",
+        ROWID: rowId,
+        tripType: tripType || trip.modesSummary?.[0] || "",
         id: trip.ROWID || "",
         requestedBy: trip.requestedBy || trip.SUBMITTER_NAME || "",
         tripNumber: trip.tripNumber || trip.TRIP_NUMBER || "N/A",
@@ -783,7 +1845,10 @@ const OptionForm = ({ request, onClose }) => {
         throw new Error(errorData.message || "Failed to update assigned agent");
       }
 
-      setAssignedAgentId(agentRowId);
+      setAssignedAgentsByRowId((prev) => ({
+        ...prev,
+        [rowId]: agentRowId,
+      }));
     } catch (error) {
       setAssignError(error.message);
       console.error("Agent assignment error:", error);
@@ -791,6 +1856,7 @@ const OptionForm = ({ request, onClose }) => {
       setLoadingAssign(false);
     }
   };
+
 
   if (loading)
     return (
@@ -822,11 +1888,20 @@ const OptionForm = ({ request, onClose }) => {
           const optionsForFlight = flightOptions.filter(
             (opt) => String(opt.Trip_Line_Item_ID) === String(item.ROWID)
           );
+          const rowId = item.ROWID;
+          const currentAgentId = assignedAgentsByRowId[rowId] || "";
           return (
             <FlightCard
               key={item.ROWID || Math.random()}
               flight={item}
               optionsData={optionsForFlight}
+              assignedAgentId={currentAgentId}
+              agents={agents}
+              loadingAssign={loadingAssign}
+              assignError={assignError}
+              onAssignAgentChange={(agentRowId) =>
+                handleAssignedToChange(rowId, agentRowId)
+              }
               onAddOptionClick={() => setOptionFormFlight(item)}
               onEditOptionClick={(flight, options) =>
                 setOptionFormFlight({ ...flight, options })
@@ -844,11 +1919,20 @@ const OptionForm = ({ request, onClose }) => {
           const optionsForHotel = hotelOptions.filter(
             (opt) => String(opt.Trip_Line_Item_ID) === String(item.ROWID)
           );
+          const rowId = item.ROWID;
+          const currentAgentId = assignedAgentsByRowId[rowId] || "";
           return (
             <HotelCard
               key={item.ROWID || Math.random()}
               hotel={item}
               optionsData={optionsForHotel}
+              assignedAgentId={currentAgentId}
+              agents={agents}
+              loadingAssign={loadingAssign}
+              assignError={assignError}
+              onAssignAgentChange={(agentRowId) =>
+                handleAssignedToChange(rowId, agentRowId)
+              }
               onAddHotelOptionClick={() => setOptionFormHotel(item)}
               onEditHotelOptionClick={(hotel, options) =>
                 setOptionFormHotel({ ...hotel, options })
@@ -856,6 +1940,7 @@ const OptionForm = ({ request, onClose }) => {
               onAddTicketClick={(hotel, options) =>
                 setOptionFormHotel({ ...hotel, options })
               }
+              onSaveReschedule={handlecallApi}
             />
           );
         });
@@ -866,12 +1951,21 @@ const OptionForm = ({ request, onClose }) => {
           const optionsForCar = carOptions.filter(
             (opt) => String(opt.Trip_Line_Item_ID) === String(item.ROWID)
           );
+          const rowId = item.ROWID;
+          const currentAgentId = assignedAgentsByRowId[rowId] || "";
 
           return (
             <CarCard
               key={item.ROWID || Math.random()}
               car={item}
               optionsData={optionsForCar}
+              assignedAgentId={currentAgentId}
+              agents={agents}
+              loadingAssign={loadingAssign}
+              assignError={assignError}
+              onAssignAgentChange={(agentRowId) =>
+                handleAssignedToChange(rowId, agentRowId)
+              }
               onAddCarOptionClick={(car) => setOptionFormCar(car)}
               onEditCarOptionClick={(car, options) => {
                 setOptionFormCar({ ...car, options });
@@ -888,11 +1982,20 @@ const OptionForm = ({ request, onClose }) => {
           const optionsForTrain = trainOptions.filter(
             (opt) => String(opt.Trip_Line_Item_ID) === String(item.ROWID)
           );
+          const rowId = item.ROWID;
+          const currentAgentId = assignedAgentsByRowId[rowId] || "";
           return (
             <TrainCard
               key={item.ROWID || Math.random()}
               train={item}
               optionsData={optionsForTrain}
+              assignedAgentId={currentAgentId}
+              agents={agents}
+              loadingAssign={loadingAssign}
+              assignError={assignError}
+              onAssignAgentChange={(agentRowId) =>
+                handleAssignedToChange(rowId, agentRowId)
+              }
               onAddTrainOptionClick={() => setOptionFormTrain(item)}
               onEditTrainOptionClick={(train, options) =>
                 setOptionFormTrain({ ...train, options })
@@ -910,11 +2013,20 @@ const OptionForm = ({ request, onClose }) => {
           const optionsForBus = busOptions.filter(
             (opt) => String(opt.Trip_Line_Item_ID) === String(item.ROWID)
           );
+          const rowId = item.ROWID;
+          const currentAgentId = assignedAgentsByRowId[rowId] || "";
           return (
             <BusCard
               key={item.ROWID || Math.random()}
-              bus={{ item }}
+              bus={item}
               optionsData={optionsForBus}
+              assignedAgentId={currentAgentId}
+              agents={agents}
+              loadingAssign={loadingAssign}
+              assignError={assignError}
+              onAssignAgentChange={(agentRowId) =>
+                handleAssignedToChange(rowId, agentRowId)
+              }
               onAddBusOptionClick={() => setOptionFormBus(item)}
               onEditBusOptionClick={(bus, options) =>
                 setOptionFormBus({ ...bus, options })
@@ -970,7 +2082,7 @@ const OptionForm = ({ request, onClose }) => {
             </div>
 
             {/* Agent assignment dropdown */}
-            <div className="assigned">
+            {/* <div className="assigned">
               <label>Assigned To:</label>
               {loadingAssign ? (
                 <p>Assigning agent...</p>
@@ -985,7 +2097,7 @@ const OptionForm = ({ request, onClose }) => {
                 </select>
               )}
               {assignError && <p className="error-text">{assignError}</p>}
-            </div>
+            </div> */}
           </div>
 
           {/* Tabs for all modes */}
@@ -1008,20 +2120,20 @@ const OptionForm = ({ request, onClose }) => {
 
         {/* Modals / option forms */}
         {optionFormFlight && (
-          <FlightOptionForm flight={optionFormFlight} onClose={() => setOptionFormFlight(null)} onSave={handlecallApi} />
+          <FlightOptionForm flight={optionFormFlight} onClose={() => setOptionFormFlight(null)} onSave={handlecallApi} submitter={submitterEmail} />
         )}
         {optionFormHotel && (
-          <HotelOptions hotel={optionFormHotel} onClose={() => setOptionFormHotel(null)} onSave={handlecallApi} />
+          <HotelOptions hotel={optionFormHotel} onClose={() => setOptionFormHotel(null)} onSave={handlecallApi} submitter={submitterEmail} />
         )}
         {optionFormTrain && (
-          <TrainOptionForm train={optionFormTrain} onClose={() => setOptionFormTrain(null)}  onSave={handlecallApi}/>
+          <TrainOptionForm train={optionFormTrain} onClose={() => setOptionFormTrain(null)} onSave={handlecallApi} submitter={submitterEmail} />
         )}
         {optionFormCar && (
-          <CarOptionForm car={optionFormCar} onClose={() => setOptionFormCar(null)} onSave={handlecallApi} />
+          <CarOptionForm car={optionFormCar} onClose={() => setOptionFormCar(null)} onSave={handlecallApi} submitter={submitterEmail} />
         )}
 
         {optionFormBus && (
-          <BusOptionForm bus={optionFormBus} onClose={() => setOptionFormBus(null)} onSave={handlecallApi} />
+          <BusOptionForm bus={optionFormBus} onClose={() => setOptionFormBus(null)} onSave={handlecallApi} submitter={submitterEmail} />
         )}
 
 

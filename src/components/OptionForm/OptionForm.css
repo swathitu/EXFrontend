@@ -134,6 +134,7 @@
     padding: 4px 8px;
     border-radius: 4px;
     border: 1px solid #ccc;
+    background-color: white;
 }
 
 /* Tabs */
@@ -769,4 +770,13 @@
 
 .transfer-card .menu-icon > button:hover {
   background-color: #0056b3;
+}
+
+.button-type{
+    width:100px;
+    color:white;
+    background-color: rgba(49, 49, 240, 0.93);
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
 }

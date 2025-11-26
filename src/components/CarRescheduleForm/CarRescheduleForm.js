@@ -57,6 +57,7 @@ const carTypes = [
 ];
 
 const CarRescheduleForm = ({ bookingData, onClose, onSave }) => {
+    console.log("CarRescheduleForm Booking Data:", bookingData);
   
   // 1. Add Loading State
   const [isLoading, setIsLoading] = useState(false);
@@ -89,16 +90,16 @@ const CarRescheduleForm = ({ bookingData, onClose, onSave }) => {
   };
 
   const [formData, setFormData] = useState({
-    pickupDate: bookingData?.CAR_DEP_DATE || "", 
-    pickupTime: bookingData?.CAR_DEP_TIME || "", 
+    pickupDate: bookingData?.CAR_DEP_DATE || bookingData?.pickUpDate || "", 
+    pickupTime: bookingData?.CAR_DEP_TIME || bookingData?.pickUpTime || "", 
     pickupLoc: getSmartCityCode(bookingData?.CAR_DEP_CITY || bookingData?.pickUpLocation),
     
-    dropDate: bookingData?.CAR_ARR_DATE || "", 
-    dropTime: bookingData?.CAR_ARR_TIME || "", 
+    dropDate: bookingData?.CAR_ARR_DATE || bookingData?.dropOffDate || "", 
+    dropTime: bookingData?.CAR_ARR_TIME || bookingData?.dropOffTime || "", 
     dropLoc: getSmartCityCode(bookingData?.CAR_ARR_CITY || bookingData?.dropOffLocation),
     
-    description: bookingData?.description || "",
-    carType: getCarType(bookingData?.CAR_TYPE || bookingData?.carType),
+    description: bookingData?.description || bookingData?.DESCRIPTION|| "",
+    carType: getCarType(bookingData?.CAR_TYPE || bookingData?.carType || bookingData?.type || ""),
     driverNeeded: (bookingData?.CAR_DRIVER || bookingData?.driver || "").toLowerCase() === "yes" ? "Yes" : "No",
     
     rescheduleReason: ""
@@ -167,10 +168,10 @@ const CarRescheduleForm = ({ bookingData, onClose, onSave }) => {
             <div className="summary-left">
                 <div className="summary-item">
                     <span className="summary-date">
-                        {bookingData?.CAR_DEP_DATE} {bookingData?.CAR_DEP_TIME}
+                        {bookingData?.CAR_DEP_DATE || bookingData?.pickUpDate } {bookingData?.CAR_DEP_TIME || bookingData?.pickUpTime}
                     </span>
                     <span className="summary-loc">
-                        {getCityHeaderDisplay(bookingData?.CAR_DEP_CITY)}
+                        {getCityHeaderDisplay(bookingData?.CAR_DEP_CITY || bookingData?.pickUpLocation)}
                     </span>
                 </div>
                 <div className="summary-arrow">
@@ -178,10 +179,10 @@ const CarRescheduleForm = ({ bookingData, onClose, onSave }) => {
                 </div>
                 <div className="summary-item">
                     <span className="summary-date">
-                        {bookingData?.CAR_ARR_DATE} {bookingData?.CAR_ARR_TIME}
+                        {bookingData?.CAR_ARR_DATE || bookingData?.dropOffDate} {bookingData?.CAR_ARR_TIME || bookingData?.dropOffTime}
                     </span>
                     <span className="summary-loc">
-                        {getCityHeaderDisplay(bookingData?.CAR_ARR_CITY)}
+                        {getCityHeaderDisplay(bookingData?.CAR_ARR_CITY || bookingData?.dropOffLocation)}
                     </span>
                 </div>
             </div>

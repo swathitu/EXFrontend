@@ -16,6 +16,7 @@
   margin: 1.5rem auto;
   /* mx-auto my-6 */
   overflow: hidden;
+  overflow-y: auto;
 }
 
 .main-content {
@@ -81,6 +82,12 @@
 
 /* red */
 
+.header1-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .header1-actions button {
   background-color: white;
   border: 1px solid #e5e7eb;
@@ -106,12 +113,10 @@
 
 .header1-actions .close-btn {
   background-color: #fff;
-  color: #dc2626;
   /* red-600 */
-  border-color: #fecaca;
   /* red-200 */
   margin-left: 0.5rem;
-  font-size: 1.125rem;
+  font-size: 20;
   padding: 0.5rem 0.75rem;
 }
 
@@ -910,7 +915,7 @@
   font-size: 14px;
 }
 
-.transfer-date1{
+.transfer-date1 {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -963,4 +968,20 @@
   cursor: pointer;
 }
 
+.reschedle-cancel {
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  border: none;
+  white-space: nowrap;
+  overflow: hidde;
+  text-overflow: ellipsis;
+}
 
+.reschedle-cancel:hover {
+  background-color: #f5f5f5;
+  color: #007bff;
+}
