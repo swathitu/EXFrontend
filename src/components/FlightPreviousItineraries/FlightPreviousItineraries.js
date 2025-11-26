@@ -8,19 +8,21 @@ const ArrowRightIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fi
 const CommentsIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#67748e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>);
 
 const FlightPreviousItineraries = ({ bookingData, onClose }) => {
+    console.log("FlightPreviousItineraries Booking Data:", bookingData);
     const [historyList, setHistoryList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const rowId = bookingData?.ROWID || bookingData?.rowId
 
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const response = await fetch(`/server/trip_reschedule?rowId=${bookingData.rowId}&requestType=flight`);
+                const response = await fetch(`/server/trip_reschedule?rowId=${rowId}&requestType=flight`);
                 const result = await response.json();
                 if (result.status === 'success') setHistoryList(result.data);
             } catch (error) { console.error("Failed to load history:", error); } 
             finally { setIsLoading(false); }
         };
-        if (bookingData?.rowId) fetchHistory();
+        if (rowId) fetchHistory();
     }, [bookingData]);
 
     return (

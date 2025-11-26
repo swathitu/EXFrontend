@@ -2,6 +2,15 @@ import React, { useEffect, useState } from "react";
 import "./FlightSelectionOptions.css";
 
 
+const cityOptions = [
+  { cityCode: "", cityName: "Select City", airportName: "" },
+  { cityCode: "NYC", cityName: "New York", airportName: "JFK" },
+  { cityCode: "LON", cityName: "London", airportName: "Heathrow" },
+  { cityCode: "PAR", cityName: "Paris", airportName: "CDG" },
+  { cityCode: "DXB", cityName: "Dubai", airportName: "DXB" },
+  { cityCode: "TYO", cityName: "Tokyo", airportName: "NRT" },
+];
+
 const formatDate = (isoDateStr) => {
   if (!isoDateStr) return "";
   const dateObj = new Date(isoDateStr);
@@ -26,8 +35,6 @@ const FlightItinerary = ({ itineraryData }) => {
 
       {itineraryData.segments.map((segment, index) => (
         <div key={index} className="segment">
-
-
           <div className="segment-details">
             <div className="right-info">
               <div className="airline">
@@ -43,7 +50,7 @@ const FlightItinerary = ({ itineraryData }) => {
                   <span className="time">{segment.departure.time}</span>
                 </div>
                 <div className="date">{formatDate(segment.departure.date)}</div>
-                <div className="airport">{formatDate(segment.departure.airport)}</div>
+                <div className="airport">{segment.departure.airport}</div>
               </div>
 
               <div className="duration">
@@ -56,13 +63,10 @@ const FlightItinerary = ({ itineraryData }) => {
                   <span className="time">{segment.arrival.time}</span>
                 </div>
                 <div className="date">{formatDate(segment.arrival.date)}</div>
-                <div className="airport">{formatDate(segment.arrival.airport)}</div>
+                <div className="airport">{segment.arrival.airport}</div>
               </div>
             </div>
-
           </div>
-
-
         </div>
       ))}
     </div>
@@ -74,6 +78,7 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedOptionId, setSelectedOptionId] = useState(null);
+  const [lowestFare, setLowestFare] = useState(null);
   const [selectedOptionDetails, setSelectedOptionDetails] = useState({
     tripId: null,
     optionId: null,
@@ -101,6 +106,16 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
       .then((data) => {
         if (data.status === "success") {
           setOptions(data.data || []);
+          let lowestAmount = null;
+          data.data.forEach((item) => {
+            const amt = parseFloat(item.Amount);
+            if (lowestAmount === null || amt < lowestAmount) {
+              lowestAmount = amt;
+            }
+          });
+
+          // Store min amount for tagging
+          setLowestFare(lowestAmount);
         } else {
           setError(data.message || "Failed to fetch flight options");
         }
@@ -120,7 +135,6 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
     setSelectedOptionId(optionId);
     setSelectedOptionDetails({ tripId, optionId, rowId, type, Trip_Line_Item_ID });
   };
-
 
   const onConfirmSelection = () => {
     if (!selectedOptionId) {
@@ -165,15 +179,10 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
       });
   };
 
-
   // Toggle itinerary view per card (in card, not separate component)
   const toggleItinerary = (optionId) => {
     setOpenItineraryOptionId((prev) => (prev === optionId ? null : optionId));
   };
-
-
-
-
 
   // Helpers for duration
   const getDurationInMinutes = (depDate, depTime, arrDate, arrTime) => {
@@ -194,6 +203,13 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
     return `${h}h ${m}m`;
   };
 
+  // Render City option for selects
+  const renderCityOptions = () =>
+    cityOptions.map((opt) => (
+      <option key={opt.cityCode} value={opt.cityCode}>
+        {opt.cityName} - {opt.cityCode}
+      </option>
+    ));
 
   return (
     <div className="flight-container">
@@ -233,7 +249,8 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
           <div className="loader"></div>
           Loading options...
         </div>
-      )}      {error && <div className="error-message">{error}</div>}
+      )}
+      {error && <div className="error-message">{error}</div>}
       {!loading && !error && options.length === 0 && <div>No flight options found.</div>}
 
       {/* Flight Cards */}
@@ -257,6 +274,10 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
             0
           );
 
+          // Calculate option amount from first flight's Amount field
+          const optionAmount = parseFloat(firstFlight.Amount) || 0;
+          const isLowFare = lowestFare !== null && optionAmount === lowestFare;
+
           // Build itineraryData for FlightItinerary UI inside the card
           const itineraryData = {
             route: {
@@ -278,25 +299,24 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
                 date: flight.FLIGHT_ARR_DATE || flight.Arrival_Date || "",
                 airport: flight.ARR_AIRPORT_NAME || flight.Arrival_Airport || "",
               },
-              duration:
-                (() => {
-                  try {
-                    const dep = new Date(
-                      `${flight.FLIGHT_DEP_DATE || flight.Departure_Date}T${flight.FLIGHT_DEP_TIME || flight.Departure_Time}`
-                    );
-                    const arr = new Date(
-                      `${flight.FLIGHT_ARR_DATE || flight.Arrival_Date}T${flight.FLIGHT_ARR_TIME || flight.Arrival_Time}`
-                    );
-                    let diffMs = arr - dep;
-                    if (diffMs < 0) diffMs += 24 * 3600 * 1000;
-                    const minutes = Math.floor(diffMs / 60000);
-                    const h = Math.floor(minutes / 60);
-                    const m = minutes % 60;
-                    return `${h}h ${m}m`;
-                  } catch {
-                    return "–";
-                  }
-                })(),
+              duration: (() => {
+                try {
+                  const dep = new Date(
+                    `${flight.FLIGHT_DEP_DATE || flight.Departure_Date}T${flight.FLIGHT_DEP_TIME || flight.Departure_Time}`
+                  );
+                  const arr = new Date(
+                    `${flight.FLIGHT_ARR_DATE || flight.Arrival_Date}T${flight.FLIGHT_ARR_TIME || flight.Arrival_Time}`
+                  );
+                  let diffMs = arr - dep;
+                  if (diffMs < 0) diffMs += 24 * 3600 * 1000;
+                  const minutes = Math.floor(diffMs / 60000);
+                  const h = Math.floor(minutes / 60);
+                  const m = minutes % 60;
+                  return `${h}h ${m}m`;
+                } catch {
+                  return "–";
+                }
+              })(),
               class: flight.Flight_Class || flight.FlightClass || "Unknown",
               baggage: flight.Baggage_Details || flight.Baggage || "-",
             })),
@@ -306,20 +326,21 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
             <div key={optionId} className={`flight-card3 ${isSelected ? "selected" : ""}`}>
               {/* Main row */}
               <div className="main-row" style={{ display: "contents" }}>
-                <div
+                <input
+                  type="radio"
                   className="radio-btn"
                   onClick={() =>
                     onSelectOption(
-                      tripId,                     // tripId
-                      firstFlight?.ROWID,         // rowId
-                      optionId,                   // optionId
-                      tripType,                   // type
+                      tripId,           // tripId
+                      firstFlight?.ROWID, // rowId
+                      optionId,           // optionId
+                      tripType,           // type
                       firstFlight?.Trip_Line_Item_ID // Trip_Line_Item_ID
                     )
                   }
-                >
-                  {isSelected ? "●" : "○"}
-                </div>
+                />
+                  {/* {isSelected ? "●" : "○"}
+                </div> */}
                 <div className="airline-name">
                   <span className="airline-icon">✈</span>
                   {firstFlight.Merchant_Name || "Unknown Airline"}
@@ -340,6 +361,7 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
                 <div className="price">
                   {firstFlight.Currency_id}:{firstFlight.Amount || "0.00"}
                   <div>({firstFlight.Refund_Type || "Non Refundable"})</div>
+                  {isLowFare && <span className="low-fare-tag">LOW-FARE</span>}
                 </div>
               </div>
 
@@ -350,9 +372,6 @@ const FlightSelectionOptions = ({ flight, onClose, tripId, onConfirmSuccess }) =
                 </div>
               )}
             </div>
-
-
-
           );
         })}
 

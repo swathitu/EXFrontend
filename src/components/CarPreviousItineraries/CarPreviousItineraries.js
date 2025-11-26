@@ -16,13 +16,14 @@ const CommentsIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill
 const CarPreviousItineraries = ({ bookingData, onClose }) => {
     const [historyList, setHistoryList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const rowId = bookingData?.ROWID || bookingData?.rowId
 
     // --- FETCH HISTORY ---
     useEffect(() => {
         const fetchHistory = async () => {
             try {
                 // Calling the new GET endpoint we added to trip_reschedule
-                const response = await fetch(`/server/trip_reschedule?rowId=${bookingData.rowId}&requestType=car`);
+                const response = await fetch(`/server/trip_reschedule?rowId=${rowId}&requestType=car`);
                 const result = await response.json();
                 
                 if (result.status === 'success') {
@@ -35,7 +36,7 @@ const CarPreviousItineraries = ({ bookingData, onClose }) => {
             }
         };
 
-        if (bookingData?.rowId) {
+        if (rowId) {
             fetchHistory();
         }
     }, [bookingData]);

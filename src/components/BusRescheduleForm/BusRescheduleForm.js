@@ -37,7 +37,7 @@ const cityOptions = [
 ];
 
 const BusRescheduleForm = ({ bookingData, onClose, onSave }) => {
-  
+    console.log('bus data', bookingData)
   const [isLoading, setIsLoading] = useState(false);
 
   // Helper for Smart City Lookup
@@ -61,13 +61,13 @@ const BusRescheduleForm = ({ bookingData, onClose, onSave }) => {
   // Initialize State
   const [formData, setFormData] = useState({
     // Use RAW DB Date (YYYY-MM-DD)
-    depDate: bookingData?.BUS_DEP_DATE || "", 
+    depDate: bookingData?.BUS_DEP_DATE || bookingData?.date || "", 
     
     // Auto-select From/To based on DB values
-    fromLoc: getSmartCityCode(bookingData?.BUS_DEP_CITY || bookingData?.depCity),
-    toLoc: getSmartCityCode(bookingData?.BUS_ARR_CITY || bookingData?.arrCity),
+    fromLoc: getSmartCityCode(bookingData?.BUS_DEP_CITY || bookingData?.depCity || bookingData?.departure),
+    toLoc: getSmartCityCode(bookingData?.BUS_ARR_CITY || bookingData?.arrCity || bookingData?.arrival),
     
-    description: bookingData?.description || "",
+    description: bookingData?.description || bookingData?.DESCRIPTION ||"",
     rescheduleReason: ""
   });
 
@@ -87,7 +87,7 @@ const BusRescheduleForm = ({ bookingData, onClose, onSave }) => {
     const payload = {
         ...formData,
         tripId: bookingData.Trip_ID || bookingData.tripId,
-        rowId: bookingData.rowId,
+        rowId: bookingData.rowId || bookingData.ROWID || bookingData.id  || "",
         requestType: 'bus' // <--- IMPORTANT: Tells backend this is BUS
     };
 
@@ -125,15 +125,15 @@ const BusRescheduleForm = ({ bookingData, onClose, onSave }) => {
         <div className="reschedule-header-summary">
             <div className="summary-left">
                 <div className="summary-item">
-                    <span className="summary-date">{bookingData?.depDate}</span>
-                    <span className="summary-loc">{getCityHeaderDisplay(bookingData?.BUS_DEP_CITY || bookingData?.depCity)}</span>
+                    <span className="summary-date">{bookingData?.depDate || bookingData?.date || bookingData?.BUS_DEP_DATE}</span>
+                    <span className="summary-loc">{getCityHeaderDisplay(bookingData?.BUS_DEP_CITY || bookingData?.depCity || bookingData?.departure)}</span>
                 </div>
                 <div className="summary-arrow">
                     <ArrowRightIcon />
                 </div>
                 <div className="summary-item">
-                    <span className="summary-date">{bookingData?.depDate}</span>
-                    <span className="summary-loc">{getCityHeaderDisplay(bookingData?.BUS_ARR_CITY || bookingData?.arrCity)}</span>
+                    <span className="summary-date">{bookingData?.depDate || bookingData?.date || bookingData?.BUS_DEP_DATE}</span>
+                    <span className="summary-loc">{getCityHeaderDisplay(bookingData?.BUS_ARR_CITY || bookingData?.arrCity || bookingData?.arrival)}</span>
                 </div>
             </div>
             <button className="modal-close-btn" onClick={onClose}>

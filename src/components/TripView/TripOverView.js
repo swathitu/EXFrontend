@@ -6,6 +6,18 @@ import HotelSelectionOptions from '../HotelSelectionOptions/HotelSelectionOption
 import CarSelectionOptions from '../CarSelectionOptions/CarSelectionOptions';
 import BusSelectionOptions from '../BusSelectionOptions/BusSelectionOptions';
 import TrainSelectionOptions from '../TrainSelectionOptions/TrainSelectionOptions';
+import HotelRescheduleForm from '../HotelRescheduleForm/HotelRescheduleForm';
+import HotelPreviousItineraries from '../HotelPreviousItineraries/HotelPreviousItineraries';
+import CancelItineraryModal from '../CancelItineraryModal/CancelItineraryModal';
+import FlightRescheduleForm from '../FlightRescheduleForm/FlightRescheduleForm';
+import FlightPreviousItineraries from '../FlightPreviousItineraries/FlightPreviousItineraries';
+import CarRescheduleForm from '../CarRescheduleForm/CarRescheduleForm';
+import CarPreviousItineraries from '../CarPreviousItineraries/CarPreviousItineraries';
+import TrainRescheduleForm from '../TrainRescheduleForm/TrainRescheduleForm';
+import TrainPreviousItineraries from '../TrainPreviousItineraries/TrainPreviousItineraries';
+import BusRescheduleForm from '../BusRescheduleForm/BusRescheduleForm';
+import BusPreviousItineraries from '../BusPreviousItineraries/BusPreviousItineraries';
+
 
 // Helper function remains unchanged
 const getInitials = (name) => {
@@ -119,6 +131,8 @@ const transformApiData = (rawTripData) => {
                         seatPref: segmentData.SEAT_PREF || '',
                         mealPref: segmentData.MEAL_PREF || '',
                         description: segmentData.DESCRIPTION || '',
+                        rescheduleStatus: segmentData.Reschedule_Status || '',
+                        cancelStatus: segmentData.Cancel_Status || '',
 
                         comments: `Departure: ${segmentData.FLIGHT_DEP_TIME || 'N/A'}`,  // keep as summary if needed
                     });
@@ -135,10 +149,15 @@ const transformApiData = (rawTripData) => {
                         date: `${checkInDate} To ${checkOutDate}`,
                         from: getCityData(segmentData.HOTEL_ARR_CITY),
                         id: segmentData.ROWID,
+                        description: segmentData.DESCRIPTION,
                         to: getCityData(segmentData.HOTEL_ARR_CITY),
                         comments: 'Hotel stay segment',
                         checkInTime: segmentData.HOTEL_DEP_TIME,
                         checkOutTime: segmentData.HOTEL_ARR_TIME,
+                        locationCity: segmentData.HOTEL_ARR_CITY,
+                        rescheduleStatus: segmentData.Reschedule_Status || '',
+                        cancelStatus: segmentData.Cancel_Status || '',
+
                     });
                 }
                 break;
@@ -155,6 +174,9 @@ const transformApiData = (rawTripData) => {
                         comments: 'Car rental segment details',
                         carDepTime: segmentData.CAR_DEP_TIME,
                         carArrTime: segmentData.CAR_ARR_TIME,
+                        description: segmentData.DESCRIPTION || '',
+                        rescheduleStatus: segmentData.Reschedule_Status || '',
+                        cancelStatus: segmentData.Cancel_Status || '',
                     });
                 }
                 break;
@@ -168,6 +190,9 @@ const transformApiData = (rawTripData) => {
                         to: getCityData(segmentData.BUS_ARR_CITY),
                         id: segmentData.ROWID,
                         comments: 'Bus travel segment details',
+                        description: segmentData.DESCRIPTION || '',
+                        rescheduleStatus: segmentData.Reschedule_Status || '',
+                        cancelStatus: segmentData.Cancel_Status || '',
                     });
                 }
                 break;
@@ -182,6 +207,9 @@ const transformApiData = (rawTripData) => {
                         id: segmentData.ROWID,
                         to: getCityData(segmentData.TRAIN_ARR_CITY),
                         comments: 'Train travel segment details',
+                        description: segmentData.DESCRIPTION || '',
+                        rescheduleStatus: segmentData.Reschedule_Status || '',
+                        cancelStatus: segmentData.Cancel_Status || '',
                     });
                 }
                 break;
@@ -274,6 +302,19 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
     const [selectedCarSegment, setSelectedCarSegment] = useState(null);
     const [selectedBusSegment, setSelectedBusSegment] = useState(null);
     const [selectedTrainSegment, setSelectedTrainSegment] = useState(null);
+    const [rescheduleHotelBooking, setRescheduleHotelBooking] = React.useState(null);
+    const [viewHistoryHotelBooking, setViewHistoryHotelBooking] = React.useState(null);
+    const [cancelBookingItem, setCancelBookingItem] = React.useState(null);
+    const [rescheduleFlightBooking, setRescheduleFlightBooking] = React.useState(null);
+    const [viewHistoryFlightBooking, setViewHistoryFlightBooking] = React.useState(null);
+    const [rescheduleCarBooking, setRescheduleCarBooking] = React.useState(null);
+    const [viewHistoryCarBooking, setViewHistoryCarBooking] = React.useState(null);
+    const [rescheduleTrainBooking, setRescheduleTrainBooking] = React.useState(null);
+    const [viewHistoryTrainBooking, setViewHistoryTrainBooking] = React.useState(null);
+    const [rescheduleBusBooking, setRescheduleBusBooking] = React.useState(null);
+    const [viewHistoryBusBooking, setViewHistoryBusBooking] = React.useState(null);
+
+
 
 
     const handleViewOptionsClick = (flightSeg) => {
@@ -296,6 +337,133 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
     const handleViewOptionsClickTrain = (trainSeg) => {
         setSelectedTrainSegment(trainSeg);
     };
+
+    const handleRescheduleHotel = (bookingData) => {
+        setRescheduleHotelBooking({
+            ...bookingData,
+            tripId: extractedTripId,
+            rowId: bookingData.ROWID || bookingData.id,
+        });
+    };
+
+
+    const handleRescheduleFlight = (item) => {
+        setRescheduleFlightBooking({
+            ...item,
+            tripId: extractedTripId,
+            rowId: item.ROWID || item.rowId || item.id  // ensure consistency on naming
+        });
+    };
+
+
+    const handleRescheduleCar = (item) => {
+        setRescheduleCarBooking({
+            ...item,
+            tripId: extractedTripId,
+            rowId: item.ROWID || item.rowId || item.id  // ensure consistency on naming
+        });
+    };
+
+
+    const handleRescheduleTrain = (item) => {
+        setRescheduleTrainBooking({
+            ...item,
+            tripId: extractedTripId,
+            rowId: item.ROWID || item.rowId  // ensure consistency on naming
+        });
+    }
+
+    const handleRescheduleBus = (item) => {
+        setRescheduleBusBooking({
+            ...item,
+            tripId: extractedTripId,
+            rowId: item.ROWID || item.rowId  // ensure consistency on naming
+        });
+    }
+
+
+    const handleViewHistoryHotel = (item) => {
+        setViewHistoryHotelBooking({
+            ...item,
+            tripId: extractedTripId,    // your trip id from context/scope
+            rowId: item.ROWID || item.rowId  // ensure consistency on naming
+        });
+    };
+
+
+    const handleViewHistoryFlight = (item) => {
+        setViewHistoryFlightBooking({
+            ...item,
+            tripId: extractedTripId,    // your trip id from context/scope
+            rowId: item.ROWID || item.rowId || item.id // ensure consistency on naming
+        });
+    };
+
+
+    const handleViewHistoryCar = (item) => {
+        setViewHistoryCarBooking({
+            ...item,
+            tripId: extractedTripId,    // your trip id from context/scope
+            rowId: item.ROWID || item.rowId || item.id // ensure consistency on naming
+        });
+    }
+
+
+    const handleViewHistoryTrain = (item) => {
+        setViewHistoryTrainBooking({
+            ...item,
+            tripId: extractedTripId,    // your trip id from context/scope
+            rowId: item.ROWID || item.rowId  // ensure consistency on naming
+        });
+    }
+
+
+    const handleViewHistoryBus = (item) => {
+        setViewHistoryBusBooking({
+            ...item,
+            tripId: extractedTripId,    // your trip id from context/scope
+            rowId: item.ROWID || item.rowId  // ensure consistency on naming
+        });
+    }
+
+
+    const handleCancelClick = (item, type) => {
+        setCancelBookingItem({ ...item, requestType: type });
+    };
+
+
+    const handleConfirmCancel = async (item, reason) => {
+        try {
+            const payload = {
+                rowId: item.rowId || item.ROWID || item.id,
+                requestType: item.requestType, // e.g., 'car', 'bus', 'train', etc.
+                reason: reason,
+            };
+
+            console.log("Sending Cancel Payload:", payload);
+
+            const response = await fetch('/server/trip_cancelation/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                fetchAndSetData(extractedTripId); // refresh page or fetch latest
+                alert("Booking cancelled successfully");
+                setCancelBookingItem(null); // close modal after success
+            } else {
+                alert("Failed to cancel: " + result.message);
+            }
+        } catch (error) {
+            console.error("Cancel error:", error);
+            alert("Error during cancellation.");
+        }
+    };
+
+
 
     //  NEW STATE: Tracks the index of the segment whose menu is open.
     const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
@@ -361,16 +529,6 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
     const optionsKey = modeToOptionsMap[activeTab.toLowerCase()];
     // Get the options array from associated data or empty array fallback
     const optionsArray = associatedData[optionsKey] || [];
-    // Check if any option has 'selected' status
-    const bookingPending = optionsArray.some(opt => opt.Option_Status === 'selected');
-    // hasOptions true if options exist
-    const hasOptions = optionsArray.length > 0;
-
-    // Check if the selected tab is present in the trip's actual travel modes
-
-
-
-
 
     // --- NEW: Render Loader/Error in Center ---
     const renderLoaderOrError = () => (
@@ -425,6 +583,9 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         </div>
     );
 
+
+
+
     const FlightCard = ({
         flight,
         optionsData = [],
@@ -432,15 +593,23 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         index,
         onViewOptions,
         openDropdownIndex,
-        setOpenDropdownIndex
+        setOpenDropdownIndex,
+        onReschedule,
+        onViewHistory,
+        onCancelClick,
     }) => {
         if (!flight) return null;
+
+        const rescheduleStatus = flight.rescheduleStatus || '';
+        const cancelStatus = flight.cancelStatus || '';
+
+        const normalizedRescheduleStatus = rescheduleStatus.trim();
+        const normalizedCancelStatus = cancelStatus.trim().toLowerCase();
 
         const seatPref = flight.seatPref || '';
         const mealPref = flight.mealPref || '';
         const hasPrefs = seatPref || mealPref;
 
-        // Analyzing option statuses
         const hasAddedOptions = optionsData.some(opt => (opt.Option_Status || '').toLowerCase() === 'added');
         bookingPending = optionsData.some(opt => (opt.Option_Status || '').toLowerCase() === 'selected');
         const isBooked = optionsData.some(opt => (opt.Option_Status || '').toLowerCase() === 'booked');
@@ -449,13 +618,15 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         const selectedOptions = optionsData.filter(opt => (opt.Option_Status || '').toLowerCase() === 'selected');
         const bookedOptions = optionsData.filter(opt => (opt.Option_Status || '').toLowerCase() === 'booked');
 
-        const statusText = bookingPending
-            ? "Booking pending"
-            : isBooked
-                ? "Ticket booked"
-                : hasAddedOptions
-                    ? "Select the options"
-                    : "Waiting for Options";
+        const statusText = normalizedCancelStatus === 'cancelled'
+            ? "Cancelled"
+            : bookingPending
+                ? "Booking pending"
+                : isBooked
+                    ? "Ticket booked"
+                    : hasAddedOptions
+                        ? "Select the options"
+                        : "Waiting for Options";
 
         const merchantName = (bookingPending && selectedOptions.length > 0)
             ? selectedOptions[0].Merchant_Name
@@ -471,9 +642,11 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
             }
         };
 
+        const isReschedule = normalizedRescheduleStatus === 'Reschedule';
+        const isCancelled = normalizedCancelStatus === 'cancelled';
+
         return (
             <div className="flight-card1">
-                {/* Top Preferences */}
                 {hasPrefs && (
                     <div className="preferences">
                         <span>Preferences:</span>
@@ -482,13 +655,11 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                     </div>
                 )}
 
-                {/* Status Section */}
                 <div className="status-section">
                     <span className="status-badge">{statusText}</span>
                     <span className="travel-agent">Travel Agent: Yet to be assigned</span>
                 </div>
 
-                {/* Flight Details */}
                 <div className="flight-details">
                     <div className="flight-date">
                         <FaCalendarAlt className="icon" />
@@ -517,7 +688,7 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                             </span>
                         )}
 
-                        {bookingPending && selectedOptions.length > 0 && (
+                        {/* {bookingPending && selectedOptions.length > 0 && (
                             <div className="booking-options-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                 {selectedOptions.map((opt, i) => (
                                     <div key={i} style={{
@@ -532,7 +703,7 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                     </div>
                                 ))}
                             </div>
-                        )}
+                        )} */}
 
                         {isBooked && bookedOptions.length > 0 && (
                             <>
@@ -580,28 +751,68 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                                 >
                                                     Download Ticket
                                                 </button>
-                                                <button
-                                                    style={{
-                                                        width: "100%",
-                                                        padding: "8px 12px",
-                                                        textAlign: "left",
-                                                        background: "none",
-                                                        border: "none",
-                                                        cursor: "pointer",
-                                                        fontSize: "14px",
-                                                    }}
-                                                    onClick={() => {
-                                                        setOpenDropdownIndex(null);
-                                                        // handle reschedule/cancel action
-                                                    }}
-                                                >
-                                                    Reschedule / Cancel
-                                                </button>
+
+                                                {isCancelled ? (
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onViewHistory) onViewHistory(flight);
+                                                        }}
+                                                    >
+                                                        View Previous Itineraries
+                                                    </button>
+                                                ) : isReschedule ? (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) onReschedule(flight);
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) onCancelClick(flight, "flight");
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onViewHistory) onViewHistory(flight);
+                                                            }}
+                                                        >
+                                                            View Previous Itineraries
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) onReschedule(flight);
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) onCancelClick(flight, "flight");
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                                <div className="booking-options-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                {/* <div className="booking-options-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                     {bookedOptions.map((opt, i) => (
                                         <div key={i} style={{
                                             padding: "5px",
@@ -615,7 +826,7 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                             Amount: {opt.Currency_id}{opt.Amount}
                                         </div>
                                     ))}
-                                </div>
+                                </div> */}
                             </>
                         )}
 
@@ -626,60 +837,93 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                 </button>
                             )}
 
-                            {/* MODIFIED LOGIC: Show ellipsis if booked (covered above), OR if options are ADDED, OR if there are NO options at all (Waiting for Options) 
-                        ***The change is adding !bookingPending to the condition below.*** */}
-                            {
-                                !isBooked && !bookingPending && (hasAddedOptions || !hasOptionsLocal) && (
-                                    <div style={{ position: "relative", marginTop: "4px" }}>
-                                        <FaEllipsisH
-                                            style={{ cursor: "pointer", color: "#555" }}
-                                            onClick={() => toggleDropdown()}
-                                        />
-                                        {openDropdownIndex === index && (
-                                            <div
-                                                style={{
-                                                    position: "absolute",
-                                                    top: "24px",
-                                                    right: 0,
-                                                    backgroundColor: "white",
-                                                    border: "1px solid #ccc",
-                                                    borderRadius: "4px",
-                                                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                                    zIndex: 1000,
-                                                    minWidth: "140px",
-                                                    padding: "5px 0"
-                                                }}
-                                            >
-                                                {/* Add your dropdown menu items here for 'Select the options' or 'Waiting for Options' state */}
-                                                <button
-                                                    style={{
-                                                        width: "100%",
-                                                        padding: "8px 12px",
-                                                        textAlign: "left",
-                                                        background: "none",
-                                                        border: "none",
-                                                        cursor: "pointer",
-                                                        fontSize: "14px",
-                                                    }}
+                            {!isBooked && !bookingPending && (hasAddedOptions || !hasOptionsLocal) && (
+                                <div style={{ position: "relative", marginTop: "4px" }}>
+                                    <FaEllipsisH
+                                        style={{ cursor: "pointer", color: "#555" }}
+                                        onClick={toggleDropdown}
+                                    />
+                                    {openDropdownIndex === index && (
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                top: "24px",
+                                                right: 0,
+                                                backgroundColor: "white",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "4px",
+                                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                                zIndex: 1000,
+                                                minWidth: "140px",
+                                                padding: "5px 0"
+                                            }}
+                                        >
+                                            {isCancelled ? (
+                                                <button className='reschedle-cancel'
                                                     onClick={() => {
                                                         setOpenDropdownIndex(null);
-                                                        // handle an action for no options/added options state, e.g., 'Request More Options'
+                                                        if (onViewHistory) onViewHistory(flight);
                                                     }}
                                                 >
-                                                    Reschdule/cancel
+                                                    View Previous Itineraries
                                                 </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )
-                            }
+                                            ) : isReschedule ? (
+                                                <>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onReschedule) onReschedule(flight);
+                                                        }}
+                                                    >
+                                                        Reschedule
+                                                    </button>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onCancelClick) onCancelClick(flight, "flight");
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onViewHistory) onViewHistory(flight);
+                                                        }}
+                                                    >
+                                                        View Previous Itineraries
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onReschedule) onReschedule(flight);
+                                                        }}
+                                                    >
+                                                        Reschedule
+                                                    </button>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onCancelClick) onCancelClick(flight, "flight");
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
         );
     };
-
 
 
     const HotelCard = ({
@@ -689,9 +933,14 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         index,
         onViewOptions,
         openDropdownIndex,
-        setOpenDropdownIndex
+        setOpenDropdownIndex,
+        onReschedule,
+        onViewHistory,
+        onCancelClick,
     }) => {
         if (!hotel) return null;
+        const rescheduleStatus = hotel.rescheduleStatus || '';
+        const cancelStatus = hotel.cancelStatus || '';
 
         // Analyze options data for status
         const hasAddedOptions = optionsData.some(opt => (opt.Option_Status || '').toLowerCase() === 'added');
@@ -702,14 +951,19 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         const selectedOptions = optionsData.filter(opt => (opt.Option_Status || '').toLowerCase() === 'selected');
         const bookedOptions = optionsData.filter(opt => (opt.Option_Status || '').toLowerCase() === 'booked');
 
-        // Status text based on options
-        const statusText = bookingPending
-            ? "Booking pending"
-            : isBooked
-                ? "Ticket booked"
-                : hasAddedOptions
-                    ? "Select the options"
-                    : "Waiting for Options";
+        // Status text based on options and cancel status
+        let statusText = "";
+        if (cancelStatus.toLowerCase() === 'cancelled') {
+            statusText = "Cancelled";
+        } else if (bookingPending) {
+            statusText = "Booking pending";
+        } else if (isBooked) {
+            statusText = "Ticket booked";
+        } else if (hasAddedOptions) {
+            statusText = "Select the options";
+        } else {
+            statusText = "Waiting for Options";
+        }
 
         // Merchant name from booking or selection if exists
         const merchantName =
@@ -790,9 +1044,7 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                 <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
                                     <button
                                         className="view-ticket-btn"
-                                        onClick={() => {
-                                            // handle view ticket click
-                                        }}
+                                        onClick={() => { /* handle view ticket click */ }}
                                     >
                                         View Ticket
                                     </button>
@@ -814,16 +1066,8 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                                 minWidth: "140px",
                                                 padding: "5px 0"
                                             }}>
-                                                <button
-                                                    style={{
-                                                        width: "100%",
-                                                        padding: "8px 12px",
-                                                        textAlign: "left",
-                                                        background: "none",
-                                                        border: "none",
-                                                        cursor: "pointer",
-                                                        fontSize: "14px",
-                                                    }}
+
+                                                <button className='reschedle-cancel'
                                                     onClick={() => {
                                                         setOpenDropdownIndex(null);
                                                         // handle download ticket action
@@ -831,27 +1075,51 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                                 >
                                                     Download Ticket
                                                 </button>
-                                                <button
-                                                    style={{
-                                                        width: "100%",
-                                                        padding: "8px 12px",
-                                                        textAlign: "left",
-                                                        background: "none",
-                                                        border: "none",
-                                                        cursor: "pointer",
-                                                        fontSize: "14px",
-                                                    }}
-                                                    onClick={() => {
-                                                        setOpenDropdownIndex(null);
-                                                        // handle reschedule/cancel action
-                                                    }}
-                                                >
-                                                    Reschedule / Cancel
-                                                </button>
+
+                                                {cancelStatus.toLowerCase() !== 'cancelled' && (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) {
+                                                                    onReschedule(hotel);
+                                                                }
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) {
+                                                                    onCancelClick(hotel, "hotel");
+                                                                }
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </>
+                                                )}
+
+                                                {(rescheduleStatus === 'Reschedule' || cancelStatus.toLowerCase() === 'cancelled') && (
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onViewHistory) {
+                                                                onViewHistory(hotel);
+                                                            }
+                                                        }}
+                                                    >
+                                                        View Previous Itineraries
+                                                    </button>
+                                                )}
+
                                             </div>
                                         )}
                                     </div>
                                 </div>
+
                                 <div className="booking-options-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                     {bookedOptions.map((opt, i) => (
                                         <div key={i} style={{
@@ -877,98 +1145,135 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                 </button>
                             )}
 
-                            {
-                                !isBooked && !bookingPending && (hasAddedOptions || !hasOptionsLocal) && (
-                                    <div style={{ position: "relative", marginTop: "4px" }}>
-                                        <FaEllipsisH
-                                            style={{ cursor: "pointer", color: "#555" }}
-                                            onClick={() => toggleDropdown()}
-                                        />
-                                        {openDropdownIndex === index && (
-                                            <div
-                                                style={{
-                                                    position: "absolute",
-                                                    top: "24px",
-                                                    right: 0,
-                                                    backgroundColor: "white",
-                                                    border: "1px solid #ccc",
-                                                    borderRadius: "4px",
-                                                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                                    zIndex: 1000,
-                                                    minWidth: "140px",
-                                                    padding: "5px 0"
-                                                }}
-                                            >
-                                                {/* Add your dropdown menu items here for 'Select the options' or 'Waiting for Options' state */}
-                                                <button
-                                                    style={{
-                                                        width: "100%",
-                                                        padding: "8px 12px",
-                                                        textAlign: "left",
-                                                        background: "none",
-                                                        border: "none",
-                                                        cursor: "pointer",
-                                                        fontSize: "14px",
-                                                    }}
+                            {!isBooked && !bookingPending && (hasAddedOptions || !hasOptionsLocal) && (
+                                <div style={{ position: "relative", marginTop: "4px" }}>
+                                    <FaEllipsisH
+                                        style={{ cursor: "pointer", color: "#555" }}
+                                        onClick={toggleDropdown}
+                                    />
+                                    {openDropdownIndex === index && (
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                top: "24px",
+                                                right: 0,
+                                                backgroundColor: "white",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "4px",
+                                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                                zIndex: 1000,
+                                                minWidth: "100px",
+                                                padding: "5px 0"
+                                            }}
+                                        >
+                                            {cancelStatus.toLowerCase() !== 'cancelled' && (
+                                                <>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onReschedule) {
+                                                                onReschedule(hotel);
+                                                            }
+                                                        }}
+                                                    >
+                                                        Reschedule
+                                                    </button>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onCancelClick) {
+                                                                onCancelClick(hotel, "hotel");
+                                                            }
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </>
+                                            )}
+
+                                            {cancelStatus.toLowerCase() === 'cancelled' && (
+                                                <button className='reschedle-cancel'
                                                     onClick={() => {
                                                         setOpenDropdownIndex(null);
-                                                        // handle an action for no options/added options state, e.g., 'Request More Options'
+                                                        if (onViewHistory) {
+                                                            onViewHistory(hotel);
+                                                        }
                                                     }}
                                                 >
-                                                    Reschdule/cancel
+                                                    View Previous Itineraries
                                                 </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )
-                            }
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
-            </div >
+            </div>
         );
     };
 
 
-    const CarCard = ({ car, optionsData, bookingPending, index, onViewOptions,
+
+
+    const CarCard = ({
+        car,
+        optionsData = [],
+        bookingPending,
+        index,
+        onViewOptions,
         openDropdownIndex,
-        setOpenDropdownIndex, }) => {
+        setOpenDropdownIndex,
+        onReschedule,
+        onViewHistory,
+        onCancelClick,
+    }) => {
         if (!car) return null;
 
-        // Filter options for selected and booked separately
+        const rescheduleStatus = car.rescheduleStatus || '';
+        console.log("rescheduleStatus:", rescheduleStatus);
+        const cancelStatus = car.cancelStatus || '';
+
+        const normalizedRescheduleStatus = rescheduleStatus.trim();
+        const normalizedCancelStatus = cancelStatus.trim().toLowerCase();
+
         const hasAddedOptions = optionsData.some(opt => (opt.Option_Status || '').toLowerCase() === 'added');
-        // RE-CALCULATING bookingPending based on option status
         bookingPending = optionsData.some(opt => (opt.Option_Status || '').toLowerCase() === 'selected');
         const isBooked = optionsData.some(opt => (opt.Option_Status || '').toLowerCase() === 'booked');
-        const hasOptionsLocal = optionsData.length > 0; // Check if there are ANY options
+        const hasOptionsLocal = optionsData.length > 0;
 
         const selectedOptions = optionsData.filter(opt => (opt.Option_Status || '').toLowerCase() === 'selected');
         const bookedOptions = optionsData.filter(opt => (opt.Option_Status || '').toLowerCase() === 'booked');
 
-        const statusText = bookingPending
-            ? "Booking pending"
-            : isBooked
-                ? "Ticket booked"
-                : hasAddedOptions
-                    ? "Select the options"
-                    : "Waiting for Options"; // This is the case when optionsData is empty or statuses are neither 'selected', 'booked', nor 'added'
+        const statusText = normalizedCancelStatus === 'cancelled'
+            ? "Cancelled"
+            : bookingPending
+                ? "Booking pending"
+                : isBooked
+                    ? "Ticket booked"
+                    : hasAddedOptions
+                        ? "Select the options"
+                        : "Waiting for Options";
 
-        // Determine merchant name if bookingPending or booked
-        const merchantName =
-            (bookingPending && selectedOptions.length > 0)
-                ? selectedOptions[0].Merchant_Name
-                : (isBooked && bookedOptions.length > 0)
-                    ? bookedOptions[0].Merchant_Name
-                    : null;
 
+        const merchantName = (bookingPending && selectedOptions.length > 0)
+            ? selectedOptions[0].Merchant_Name
+            : (isBooked && bookedOptions.length > 0)
+                ? bookedOptions[0].Merchant_Name
+                : null;
 
         const toggleDropdown = () => {
             if (openDropdownIndex === index) {
-                setOpenDropdownIndex(null); // close dropdown
+                setOpenDropdownIndex(null);
             } else {
-                setOpenDropdownIndex(index); // open this dropdown
+                setOpenDropdownIndex(index);
             }
         };
+
+        const isReschedule = normalizedRescheduleStatus === 'Reschedule';
+        const isCancelled = normalizedCancelStatus === 'cancelled';
+
 
         return (
             <div className="car-card1">
@@ -1014,36 +1319,27 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
 
                     <div className="divider"></div>
 
-                    <div
-                        className="menu-icon"
-                        style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}
-                    >
-                        {/* First wrapper: bookingPending and isBooked blocks which need column layout */}
+                    <div className="menu-icon" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
                         <div>
+                            {/* Booking pending selected options list */}
                             {bookingPending && selectedOptions.length > 0 && (
-                                <div
-                                    className="booking-options-list"
-                                    style={{ display: "flex", flexDirection: "column", gap: "6px" }}
-                                >
+                                <div className="booking-options-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                     {selectedOptions.map((opt, i) => (
-                                        <div
-                                            key={i}
-                                            style={{
-                                                padding: "5px",
-                                                color: "#353232",
-                                                borderRadius: "4px",
-                                                width: "fit-content",
-                                                userSelect: "none",
-                                                fontSize: "12px",
-                                            }}
-                                        >
-                                            Amount: {opt.Currency_id}
-                                            {opt.Amount}
+                                        <div key={i} style={{
+                                            padding: "5px",
+                                            color: "#353232",
+                                            borderRadius: "4px",
+                                            width: "fit-content",
+                                            userSelect: "none",
+                                            fontSize: "12px",
+                                        }}>
+                                            Amount: {opt.Currency_id}{opt.Amount}
                                         </div>
                                     ))}
                                 </div>
                             )}
 
+                            {/* Booked options section with dropdown */}
                             {isBooked && bookedOptions.length > 0 && (
                                 <>
                                     <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
@@ -1058,22 +1354,21 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                         <div style={{ position: "relative" }}>
                                             <FaEllipsisH
                                                 style={{ cursor: "pointer", color: "#555" }}
-                                                onClick={() => toggleDropdown()}
+                                                onClick={toggleDropdown}
                                             />
                                             {openDropdownIndex === index && (
-                                                <div
-                                                    style={{
-                                                        position: "absolute",
-                                                        top: "24px",
-                                                        right: 0,
-                                                        backgroundColor: "white",
-                                                        border: "1px solid #ccc",
-                                                        borderRadius: "4px",
-                                                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                                        zIndex: 1000,
-                                                        minWidth: "140px",
-                                                    }}
-                                                >
+                                                <div style={{
+                                                    position: "absolute",
+                                                    top: "24px",
+                                                    right: 0,
+                                                    backgroundColor: "white",
+                                                    border: "1px solid #ccc",
+                                                    borderRadius: "4px",
+                                                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                                    zIndex: 1000,
+                                                    minWidth: "140px",
+                                                    padding: "5px 0"
+                                                }}>
                                                     <button
                                                         style={{
                                                             width: "100%",
@@ -1091,47 +1386,80 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                                     >
                                                         Download Ticket
                                                     </button>
-                                                    <button
-                                                        style={{
-                                                            width: "100%",
-                                                            padding: "8px 12px",
-                                                            textAlign: "left",
-                                                            background: "none",
-                                                            border: "none",
-                                                            cursor: "pointer",
-                                                            fontSize: "14px",
-                                                        }}
-                                                        onClick={() => {
-                                                            setOpenDropdownIndex(null);
-                                                            // handle reschedule/cancel action
-                                                        }}
-                                                    >
-                                                        Reschedule / Cancel
-                                                    </button>
+
+                                                    {isCancelled ? (
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onViewHistory) onViewHistory(car);
+                                                            }}
+                                                        >
+                                                            View Previous Itineraries
+                                                        </button>
+                                                    ) : isReschedule ? (
+                                                        <>
+                                                            <button className='reschedle-cancel'
+                                                                onClick={() => {
+                                                                    setOpenDropdownIndex(null);
+                                                                    if (onReschedule) onReschedule(car);
+                                                                }}
+                                                            >
+                                                                Reschedule
+                                                            </button>
+                                                            <button className='reschedle-cancel'
+                                                                onClick={() => {
+                                                                    setOpenDropdownIndex(null);
+                                                                    if (onCancelClick) onCancelClick(car, "car");
+                                                                }}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                            <button className='reschedle-cancel'
+                                                                onClick={() => {
+                                                                    setOpenDropdownIndex(null);
+                                                                    if (onViewHistory) onViewHistory(car);
+                                                                }}
+                                                            >
+                                                                View Previous Itineraries
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <button className='reschedle-cancel'
+                                                                onClick={() => {
+                                                                    setOpenDropdownIndex(null);
+                                                                    if (onReschedule) onReschedule(car);
+                                                                }}
+                                                            >
+                                                                Reschedule
+                                                            </button>
+                                                            <button className='reschedle-cancel'
+                                                                onClick={() => {
+                                                                    setOpenDropdownIndex(null);
+                                                                    if (onCancelClick) onCancelClick(car, "car");
+                                                                }}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
                                     </div>
 
-                                    <div
-                                        className="booking-options-list"
-                                        style={{ display: "flex", flexDirection: "column", gap: "6px" }}
-                                    >
+                                    <div className="booking-options-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                         {bookedOptions.map((opt, i) => (
-                                            <div
-                                                key={i}
-                                                style={{
-                                                    padding: "5px",
-                                                    color: "#353232",
-                                                    borderRadius: "4px",
-                                                    width: "fit-content",
-                                                    userSelect: "none",
-                                                    fontSize: "12px",
-                                                    backgroundColor: "#ddd",
-                                                }}
-                                            >
-                                                Amount: {opt.Currency_id}
-                                                {opt.Amount}
+                                            <div key={i} style={{
+                                                padding: "5px",
+                                                color: "#353232",
+                                                borderRadius: "4px",
+                                                width: "fit-content",
+                                                userSelect: "none",
+                                                fontSize: "12px",
+                                                backgroundColor: "#ddd",
+                                            }}>
+                                                Amount: {opt.Currency_id}{opt.Amount}
                                             </div>
                                         ))}
                                     </div>
@@ -1139,7 +1467,6 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                             )}
                         </div>
 
-                        {/* Separate wrapper for last block without flexDirection: column */}
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                             {(!bookingPending && !isBooked && hasAddedOptions) && (
                                 <button className="view-options-btn" onClick={onViewOptions}>
@@ -1147,59 +1474,95 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                 </button>
                             )}
 
-                            {/* MODIFIED LOGIC: Show ellipsis if booked (covered above), OR if options are ADDED, OR if there are NO options at all (Waiting for Options) 
-                        ***The change is adding !bookingPending to the condition below.*** */}
-                            {
-                                !isBooked && !bookingPending && (hasAddedOptions || !hasOptionsLocal) && (
-                                    <div style={{ position: "relative", marginTop: "4px" }}>
-                                        <FaEllipsisH
-                                            style={{ cursor: "pointer", color: "#555" }}
-                                            onClick={() => toggleDropdown()}
-                                        />
-                                        {openDropdownIndex === index && (
-                                            <div
-                                                style={{
-                                                    position: "absolute",
-                                                    top: "24px",
-                                                    right: 0,
-                                                    backgroundColor: "white",
-                                                    border: "1px solid #ccc",
-                                                    borderRadius: "4px",
-                                                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                                    zIndex: 1000,
-                                                    minWidth: "140px",
-                                                    padding: "5px 0"
-                                                }}
-                                            >
-                                                {/* Add your dropdown menu items here for 'Select the options' or 'Waiting for Options' state */}
-                                                <button
-                                                    style={{
-                                                        width: "100%",
-                                                        padding: "8px 12px",
-                                                        textAlign: "left",
-                                                        background: "none",
-                                                        border: "none",
-                                                        cursor: "pointer",
-                                                        fontSize: "14px",
-                                                    }}
+                            {!isBooked && !bookingPending && (hasAddedOptions || !hasOptionsLocal) && (
+                                <div style={{ position: "relative", marginTop: "4px" }}>
+                                    <FaEllipsisH
+                                        style={{ cursor: "pointer", color: "#555" }}
+                                        onClick={toggleDropdown}
+                                    />
+                                    {openDropdownIndex === index && (
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                top: "24px",
+                                                right: 0,
+                                                backgroundColor: "white",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "4px",
+                                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                                zIndex: 1000,
+                                                minWidth: "140px",
+                                                padding: "5px 0"
+                                            }}
+                                        >
+                                            {isCancelled ? (
+                                                <button className='reschedle-cancel'
                                                     onClick={() => {
                                                         setOpenDropdownIndex(null);
-                                                        // handle an action for no options/added options state, e.g., 'Request More Options'
+                                                        if (onViewHistory) onViewHistory(car);
                                                     }}
                                                 >
-                                                    Reschdule/cancel
+                                                    View Previous Itineraries
                                                 </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )
-                            }
+                                            ) : isReschedule ? (
+                                                <>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onReschedule) onReschedule(car);
+                                                        }}
+                                                    >
+                                                        Reschedule
+                                                    </button>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onCancelClick) onCancelClick(car, "car");
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onViewHistory) onViewHistory(car);
+                                                        }}
+                                                    >
+                                                        View Previous Itineraries
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onReschedule) onReschedule(car);
+                                                        }}
+                                                    >
+                                                        Reschedule
+                                                    </button>
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onCancelClick) onCancelClick(car, "car");
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
         );
     };
+
+
 
     const TrainCard = ({
         train,
@@ -1208,9 +1571,18 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         index,
         onViewOptions,
         openDropdownIndex,
-        setOpenDropdownIndex
+        setOpenDropdownIndex,
+        onReschedule,
+        onViewHistory,
+        onCancelClick,
     }) => {
         if (!train) return null;
+
+        const rescheduleStatus = train.rescheduleStatus || '';
+        const cancelStatus = train.cancelStatus || '';
+
+        const normalizedRescheduleStatus = rescheduleStatus.trim();
+        const normalizedCancelStatus = cancelStatus.trim().toLowerCase();
 
         // Analyze option statuses
         const hasAddedOptions = optionsData.some(opt => (opt.Option_Status || '').toLowerCase() === 'added');
@@ -1221,13 +1593,15 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         const selectedOptions = optionsData.filter(opt => (opt.Option_Status || '').toLowerCase() === 'selected');
         const bookedOptions = optionsData.filter(opt => (opt.Option_Status || '').toLowerCase() === 'booked');
 
-        const statusText = bookingPending
-            ? "Booking pending"
-            : isBooked
-                ? "Ticket booked"
-                : hasAddedOptions
-                    ? "Select the options"
-                    : "Waiting for Options";
+        const statusText = normalizedCancelStatus === 'cancelled'
+            ? "Cancelled"
+            : bookingPending
+                ? "Booking pending"
+                : isBooked
+                    ? "Ticket booked"
+                    : hasAddedOptions
+                        ? "Select the options"
+                        : "Waiting for Options";
 
         const merchantName = (bookingPending && selectedOptions.length > 0)
             ? selectedOptions[0].Merchant_Name
@@ -1242,6 +1616,9 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                 setOpenDropdownIndex(index);
             }
         };
+
+        const isReschedule = normalizedRescheduleStatus === 'Reschedule';
+        const isCancelled = normalizedCancelStatus === 'cancelled';
 
         return (
             <div className="transfer-card">
@@ -1286,6 +1663,7 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                     {/* Options, Merchant and Dropdown */}
                     <div className="menu-icon" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
 
+                        {/* Booking pending selected options list */}
                         {bookingPending && selectedOptions.length > 0 && (
                             <div className="booking-options-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                 {selectedOptions.map((opt, i) => (
@@ -1303,6 +1681,7 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                             </div>
                         )}
 
+                        {/* Booked options section with dropdown */}
                         {isBooked && bookedOptions.length > 0 && (
                             <>
                                 <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
@@ -1349,27 +1728,68 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                                 >
                                                     Download Ticket
                                                 </button>
-                                                <button
-                                                    style={{
-                                                        width: "100%",
-                                                        padding: "8px 12px",
-                                                        textAlign: "left",
-                                                        background: "none",
-                                                        border: "none",
-                                                        cursor: "pointer",
-                                                        fontSize: "14px",
-                                                    }}
-                                                    onClick={() => {
-                                                        setOpenDropdownIndex(null);
-                                                        // handle reschedule/cancel action
-                                                    }}
-                                                >
-                                                    Reschedule / Cancel
-                                                </button>
+
+                                                {isCancelled ? (
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onViewHistory) onViewHistory(train);
+                                                        }}
+                                                    >
+                                                        View Previous Itineraries
+                                                    </button>
+                                                ) : isReschedule ? (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) onReschedule(train);
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) onCancelClick(train, "train");
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onViewHistory) onViewHistory(train);
+                                                            }}
+                                                        >
+                                                            View Previous Itineraries
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) onReschedule(train);
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) onCancelClick(train, "train");
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         )}
                                     </div>
                                 </div>
+
                                 <div className="booking-options-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                     {bookedOptions.map((opt, i) => (
                                         <div key={i} style={{
@@ -1387,15 +1807,14 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                 </div>
                             </>
                         )}
+
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            {(!bookingPending && !isBooked && hasAddedOptions) && (
+                            {(!bookingPending && !isBooked && hasAddedOptions && !isCancelled) && (
                                 <button className="view-options-btn" onClick={onViewOptions}>
                                     View Option
                                 </button>
                             )}
 
-                            {/* MODIFIED LOGIC: Show ellipsis if booked (covered above), OR if options are ADDED, OR if there are NO options at all (Waiting for Options) 
-                        ***The change is adding !bookingPending to the condition below.*** */}
                             {
                                 !isBooked && !bookingPending && (hasAddedOptions || !hasOptionsLocal) && (
                                     <div style={{ position: "relative", marginTop: "4px" }}>
@@ -1418,24 +1837,62 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                                     padding: "5px 0"
                                                 }}
                                             >
-                                                {/* Add your dropdown menu items here for 'Select the options' or 'Waiting for Options' state */}
-                                                <button
-                                                    style={{
-                                                        width: "100%",
-                                                        padding: "8px 12px",
-                                                        textAlign: "left",
-                                                        background: "none",
-                                                        border: "none",
-                                                        cursor: "pointer",
-                                                        fontSize: "14px",
-                                                    }}
-                                                    onClick={() => {
-                                                        setOpenDropdownIndex(null);
-                                                        // handle an action for no options/added options state, e.g., 'Request More Options'
-                                                    }}
-                                                >
-                                                    Reschdule/cancel
-                                                </button>
+                                                {isCancelled ? (
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onViewHistory) onViewHistory(train);
+                                                        }}
+                                                    >
+                                                        View Previous Itineraries
+                                                    </button>
+                                                ) : isReschedule ? (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) onReschedule(train);
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) onCancelClick(train, "train");
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onViewHistory) onViewHistory(train);
+                                                            }}
+                                                        >
+                                                            View Previous Itineraries
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) onReschedule(train);
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) onCancelClick(train, "train");
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -1448,8 +1905,6 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         );
     };
 
-
-
     const BusCard = ({
         bus,
         optionsData = [],
@@ -1457,9 +1912,18 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         index,
         onViewOptions,
         openDropdownIndex,
-        setOpenDropdownIndex
+        setOpenDropdownIndex,
+        onReschedule,
+        onViewHistory,
+        onCancelClick,
     }) => {
         if (!bus) return null;
+
+        const rescheduleStatus = bus.rescheduleStatus || '';
+        const cancelStatus = bus.cancelStatus || '';
+
+        const normalizedRescheduleStatus = rescheduleStatus.trim();
+        const normalizedCancelStatus = cancelStatus.trim().toLowerCase();
 
         // Analyze option statuses
         const hasAddedOptions = optionsData.some(opt => (opt.Option_Status || '').toLowerCase() === 'added');
@@ -1470,13 +1934,15 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
         const selectedOptions = optionsData.filter(opt => (opt.Option_Status || '').toLowerCase() === 'selected');
         const bookedOptions = optionsData.filter(opt => (opt.Option_Status || '').toLowerCase() === 'booked');
 
-        const statusText = bookingPending
-            ? "Booking pending"
-            : isBooked
-                ? "Ticket booked"
-                : hasAddedOptions
-                    ? "Select the options"
-                    : "Waiting for Options";
+        const statusText = normalizedCancelStatus === 'cancelled'
+            ? "Cancelled"
+            : bookingPending
+                ? "Booking pending"
+                : isBooked
+                    ? "Ticket booked"
+                    : hasAddedOptions
+                        ? "Select the options"
+                        : "Waiting for Options";
 
         const merchantName = (bookingPending && selectedOptions.length > 0)
             ? selectedOptions[0].Merchant_Name
@@ -1491,6 +1957,9 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                 setOpenDropdownIndex(index);
             }
         };
+
+        const isReschedule = normalizedRescheduleStatus === 'Reschedule';
+        const isCancelled = normalizedCancelStatus === 'cancelled';
 
         return (
             <div className="transfer-card">
@@ -1534,6 +2003,7 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
 
                     {/* Options, Merchant and Dropdown */}
                     <div className="menu-icon" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
+                        {/* Booking pending selected options list */}
                         {bookingPending && selectedOptions.length > 0 && (
                             <div className="booking-options-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                 {selectedOptions.map((opt, i) => (
@@ -1551,6 +2021,7 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                             </div>
                         )}
 
+                        {/* Booked options section with dropdown */}
                         {isBooked && bookedOptions.length > 0 && (
                             <>
                                 <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
@@ -1597,27 +2068,68 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                                 >
                                                     Download Ticket
                                                 </button>
-                                                <button
-                                                    style={{
-                                                        width: "100%",
-                                                        padding: "8px 12px",
-                                                        textAlign: "left",
-                                                        background: "none",
-                                                        border: "none",
-                                                        cursor: "pointer",
-                                                        fontSize: "14px",
-                                                    }}
-                                                    onClick={() => {
-                                                        setOpenDropdownIndex(null);
-                                                        // handle reschedule/cancel action
-                                                    }}
-                                                >
-                                                    Reschedule / Cancel
-                                                </button>
+
+                                                {isCancelled ? (
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onViewHistory) onViewHistory(bus);
+                                                        }}
+                                                    >
+                                                        View Previous Itineraries
+                                                    </button>
+                                                ) : isReschedule ? (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) onReschedule(bus);
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) onCancelClick(bus, "bus");
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onViewHistory) onViewHistory(bus);
+                                                            }}
+                                                        >
+                                                            View Previous Itineraries
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) onReschedule(bus);
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) onCancelClick(bus, "bus");
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         )}
                                     </div>
                                 </div>
+
                                 <div className="booking-options-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                     {bookedOptions.map((opt, i) => (
                                         <div key={i} style={{
@@ -1637,14 +2149,13 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                         )}
 
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            {(!bookingPending && !isBooked && hasAddedOptions) && (
+                            {(!bookingPending && !isBooked && hasAddedOptions && !isCancelled) && (
                                 <button className="view-options-btn" onClick={onViewOptions}>
                                     View Option
                                 </button>
                             )}
 
-                            {/* MODIFIED LOGIC: Show ellipsis if booked (covered above), OR if options are ADDED, OR if there are NO options at all (Waiting for Options) 
-                        ***The change is adding !bookingPending to the condition below.*** */}
+                            {/* Show ellipsis if booked (covered above), OR if options are ADDED, OR if there are NO options at all (Waiting for Options), with added !bookingPending */}
                             {
                                 !isBooked && !bookingPending && (hasAddedOptions || !hasOptionsLocal) && (
                                     <div style={{ position: "relative", marginTop: "4px" }}>
@@ -1667,24 +2178,62 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                                     padding: "5px 0"
                                                 }}
                                             >
-                                                {/* Add your dropdown menu items here for 'Select the options' or 'Waiting for Options' state */}
-                                                <button
-                                                    style={{
-                                                        width: "100%",
-                                                        padding: "8px 12px",
-                                                        textAlign: "left",
-                                                        background: "none",
-                                                        border: "none",
-                                                        cursor: "pointer",
-                                                        fontSize: "14px",
-                                                    }}
-                                                    onClick={() => {
-                                                        setOpenDropdownIndex(null);
-                                                        // handle an action for no options/added options state, e.g., 'Request More Options'
-                                                    }}
-                                                >
-                                                    Reschdule/cancel
-                                                </button>
+                                                {isCancelled ? (
+                                                    <button className='reschedle-cancel'
+                                                        onClick={() => {
+                                                            setOpenDropdownIndex(null);
+                                                            if (onViewHistory) onViewHistory(bus);
+                                                        }}
+                                                    >
+                                                        View Previous Itineraries
+                                                    </button>
+                                                ) : isReschedule ? (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) onReschedule(bus);
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) onCancelClick(bus, "bus");
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onViewHistory) onViewHistory(bus);
+                                                            }}
+                                                        >
+                                                            View Previous Itineraries
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onReschedule) onReschedule(bus);
+                                                            }}
+                                                        >
+                                                            Reschedule
+                                                        </button>
+                                                        <button className='reschedle-cancel'
+                                                            onClick={() => {
+                                                                setOpenDropdownIndex(null);
+                                                                if (onCancelClick) onCancelClick(bus, "bus");
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -1696,6 +2245,7 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
             </div>
         );
     };
+
 
 
     const handleTabClick = (tab) => {
@@ -1797,7 +2347,7 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                         {isTabActive && segmentsFiltered.length > 0 && (
                             <>
                                 {activeTab === 'Flight' && segmentsFiltered.map((flightSeg, idx) => {
-                                    const currentFlightRowId = flightSeg.ROWID;
+                                    const currentFlightRowId = flightSeg.ROWID || flightSeg.id;
                                     const optionsForThisFlight = (associatedData.Flight_Trip_Options || []).filter(
                                         (opt) => String(opt.Trip_Line_Item_ID) === String(currentFlightRowId)
                                     );
@@ -1824,12 +2374,15 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                             index={idx}
                                             openDropdownIndex={openDropdownIndex}
                                             setOpenDropdownIndex={setOpenDropdownIndex}
+                                            onReschedule={handleRescheduleFlight}
+                                            onViewHistory={handleViewHistoryFlight}
+                                            onCancelClick={(item, type) => handleCancelClick(item, type)}
                                         />
                                     );
                                 })}
 
                                 {activeTab === 'Hotel' && segmentsFiltered.map((hotelSeg, idx) => {
-                                    const currentHotelRowId = hotelSeg.ROWID;
+                                    const currentHotelRowId = hotelSeg.ROWID || hotelSeg.id;
                                     const optionsForThisHotel = (associatedData.Hotel_Trip_Options || []).filter(
                                         (opt) => String(opt.Trip_Line_Item_ID) === String(currentHotelRowId)
                                     );
@@ -1850,6 +2403,12 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                         checkOut: hotelSeg.date?.split(' To ')[1] || 'Check-out Date',
                                         checkInTime: hotelSeg.checkInTime,
                                         checkOutTime: hotelSeg.checkOutTime,
+                                        ROWID: currentHotelRowId,
+                                        description: hotelSeg.description || 'No description available',
+                                        locationCity: hotelSeg.locationCity || 'Unknown City',
+                                        rescheduleStatus: hotelSeg.rescheduleStatus || '',
+                                        cancelStatus: hotelSeg.cancelStatus || '',
+
                                     };
 
                                     return (
@@ -1863,12 +2422,16 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                             openDropdownIndex={openDropdownIndex}
                                             setOpenDropdownIndex={setOpenDropdownIndex}
                                             onViewOptions={() => handleViewOptionsClickHotel(hotelSeg)}
+                                            onReschedule={handleRescheduleHotel}
+                                            onViewHistory={handleViewHistoryHotel}
+                                            onCancelClick={(item, type) => handleCancelClick(item, type)}
+
                                         />
                                     );
                                 })}
 
                                 {activeTab === 'Car' && segmentsFiltered.map((carSeg, idx) => {
-                                    const currentCarRowId = carSeg.ROWID;
+                                    const currentCarRowId = carSeg.ROWID || carSeg.id;
                                     const optionsForThisCar = (associatedData.Car_Trip_Options || []).filter(
                                         (opt) => String(opt.Trip_Line_Item_ID) === String(currentCarRowId)
                                     );
@@ -1892,7 +2455,10 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                         dropOffLocation: carSeg.to?.cityName || 'Drop-Off Location',
                                         pickUpTime: carSeg.carDepTime,
                                         dropOffTime: carSeg.carArrTime,
+                                        description: carSeg.description || 'No description available',
                                         ROWID: currentCarRowId,
+                                        rescheduleStatus: carSeg.rescheduleStatus || '',
+                                        cancelStatus: carSeg.cancelStatus || '',
                                     };
 
                                     return (
@@ -1906,12 +2472,15 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                             openDropdownIndex={openDropdownIndex}
                                             setOpenDropdownIndex={setOpenDropdownIndex}
                                             onViewOptions={() => handleViewOptionsClickCar(carSeg)}
+                                            onReschedule={handleRescheduleCar}
+                                            onViewHistory={handleViewHistoryCar}
+                                            onCancelClick={(item, type) => handleCancelClick(item, type)}
                                         />
                                     );
                                 })}
 
                                 {activeTab === 'Bus' && segmentsFiltered.map((busSeg, idx) => {
-                                    const currentBusRowId = busSeg.ROWID;
+                                    const currentBusRowId = busSeg.ROWID || busSeg.id;
                                     const optionsForThisBus = (associatedData.Bus_Trip_Options || []).filter(
                                         (opt) => String(opt.Trip_Line_Item_ID) === String(currentBusRowId)
                                     );
@@ -1931,6 +2500,10 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                         date: busSeg.date || 'Date N/A',
                                         departure: busSeg.from?.cityName || 'Unknown',
                                         arrival: busSeg.to?.cityName || 'Unknown',
+                                        ROWID: currentBusRowId,
+                                        description: busSeg.description || 'No description available',
+                                        rescheduleStatus: busSeg.rescheduleStatus || '',
+                                        cancelStatus: busSeg.cancelStatus || '',
                                     };
 
                                     return (
@@ -1944,12 +2517,15 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                             openDropdownIndex={openDropdownIndex}
                                             setOpenDropdownIndex={setOpenDropdownIndex}
                                             onViewOptions={() => handleViewOptionsClickBus(busSeg)}
+                                            onReschedule={handleRescheduleBus}
+                                            onViewHistory={handleViewHistoryBus}
+                                            onCancelClick={(item, type) => handleCancelClick(item, type)}
                                         />
                                     );
                                 })}
 
                                 {activeTab === 'Train' && segmentsFiltered.map((trainSeg, idx) => {
-                                    const currentTrainRowId = trainSeg.ROWID;
+                                    const currentTrainRowId = trainSeg.ROWID || trainSeg.id;
                                     const optionsForThisTrain = (associatedData.Train_Trip_Options || []).filter(
                                         (opt) => String(opt.Trip_Line_Item_ID) === String(currentTrainRowId)
                                     );
@@ -1968,6 +2544,10 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                         date: trainSeg.date || 'Date N/A',
                                         departure: trainSeg.from?.cityName || 'Unknown',
                                         arrival: trainSeg.to?.cityName || 'Unknown',
+                                        rescheduleStatus: trainSeg.rescheduleStatus || '',
+                                        cancelStatus: trainSeg.cancelStatus || '',
+                                        ROWID: currentTrainRowId,
+                                        description: trainSeg.description || 'No description available',
                                     };
 
                                     return (
@@ -1981,6 +2561,9 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                                             openDropdownIndex={openDropdownIndex}
                                             setOpenDropdownIndex={setOpenDropdownIndex}
                                             onViewOptions={() => handleViewOptionsClickTrain(trainSeg)}
+                                            onReschedule={handleRescheduleTrain}
+                                            onViewHistory={handleViewHistoryTrain}
+                                            onCancelClick={(item, type) => handleCancelClick(item, type)}
                                         />
                                     );
                                 })}
@@ -2042,6 +2625,99 @@ const TripOverView = ({ trip, onBack, onUpdate, onOpenForm }) => {
                         onConfirmSuccess={() => fetchAndSetData(extractedTripId)}
                     />
                 )}
+
+
+                {rescheduleHotelBooking && (
+                    <HotelRescheduleForm
+                        bookingData={rescheduleHotelBooking}
+                        onClose={() => setRescheduleHotelBooking(null)}
+                        onSave={() => fetchAndSetData(extractedTripId)}
+                    />
+                )}
+
+
+                {rescheduleFlightBooking && (
+                    <FlightRescheduleForm
+                        bookingData={rescheduleFlightBooking}
+                        onClose={() => setRescheduleFlightBooking(null)}
+                        onSave={() => fetchAndSetData(extractedTripId)}
+                    />
+                )}
+
+                {rescheduleCarBooking && (
+                    <CarRescheduleForm
+                        bookingData={rescheduleCarBooking}
+                        onClose={() => setRescheduleCarBooking(null)}
+                        onSave={() => fetchAndSetData(extractedTripId)}
+                    />
+                )}
+
+                {rescheduleTrainBooking && (
+                    <TrainRescheduleForm
+                        bookingData={rescheduleTrainBooking}
+                        onClose={() => setRescheduleTrainBooking(null)}
+                        onSave={() => fetchAndSetData(extractedTripId)}
+                    />
+                )}
+
+                {rescheduleBusBooking && (
+                    <BusRescheduleForm
+                        bookingData={rescheduleBusBooking}
+                        onClose={() => setRescheduleBusBooking(null)}
+                        onSave={() => fetchAndSetData(extractedTripId)}
+                    />
+                )}
+
+
+
+                {viewHistoryHotelBooking && (
+                    <HotelPreviousItineraries
+                        bookingData={viewHistoryHotelBooking}
+                        onClose={() => setViewHistoryHotelBooking(null)}
+                    />
+                )}
+
+                {viewHistoryFlightBooking && (
+                    <FlightPreviousItineraries
+                        bookingData={viewHistoryFlightBooking}
+                        onClose={() => setViewHistoryFlightBooking(null)}
+                    />
+                )}
+
+                {viewHistoryCarBooking && (
+                    <CarPreviousItineraries
+                        bookingData={viewHistoryCarBooking}
+                        onClose={() => setViewHistoryCarBooking(null)}
+                    />
+                )}
+
+
+                {viewHistoryTrainBooking && (
+                    <TrainPreviousItineraries
+                        bookingData={viewHistoryTrainBooking}
+                        onClose={() => setViewHistoryTrainBooking(null)}
+                    />
+                )}
+
+                {viewHistoryBusBooking && (
+                    <BusPreviousItineraries
+                        bookingData={viewHistoryBusBooking}
+                        onClose={() => setViewHistoryBusBooking(null)}
+                    />
+                )}
+
+                
+
+
+
+                {cancelBookingItem && (
+                    <CancelItineraryModal
+                        bookingData={cancelBookingItem}
+                        onClose={() => setCancelBookingItem(null)}
+                        onConfirm={handleConfirmCancel}
+                    />
+                )}
+
 
 
                 {/* Sidebar */}

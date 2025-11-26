@@ -26,6 +26,7 @@ const departureTimeOptions = [
 ];
 
 const FlightRescheduleForm = ({ bookingData, onClose, onSave }) => {
+    console.log("FlightRescheduleForm Booking Data:", bookingData);
   const [isLoading, setIsLoading] = useState(false);
 
   // Debug Log to see incoming data
@@ -49,7 +50,7 @@ const FlightRescheduleForm = ({ bookingData, onClose, onSave }) => {
 
   const [formData, setFormData] = useState({
     // 1. Date
-    depDate: bookingData?.FLIGHT_DEP_DATE || "",
+    depDate: bookingData?.FLIGHT_DEP_DATE || bookingData?.depDate || "",
     
     // 2. FIX: Map 'depTime' (from Frontend Mapper) or 'FLIGHT_DEP_TIME' (from DB)
     departureTimeRange: bookingData?.depTime || bookingData?.FLIGHT_DEP_TIME || "",
@@ -58,7 +59,7 @@ const FlightRescheduleForm = ({ bookingData, onClose, onSave }) => {
     fromLoc: getSmartCityCode(bookingData?.FLIGHT_DEP_CITY || bookingData?.depCity),
     toLoc: getSmartCityCode(bookingData?.FLIGHT_ARR_CITY || bookingData?.arrCity),
     
-    description: bookingData?.description || "",
+    description: bookingData?.description ||  bookingData?.DESCRIPTION ||"",
     rescheduleReason: ""
   });
 
@@ -76,7 +77,7 @@ const FlightRescheduleForm = ({ bookingData, onClose, onSave }) => {
     const payload = {
         ...formData,
         tripId: bookingData.Trip_ID || bookingData.tripId,
-        rowId: bookingData.rowId,
+        rowId: bookingData.rowId ||bookingData.ROWID || bookingData.id  || "",
         requestType: 'flight' 
     };
 
@@ -104,13 +105,13 @@ const FlightRescheduleForm = ({ bookingData, onClose, onSave }) => {
         <div className="reschedule-header-summary">
             <div className="summary-left">
                 <div className="summary-item">
-                    <span className="summary-date">{bookingData?.depDate}</span>
-                    <span className="summary-loc">{getCityHeaderDisplay(bookingData?.depCity)}</span>
+                    <span className="summary-date">{bookingData?.depDate || bookingData?.FLIGHT_DEP_DATE}</span>
+                    <span className="summary-loc">{getCityHeaderDisplay(bookingData?.depCity || bookingData?.FLIGHT_DEP_CITY)}</span>
                 </div>
                 <div className="summary-arrow"><ArrowRightIcon /></div>
                 <div className="summary-item">
-                    <span className="summary-date">{bookingData?.depDate}</span>
-                    <span className="summary-loc">{getCityHeaderDisplay(bookingData?.arrCity)}</span>
+                    <span className="summary-date">{bookingData?.depDate || bookingData?.FLIGHT_DEP_DATE}</span>
+                    <span className="summary-loc">{getCityHeaderDisplay(bookingData?.arrCity || bookingData?.FLIGHT_ARR_CITY)}</span>
                 </div>
             </div>
             <button className="modal-close-btn" onClick={onClose}><CloseIcon /></button>

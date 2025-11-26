@@ -32,12 +32,14 @@ const CommentsIcon = () => (
 const HotelPreviousItineraries = ({ bookingData, onClose }) => {
     const [historyList, setHistoryList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const rowId = bookingData?.ROWID || bookingData?.rowId
+
 
     useEffect(() => {
         const fetchHistory = async () => {
             try {
                 // Fetch Hotel history
-                const response = await fetch(`/server/trip_reschedule?rowId=${bookingData.rowId}&requestType=hotel`);
+                const response = await fetch(`/server/trip_reschedule?rowId=${rowId}&requestType=hotel`);
                 const result = await response.json();
                 
                 if (result.status === 'success') {
@@ -50,7 +52,7 @@ const HotelPreviousItineraries = ({ bookingData, onClose }) => {
             }
         };
 
-        if (bookingData?.rowId) {
+        if (rowId) {
             fetchHistory();
         }
     }, [bookingData]);

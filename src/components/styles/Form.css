@@ -128,8 +128,16 @@
  
 /* content width centered like Zoho */
 
-.content-card { max-width: 920px; margin: 0 auto; }
- 
+.content-card { margin-top: 7px; }
+
+ .content-card-admin {
+  max-width: 1060px;
+  margin: 0 auto;
+}
+
+.content-card-ta {
+  margin-top: 7px;
+}
 /* responsive stacking for smaller screens */
 
 @media (max-width: 900px) {
